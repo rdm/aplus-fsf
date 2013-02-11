@@ -1,0 +1,43 @@
+#ifndef __pString_Connection_H
+#define __pString_Connection_H
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// See .../src/LICENSE for terms of distribution.
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include <pA_Connection.H>
+
+class pString_Connection : public pA_Connection
+{
+ protected:
+  virtual A getAobjFromBuffer(MSBuffer *bb);
+  virtual A readBurst(void);
+  virtual A readOne(void);
+ public:
+  
+  // Constructors
+  pString_Connection(C *name_,C *host_,I port_,A cbfunc_)
+    :pA_Connection(name_,host_,port_,cbfunc_){}
+  pString_Connection(C *serviceName_,A cbfunc_)
+    :pA_Connection(serviceName_,cbfunc_){}
+  pString_Connection(AipcHostPortProtocol &ahpp_,A cbfunc_)
+    :pA_Connection(ahpp_,cbfunc_){}
+  pString_Connection(C *name_,int fd_,A cbfunc_,
+		  AipcAttributes &attrs_,pA_Attributes &pA_attrs_)
+    : pA_Connection(name_,fd_,cbfunc_,attrs_,pA_attrs_) {}
+
+  // Flags
+
+  // M:Attribute interface
+
+  // Other Methods
+  virtual int send(const A &msg_);
+  virtual const C *protocol(void){ return "string";}
+};
+
+#endif
+

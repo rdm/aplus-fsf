@@ -1,0 +1,575 @@
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+###############################################################################
+###############################################################################
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CXX = @CXX@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+EXTRA_RPATH = @EXTRA_RPATH@
+LIBTOOL = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+STRIP = @STRIP@
+VERSION = @VERSION@
+
+lib_LTLIBRARIES = libdap.la
+
+libdap_la_SOURCES = \
+	BcdPack.c \
+	BcdUnpack.c \
+	PrAscDecode.c \
+	PrAscEncode.c \
+	args_data.c \
+	argsfirst.c \
+	argsgetopt.c \
+	argsnext.c \
+	avlalloc.c \
+	avlfind.c \
+	avlfree.c \
+	avlinsert.c \
+	avlremove.c \
+	avlwalk.c \
+	balloc.c \
+	balloc_r.c \
+	bdup.c \
+	bdup_r.c \
+	bfree.c \
+	bgprintf.c \
+	bnstring.c \
+	bnstring_r.c \
+	brealloc.c \
+	brealloc_r.c \
+	bstrhash.c \
+	bstring.c \
+	bstring_r.c \
+	buffalloc.c \
+	buffalloc_r.c \
+	buffclear.c \
+	bufffrag.c \
+	bufffree.c \
+	buffgetc.c \
+	buffgprintf.c \
+	buffputc.c \
+	buffputc_r.c \
+	buffputdouble.c \
+	buffputint.c \
+	buffputlong.c \
+	buffputs.c \
+	buffputshort.c \
+	buffread.c \
+	buffref.c \
+	buffroom.c \
+	buffroom_r.c \
+	buffstuff.c \
+	buffstuff_r.c \
+	bufftrim.c \
+	buffwrite.c \
+	buffzero.c \
+	chanclose.c \
+	chandsbl.c \
+	chanenbl.c \
+	chanisdsbl.c \
+	chanisenbl.c \
+	chanopen.c \
+	chanproc.c \
+	chans.c \
+	chansetpri.c \
+	connackestb.c \
+	connalloc.c \
+	connclose.c \
+	connfree.c \
+	connopen.c \
+	dap_data.c \
+	dapinit.c \
+	daploop.c \
+	dapselect.c \
+	dapterm.c \
+	dapversion.c \
+	doclose.c \
+	doread.c \
+	doselect.c \
+	dowrite.c \
+	error.c \
+	exboalloc.c \
+	exbobackoff.c \
+	exbofree.c \
+	exboreset.c \
+	exbovalue.c \
+	fds_data.c \
+	fdsalloc.c \
+	fdsalloc_r.c \
+	fdsanyset.c \
+	fdsclr.c \
+	fdscopy.c \
+	fdsdup.c \
+	fdsdup_r.c \
+	fdsfree.c \
+	fdsfresh.c \
+	fdsinit.c \
+	fdsisset.c \
+	fdsset.c \
+	fdsterm.c \
+	fdszero.c \
+	fletchalloc.c \
+	fletchcheck.c \
+	fletchdone.c \
+	fletchfree.c \
+	fletchpatch.c \
+	fletchsum.c \
+	getmuser.c \
+	getrp.c \
+	hashalloc.c \
+	hashfind.c \
+	hashfree.c \
+	hashinsert.c \
+	hashnode.c \
+	hashremove.c \
+	hashreplace.c \
+	hashwalk.c \
+	hostcmp.c \
+	hostname.c \
+	hostname_l.c \
+	hppalloc.c \
+	hppfree.c \
+	hppmake_in.c \
+	hppname_in.c \
+	kvpalloc.c \
+	kvpfind.c \
+	kvpfree.c \
+	kvpinsert.c \
+	kvpkey.c \
+	kvpremove.c \
+	kvpreplace.c \
+	kvpvalue.c \
+	lstnalloc.c \
+	lstnclose.c \
+	lstnfree.c \
+	lstnopen.c \
+	mod255.c \
+	mtmalloc.c \
+	mtmdnins.c \
+	mtmdnrm.c \
+	mtmfree.c \
+	mtmlink.c \
+	mtmunlink.c \
+	mtmupins.c \
+	mtmuprm.c \
+	mtmvalue.c \
+	nodealloc.c \
+	nodealloc_r.c \
+	nodefree.c \
+	nodeinsert.c \
+	noderemove.c \
+	nodesort.c \
+	nodetoad.c \
+	noop.c \
+	parity.c \
+	service.c \
+	servname_in.c \
+	sgnlcatch.c \
+	sgnldefault.c \
+	sgnlignore.c \
+	sgnloriginal.c \
+	sgnlproc.c \
+	sgnls.c \
+	slpqalloc.c \
+	slpqents.c \
+	slpqfree.c \
+	slpqgiveup.c \
+	slpqimmed.c \
+	slpqproc.c \
+	slpqsched.c \
+	slpqsleep.c \
+	slpqwakeup.c \
+	timer.c \
+	timerabs.c \
+	timerclr.c \
+	timernext.c \
+	timerproc.c \
+	timers.c \
+	tod.c \
+	tod_l.c \
+	todsec.c \
+	todstring.c \
+	tr_atoe.c \
+	tr_etoa.c \
+	tr_quadav.c \
+	trchar.c \
+	tvcmp.c \
+	tvdiff.c \
+	tvnorm.c \
+	tvstring.c \
+	tvsum.c \
+	ulbetween.c \
+	ultodec.c \
+	ultohex.c \
+	ultooct.c \
+	Warn.h\
+	args.h\
+	ascii.h\
+	avl.h\
+	balloc.h\
+	buff.h\
+	chan.h\
+	conn.h\
+	dap.h\
+	exbo.h\
+	fds.h\
+	fletch.h\
+	hash.h\
+	hpp.h\
+	kvp.h\
+	lstn.h\
+	misc.h\
+	mtm.h\
+	node.h\
+	notsunos4.h\
+	remprog.h\
+	sgnl.h\
+	slpq.h\
+	timer.h\
+	tod.h\
+	tr.h\
+	tv.h\
+	ulto.h
+
+
+INCLUDES = -I..
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+libdap_la_LDFLAGS = 
+libdap_la_LIBADD = 
+libdap_la_OBJECTS =  BcdPack.lo BcdUnpack.lo PrAscDecode.lo \
+PrAscEncode.lo args_data.lo argsfirst.lo argsgetopt.lo argsnext.lo \
+avlalloc.lo avlfind.lo avlfree.lo avlinsert.lo avlremove.lo avlwalk.lo \
+balloc.lo balloc_r.lo bdup.lo bdup_r.lo bfree.lo bgprintf.lo \
+bnstring.lo bnstring_r.lo brealloc.lo brealloc_r.lo bstrhash.lo \
+bstring.lo bstring_r.lo buffalloc.lo buffalloc_r.lo buffclear.lo \
+bufffrag.lo bufffree.lo buffgetc.lo buffgprintf.lo buffputc.lo \
+buffputc_r.lo buffputdouble.lo buffputint.lo buffputlong.lo buffputs.lo \
+buffputshort.lo buffread.lo buffref.lo buffroom.lo buffroom_r.lo \
+buffstuff.lo buffstuff_r.lo bufftrim.lo buffwrite.lo buffzero.lo \
+chanclose.lo chandsbl.lo chanenbl.lo chanisdsbl.lo chanisenbl.lo \
+chanopen.lo chanproc.lo chans.lo chansetpri.lo connackestb.lo \
+connalloc.lo connclose.lo connfree.lo connopen.lo dap_data.lo \
+dapinit.lo daploop.lo dapselect.lo dapterm.lo dapversion.lo doclose.lo \
+doread.lo doselect.lo dowrite.lo error.lo exboalloc.lo exbobackoff.lo \
+exbofree.lo exboreset.lo exbovalue.lo fds_data.lo fdsalloc.lo \
+fdsalloc_r.lo fdsanyset.lo fdsclr.lo fdscopy.lo fdsdup.lo fdsdup_r.lo \
+fdsfree.lo fdsfresh.lo fdsinit.lo fdsisset.lo fdsset.lo fdsterm.lo \
+fdszero.lo fletchalloc.lo fletchcheck.lo fletchdone.lo fletchfree.lo \
+fletchpatch.lo fletchsum.lo getmuser.lo getrp.lo hashalloc.lo \
+hashfind.lo hashfree.lo hashinsert.lo hashnode.lo hashremove.lo \
+hashreplace.lo hashwalk.lo hostcmp.lo hostname.lo hostname_l.lo \
+hppalloc.lo hppfree.lo hppmake_in.lo hppname_in.lo kvpalloc.lo \
+kvpfind.lo kvpfree.lo kvpinsert.lo kvpkey.lo kvpremove.lo kvpreplace.lo \
+kvpvalue.lo lstnalloc.lo lstnclose.lo lstnfree.lo lstnopen.lo mod255.lo \
+mtmalloc.lo mtmdnins.lo mtmdnrm.lo mtmfree.lo mtmlink.lo mtmunlink.lo \
+mtmupins.lo mtmuprm.lo mtmvalue.lo nodealloc.lo nodealloc_r.lo \
+nodefree.lo nodeinsert.lo noderemove.lo nodesort.lo nodetoad.lo noop.lo \
+parity.lo service.lo servname_in.lo sgnlcatch.lo sgnldefault.lo \
+sgnlignore.lo sgnloriginal.lo sgnlproc.lo sgnls.lo slpqalloc.lo \
+slpqents.lo slpqfree.lo slpqgiveup.lo slpqimmed.lo slpqproc.lo \
+slpqsched.lo slpqsleep.lo slpqwakeup.lo timer.lo timerabs.lo \
+timerclr.lo timernext.lo timerproc.lo timers.lo tod.lo tod_l.lo \
+todsec.lo todstring.lo tr_atoe.lo tr_etoa.lo tr_quadav.lo trchar.lo \
+tvcmp.lo tvdiff.lo tvnorm.lo tvstring.lo tvsum.lo ulbetween.lo \
+ultodec.lo ultohex.lo ultooct.lo
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+SOURCES = $(libdap_la_SOURCES)
+OBJECTS = $(libdap_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps src/dap/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+.c.o:
+	$(COMPILE) -c $<
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libdap.la: $(libdap_la_OBJECTS) $(libdap_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libdap_la_LDFLAGS) $(libdap_la_OBJECTS) $(libdap_la_LIBADD) $(LIBS)
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src/dap
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

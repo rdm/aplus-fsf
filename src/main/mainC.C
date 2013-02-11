@@ -1,0 +1,15 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// See .../src/LICENSE for terms of distribution.
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+
+extern "C" int aplus_main(long, char**);
+
+int main(int c, char **v)
+{
+	return aplus_main(c, v);
+}
+

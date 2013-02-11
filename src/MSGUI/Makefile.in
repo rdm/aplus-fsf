@@ -1,0 +1,768 @@
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+###############################################################################
+###############################################################################
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CXX = @CXX@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+EXTRA_RPATH = @EXTRA_RPATH@
+LIBTOOL = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+STRIP = @STRIP@
+VERSION = @VERSION@
+
+lib_LTLIBRARIES = libMSGUI.la
+
+libMSGUI_la_SOURCES = \
+	At.C \
+	MSActionBox.C \
+	MSActionButton.C \
+	MSApplication.C \
+	MSArrayView.C \
+	MSArrow.C \
+	MSArrowButton.C \
+	MSAttrValue.C \
+	MSBackingStorePixmap.C \
+	MSBoolEntryField.C \
+	MSBoolView.C \
+	MSBusy.C \
+	MSButton.C \
+	MSCascadeMenu.C \
+	MSCascadeMenuItem.C \
+	MSCheckBox.C \
+	MSCheckButton.C \
+	MSCheckMenuItem.C \
+	MSCheckPopupMenu.C \
+	MSCollapsibleLayout.C \
+	MSColorCycle.C \
+	MSColorManager.C \
+	MSComboBox.C \
+	MSComboField.C \
+	MSComposite.C \
+	MSCompositeField.C \
+	MSCompositeFieldBox.C \
+	MSCompositeText.C \
+	MSDateEntryField.C \
+	MSDelimiterList.C \
+	MSDisplayCursor.C \
+	MSDisplayPrint.C \
+	MSDisplayServer.C \
+	MSDoubleClick.C \
+	MSEntryField.C \
+	MSEntryFieldCombo.C \
+	MSEntryFieldPlus.C \
+	MSFloatArrayView.C \
+	MSFloatEntryField.C \
+	MSFloatMatrixTraceSet.C \
+	MSFloatMatrixView.C \
+	MSFloatTableColumn.C \
+	MSFloatVectorTraceSet.C \
+	MSFontManager.C \
+	MSFontObject.C \
+	MSGC.C \
+	MSGraph.C \
+	MSGraphPlot.C \
+	MSGraphUI.C \
+	MSHGauge.C \
+	MSHLayout.C \
+	MSHPane.C \
+	MSHScale.C \
+	MSHScrollBar.C \
+	MSHSeparator.C \
+	MSIcon.C \
+	MSIconButton.C \
+	MSIntArrayView.C \
+	MSIntCheckBox.C \
+	MSIntEntryField.C \
+	MSIntMatrixTraceSet.C \
+	MSIntMatrixView.C \
+	MSIntRadioBox.C \
+	MSIntTableColumn.C \
+	MSIntVectorTraceSet.C \
+	MSKeyCallback.C \
+	MSKeyPress.C \
+	MSKeyTableData.C \
+	MSKeyTranslationTable.C \
+	MSLabel.C \
+	MSLabelFormat.C \
+	MSLabelOut.C \
+	MSLayout.C \
+	MSLayoutManager.C \
+	MSList.C \
+	MSManager.C \
+	MSMenu.C \
+	MSMenuBar.C \
+	MSMenuBarItem.C \
+	MSMenuItem.C \
+	MSMenuShell.C \
+	MSModalPopup.C \
+	MSModelCheckBox.C \
+	MSMoneyEntryField.C \
+	MSMonthView.C \
+	MSNotebook.C \
+	MSNumericArrayView.C \
+	MSOptionMenu.C \
+	MSPage.C \
+	MSPane.C \
+	MSParagraph.C \
+	MSPixmap.C \
+	MSPopup.C \
+	MSPopupMenu.C \
+	MSPostScript.C \
+	MSPrimitive.C \
+	MSPrimitiveText.C \
+	MSPrintColumn.C \
+	MSPrintDisclaimer.C \
+	MSPrintFont.C \
+	MSPrintFontData.C \
+	MSPrintHeaders.C \
+	MSPrintItem.C \
+	MSPrintManager.C \
+	MSPulldownMenu.C \
+	MSRadioBox.C \
+	MSRadioButton.C \
+	MSRadioMenuItem.C \
+	MSRateEntryField.C \
+	MSRect.C \
+	MSReport.C \
+	MSReportTable.C \
+	MSRowColumnView.C \
+	MSScale.C \
+	MSScrollBar.C \
+	MSScrollableWidget.C \
+	MSScrolledWindow.C \
+	MSSeparator.C \
+	MSSeparatorMenuItem.C \
+	MSShadow.C \
+	MSShell.C \
+	MSStringDelimiterList.C \
+	MSStringEntryField.C \
+	MSStringList.C \
+	MSStringPopupMenu.C \
+	MSStringTableColumn.C \
+	MSStringVectorTraceSet.C \
+	MSSymbolCheckBox.C \
+	MSSymbolList.C \
+	MSTabStringList.C \
+	MSTable.C \
+	MSTableColumn.C \
+	MSTableColumnGroup.C \
+	MSTermEntryField.C \
+	MSText.C \
+	MSTextEditor.C \
+	MSTextField.C \
+	MSTextRect.C \
+	MSTimeEntryField.C \
+	MSTitleMenuItem.C \
+	MSToggleButton.C \
+	MSToggleButtonBase.C \
+	MSToggleMenuItem.C \
+	MSToolTip.C \
+	MSTopLevel.C \
+	MSTrace.C \
+	MSTraceSet.C \
+	MSUnsignedEntryField.C \
+	MSVGauge.C \
+	MSVLayout.C \
+	MSVPane.C \
+	MSVScale.C \
+	MSVScrollBar.C \
+	MSVSeparator.C \
+	MSValidationCallback.C \
+	MSValidationInterface.C \
+	MSView.C \
+	MSWidget.C \
+	MSWidgetCallback.C \
+	MSWidgetCommon.C \
+	MSWidgetCursor.C \
+	MSWidgetFreezer.C \
+	MSWidgetIterator.C \
+	MSWidgetOutput.C \
+	MSWidgetResourceMapper.C \
+	MSWidgetState.C \
+	MSWidgetVector.C \
+	MSWidgetView.C \
+	MSWindow.C \
+	MSPointerArray.T.C \
+	MSTreeListView.T.C \
+	MSPostScriptView.C \
+	At.H\
+	MSActionBox.H\
+	MSActionButton.H\
+	MSApplication.H\
+	MSArrayView.H\
+	MSArrow.H\
+	MSArrowButton.H\
+	MSAttrValue.H\
+	MSBackingStorePixmap.H\
+	MSBitmaps.H\
+	MSBoolEntryField.H\
+	MSBoolView.H\
+	MSBusy.H\
+	MSButton.H\
+	MSCascadeMenu.H\
+	MSCascadeMenuItem.H\
+	MSCheckBox.H\
+	MSCheckButton.H\
+	MSCheckMenuItem.H\
+	MSCheckPopupMenu.H\
+	MSCollapsibleLayout.H\
+	MSColorCycle.H\
+	MSColorManager.H\
+	MSComboBox.H\
+	MSComboField.H\
+	MSComposite.H\
+	MSCompositeField.H\
+	MSCompositeFieldBox.H\
+	MSCompositeText.H\
+	MSCursorfont.H\
+	MSCurveTraceSet.H\
+	MSDateEntryField.H\
+	MSDefaults.H\
+	MSDelimiterList.H\
+	MSDependentTableColumn.H\
+	MSDisplayCursor.H\
+	MSDisplayPrint.H\
+	MSDisplayServer.H\
+	MSDoubleClick.H\
+	MSEntryField.H\
+	MSEntryFieldCombo.H\
+	MSEntryFieldPlus.H\
+	MSFloatArrayView.H\
+	MSFloatEntryField.H\
+	MSFloatMatrixTraceSet.H\
+	MSFloatMatrixView.H\
+	MSFloatTableColumn.H\
+	MSFloatVectorTraceSet.H\
+	MSFontManager.H\
+	MSFontObject.H\
+	MSG.H\
+	MSGC.H\
+	MSGUIEnum.H\
+	MSGraph.H\
+	MSHGauge.H\
+	MSHLayout.H\
+	MSHPane.H\
+	MSHScale.H\
+	MSHScrollBar.H\
+	MSHSeparator.H\
+	MSIcon.H\
+	MSIconButton.H\
+	MSIntArrayView.H\
+	MSIntCheckBox.H\
+	MSIntEntryField.H\
+	MSIntMatrixTraceSet.H\
+	MSIntMatrixView.H\
+	MSIntRadioBox.H\
+	MSIntTableColumn.H\
+	MSIntVectorTraceSet.H\
+	MSKeyCallback.H\
+	MSKeyClassCallback.H\
+	MSKeyMethodCallback.H\
+	MSKeyPress.H\
+	MSKeyTableData.H\
+	MSKeyTranslationTable.H\
+	MSKeyVoidMethodCallback.H\
+	MSKeysym.H\
+	MSKeysymdef.H\
+	MSLabel.H\
+	MSLabelFormat.H\
+	MSLabelOut.H\
+	MSLayout.H\
+	MSLayoutManager.H\
+	MSList.H\
+	MSManager.H\
+	MSMatrixTraceSet.H\
+	MSMenu.H\
+	MSMenuBar.H\
+	MSMenuBarItem.H\
+	MSMenuItem.H\
+	MSMenuShell.H\
+	MSMethodButton.H\
+	MSMethodCheckButton.H\
+	MSMethodMenuItem.H\
+	MSMethodRadioButton.H\
+	MSModalPopup.H\
+	MSModelCheckBox.H\
+	MSMoneyEntryField.H\
+	MSMonthView.H\
+	MSNotebook.H\
+	MSNumericArrayView.H\
+	MSOptionMenu.H\
+	MSP.H\
+	MSPage.H\
+	MSPane.H\
+	MSParagraph.H\
+	MSPixmap.H\
+	MSPointerArray.H\
+	MSPopup.H\
+	MSPopupMenu.H\
+	MSPostScript.H\
+	MSPostScriptView.H\
+	MSPrimitive.H\
+	MSPrimitiveText.H\
+	MSPrintColumn.H\
+	MSPrintDisclaimer.H\
+	MSPrintFont.H\
+	MSPrintFontData.H\
+	MSPrintHeaders.H\
+	MSPrintItem.H\
+	MSPrintManager.H\
+	MSPrintTool.H\
+	MSPulldownMenu.H\
+	MSRadioBox.H\
+	MSRadioButton.H\
+	MSRadioMenuItem.H\
+	MSRateEntryField.H\
+	MSRect.H\
+	MSReport.H\
+	MSReportTable.H\
+	MSResourceChangeCallback.H\
+	MSResourceChangeMethodCallback.H\
+	MSRowColumnView.H\
+	MSScale.H\
+	MSScrollBar.H\
+	MSScrollableWidget.H\
+	MSScrolledWindow.H\
+	MSSeparator.H\
+	MSSeparatorMenuItem.H\
+	MSShadow.H\
+	MSShell.H\
+	MSStandardDisclaimer.H\
+	MSStringDelimiterList.H\
+	MSStringEntryField.H\
+	MSStringList.H\
+	MSStringPopupMenu.H\
+	MSStringTableColumn.H\
+	MSStringVectorTraceSet.H\
+	MSSymbolCheckBox.H\
+	MSSymbolList.H\
+	MSTabStringList.H\
+	MSTable.H\
+	MSTableColumn.H\
+	MSTableColumnGroup.H\
+	MSTermEntryField.H\
+	MSText.H\
+	MSTextEditor.H\
+	MSTextField.H\
+	MSTextRect.H\
+	MSTimeEntryField.H\
+	MSTitleMenuItem.H\
+	MSToggleButton.H\
+	MSToggleButtonBase.H\
+	MSToggleMenuItem.H\
+	MSToolTip.H\
+	MSTopLevel.H\
+	MSTrace.H\
+	MSTraceSet.H\
+	MSTreeFormatFunctions.H\
+	MSTreeListView.H\
+	MSTreeView.H\
+	MSTypeEntryField.H\
+	MSUnsignedEntryField.H\
+	MSVGauge.H\
+	MSVLayout.H\
+	MSVPane.H\
+	MSVScale.H\
+	MSVScrollBar.H\
+	MSVSeparator.H\
+	MSValidationCallback.H\
+	MSValidationInterface.H\
+	MSValidationMethod.H\
+	MSVectorTableColumn.H\
+	MSVectorTraceSet.H\
+	MSView.H\
+	MSWidget.H\
+	MSWidgetCallback.H\
+	MSWidgetCommon.H\
+	MSWidgetCursor.H\
+	MSWidgetFreezer.H\
+	MSWidgetIterator.H\
+	MSWidgetOutput.H\
+	MSWidgetResourceMapper.H\
+	MSWidgetState.H\
+	MSWidgetVector.H\
+	MSWidgetView.H\
+	MSWindow.H
+
+
+EXTRA_DIST = \
+	MSArrayViewInlines.C\
+	MSCompositeTextInlines.C\
+	MSDisplayServerInlines.C\
+	MSPrimitiveTextInlines.C\
+	MSRowColumnViewInlines.C\
+	MSTableColumnInlines.C\
+	MSTableInlines.C\
+	MSTextRectInlines.C\
+	MSTraceSetInlines.C\
+	MSWidgetCommonInlines.C\
+	MSWidgetInlines.C\
+	MSWidgetOutputInlines.C\
+	MSPointerArray.C\
+	MSTreeListView.C\
+	MSTreeView.C\
+	MSTypeEntryField.C
+
+
+INCLUDES = -I.. -I/usr/X11R6/include
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+libMSGUI_la_LDFLAGS = 
+libMSGUI_la_LIBADD = 
+libMSGUI_la_OBJECTS =  At.lo MSActionBox.lo MSActionButton.lo \
+MSApplication.lo MSArrayView.lo MSArrow.lo MSArrowButton.lo \
+MSAttrValue.lo MSBackingStorePixmap.lo MSBoolEntryField.lo \
+MSBoolView.lo MSBusy.lo MSButton.lo MSCascadeMenu.lo \
+MSCascadeMenuItem.lo MSCheckBox.lo MSCheckButton.lo MSCheckMenuItem.lo \
+MSCheckPopupMenu.lo MSCollapsibleLayout.lo MSColorCycle.lo \
+MSColorManager.lo MSComboBox.lo MSComboField.lo MSComposite.lo \
+MSCompositeField.lo MSCompositeFieldBox.lo MSCompositeText.lo \
+MSDateEntryField.lo MSDelimiterList.lo MSDisplayCursor.lo \
+MSDisplayPrint.lo MSDisplayServer.lo MSDoubleClick.lo MSEntryField.lo \
+MSEntryFieldCombo.lo MSEntryFieldPlus.lo MSFloatArrayView.lo \
+MSFloatEntryField.lo MSFloatMatrixTraceSet.lo MSFloatMatrixView.lo \
+MSFloatTableColumn.lo MSFloatVectorTraceSet.lo MSFontManager.lo \
+MSFontObject.lo MSGC.lo MSGraph.lo MSGraphPlot.lo MSGraphUI.lo \
+MSHGauge.lo MSHLayout.lo MSHPane.lo MSHScale.lo MSHScrollBar.lo \
+MSHSeparator.lo MSIcon.lo MSIconButton.lo MSIntArrayView.lo \
+MSIntCheckBox.lo MSIntEntryField.lo MSIntMatrixTraceSet.lo \
+MSIntMatrixView.lo MSIntRadioBox.lo MSIntTableColumn.lo \
+MSIntVectorTraceSet.lo MSKeyCallback.lo MSKeyPress.lo MSKeyTableData.lo \
+MSKeyTranslationTable.lo MSLabel.lo MSLabelFormat.lo MSLabelOut.lo \
+MSLayout.lo MSLayoutManager.lo MSList.lo MSManager.lo MSMenu.lo \
+MSMenuBar.lo MSMenuBarItem.lo MSMenuItem.lo MSMenuShell.lo \
+MSModalPopup.lo MSModelCheckBox.lo MSMoneyEntryField.lo MSMonthView.lo \
+MSNotebook.lo MSNumericArrayView.lo MSOptionMenu.lo MSPage.lo MSPane.lo \
+MSParagraph.lo MSPixmap.lo MSPopup.lo MSPopupMenu.lo MSPostScript.lo \
+MSPrimitive.lo MSPrimitiveText.lo MSPrintColumn.lo MSPrintDisclaimer.lo \
+MSPrintFont.lo MSPrintFontData.lo MSPrintHeaders.lo MSPrintItem.lo \
+MSPrintManager.lo MSPulldownMenu.lo MSRadioBox.lo MSRadioButton.lo \
+MSRadioMenuItem.lo MSRateEntryField.lo MSRect.lo MSReport.lo \
+MSReportTable.lo MSRowColumnView.lo MSScale.lo MSScrollBar.lo \
+MSScrollableWidget.lo MSScrolledWindow.lo MSSeparator.lo \
+MSSeparatorMenuItem.lo MSShadow.lo MSShell.lo MSStringDelimiterList.lo \
+MSStringEntryField.lo MSStringList.lo MSStringPopupMenu.lo \
+MSStringTableColumn.lo MSStringVectorTraceSet.lo MSSymbolCheckBox.lo \
+MSSymbolList.lo MSTabStringList.lo MSTable.lo MSTableColumn.lo \
+MSTableColumnGroup.lo MSTermEntryField.lo MSText.lo MSTextEditor.lo \
+MSTextField.lo MSTextRect.lo MSTimeEntryField.lo MSTitleMenuItem.lo \
+MSToggleButton.lo MSToggleButtonBase.lo MSToggleMenuItem.lo \
+MSToolTip.lo MSTopLevel.lo MSTrace.lo MSTraceSet.lo \
+MSUnsignedEntryField.lo MSVGauge.lo MSVLayout.lo MSVPane.lo MSVScale.lo \
+MSVScrollBar.lo MSVSeparator.lo MSValidationCallback.lo \
+MSValidationInterface.lo MSView.lo MSWidget.lo MSWidgetCallback.lo \
+MSWidgetCommon.lo MSWidgetCursor.lo MSWidgetFreezer.lo \
+MSWidgetIterator.lo MSWidgetOutput.lo MSWidgetResourceMapper.lo \
+MSWidgetState.lo MSWidgetVector.lo MSWidgetView.lo MSWindow.lo \
+MSPointerArray.T.lo MSTreeListView.T.lo MSPostScriptView.lo
+CXXFLAGS = @CXXFLAGS@
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+SOURCES = $(libMSGUI_la_SOURCES)
+OBJECTS = $(libMSGUI_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .C .S .c .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps src/MSGUI/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+.c.o:
+	$(COMPILE) -c $<
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libMSGUI.la: $(libMSGUI_la_OBJECTS) $(libMSGUI_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(libdir) $(libMSGUI_la_LDFLAGS) $(libMSGUI_la_OBJECTS) $(libMSGUI_la_LIBADD) $(LIBS)
+.C.o:
+	$(CXXCOMPILE) -c $<
+.C.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.C.lo:
+	$(LTCXXCOMPILE) -c $<
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src/MSGUI
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
