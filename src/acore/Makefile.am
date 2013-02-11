@@ -8,28 +8,29 @@
 ##                                                                           ##
 ###############################################################################
 
-SUBDIRS = \
-	IPC \
-	cxs \
-	cxb \
-	AplusGUI \
-	cxsys \
-	cxc \
-	esf \
-	a \
-	dap \
-	MSGUI \
-	MSIPC \
-	MSTypes \
-	main \
-	html \
-	contrib \
-	acore \
-	autils \
-	lisp.1 \
-	lisp.0 \
-	fonts \
-	tutorials \
-	app-defaults
+acoredir = $(prefix)/acore
 
-EXTRA_DIST = LICENSE
+acore_DATA = \
+	adap.+ \
+	apter.+ \
+	bigs.+ \
+	dio.+ \
+	disp.+ \
+	fsftest.+ \
+	idap.+ \
+	s.+ \
+	t.+ \
+	watch.+
+
+EXTRA_DIST = \
+	adap.+ \
+	apter.+ \
+	bigs.+ \
+	dio.+ \
+	disp.+ \
+	fsftest.+ \
+	idap.+ \
+	s.+ \
+	t.+ \
+	watch.+
+

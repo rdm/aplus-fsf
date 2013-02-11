@@ -390,7 +390,7 @@ doc.main{dir}:{ã sankar 11/2/94
 if (`char=©dir) dirû,<dir;
 doc.dirrûdoc.dirsûdir;
 if (doc.dirs½())
-{doc.dirsû('/usr/local/aplus-fsf-4.22/scripts/*.*';'/usr/local/aplus-fsf-4.22/lib/*.+')};
+{doc.dirsû('/usr/local/aplus-fsf-4.22/autils/*.*';'/usr/local/aplus-fsf-4.22/lib/*.+')};
 â¡vû(<'$ls -l '),¡doc.dirs, ¡(<' > /tmp/manydoca.+'),¡¢1Ù¡î¡,ÉÒdoc.dirs;
 doc.dirsû(-Ø(÷¡doc.dirs)É¡'/')Õ¡doc.dirs;
 â'$sleep 2'; ã too lazy to use adap - hope this works

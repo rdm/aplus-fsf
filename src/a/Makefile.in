@@ -138,18 +138,6 @@ CFLAGS = @CFLAGS@ -DBSTUB
 
 INCLUDES = -I..
 
-fsftestdir = $(libdir)
-apterdir = $(libdir)
-tdir = $(libdir)
-diodir = $(libdir)
-
-fsftest_DATA = fsftest.+
-apter_DATA = apter.+
-t_DATA = t.+
-dio_DATA = dio.+
-
-EXTRA_DIST = fsftest.+ apter.+ t.+ dio.+
-
 a_includedir = $(prefix)/include/a
 a_include_DATA = \
 	beam.h \
@@ -197,8 +185,7 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 DIST_SOURCES = $(liba_la_SOURCES)
-DATA = $(a_include_DATA) $(apter_DATA) $(dio_DATA) $(fsftest_DATA) \
-	$(t_DATA)
+DATA = $(a_include_DATA)
 
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = $(liba_la_SOURCES)
@@ -324,78 +311,6 @@ uninstall-a_includeDATA:
 	  echo " rm -f $(DESTDIR)$(a_includedir)/$$f"; \
 	  rm -f $(DESTDIR)$(a_includedir)/$$f; \
 	done
-apterDATA_INSTALL = $(INSTALL_DATA)
-install-apterDATA: $(apter_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(apterdir)
-	@list='$(apter_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(apterDATA_INSTALL) $$d$$p $(DESTDIR)$(apterdir)/$$f"; \
-	  $(apterDATA_INSTALL) $$d$$p $(DESTDIR)$(apterdir)/$$f; \
-	done
-
-uninstall-apterDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(apter_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(apterdir)/$$f"; \
-	  rm -f $(DESTDIR)$(apterdir)/$$f; \
-	done
-dioDATA_INSTALL = $(INSTALL_DATA)
-install-dioDATA: $(dio_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(diodir)
-	@list='$(dio_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(dioDATA_INSTALL) $$d$$p $(DESTDIR)$(diodir)/$$f"; \
-	  $(dioDATA_INSTALL) $$d$$p $(DESTDIR)$(diodir)/$$f; \
-	done
-
-uninstall-dioDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dio_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(diodir)/$$f"; \
-	  rm -f $(DESTDIR)$(diodir)/$$f; \
-	done
-fsftestDATA_INSTALL = $(INSTALL_DATA)
-install-fsftestDATA: $(fsftest_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(fsftestdir)
-	@list='$(fsftest_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(fsftestDATA_INSTALL) $$d$$p $(DESTDIR)$(fsftestdir)/$$f"; \
-	  $(fsftestDATA_INSTALL) $$d$$p $(DESTDIR)$(fsftestdir)/$$f; \
-	done
-
-uninstall-fsftestDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(fsftest_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(fsftestdir)/$$f"; \
-	  rm -f $(DESTDIR)$(fsftestdir)/$$f; \
-	done
-tDATA_INSTALL = $(INSTALL_DATA)
-install-tDATA: $(t_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(tdir)
-	@list='$(t_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(tDATA_INSTALL) $$d$$p $(DESTDIR)$(tdir)/$$f"; \
-	  $(tDATA_INSTALL) $$d$$p $(DESTDIR)$(tdir)/$$f; \
-	done
-
-uninstall-tDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(t_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(tdir)/$$f"; \
-	  rm -f $(DESTDIR)$(tdir)/$$f; \
-	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -463,7 +378,7 @@ check: check-am
 all-am: Makefile $(LTLIBRARIES) $(DATA)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(a_includedir) $(DESTDIR)$(apterdir) $(DESTDIR)$(diodir) $(DESTDIR)$(fsftestdir) $(DESTDIR)$(tdir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(a_includedir)
 
 install: install-am
 install-exec: install-exec-am
@@ -507,8 +422,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-a_includeDATA install-apterDATA install-dioDATA \
-	install-fsftestDATA install-tDATA
+install-data-am: install-a_includeDATA
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -527,24 +441,21 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-a_includeDATA uninstall-apterDATA \
-	uninstall-dioDATA uninstall-fsftestDATA uninstall-info-am \
-	uninstall-libLTLIBRARIES uninstall-tDATA
+uninstall-am: uninstall-a_includeDATA uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLTLIBRARIES clean-libtool distclean distclean-compile \
 	distclean-depend distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am info info-am install \
-	install-a_includeDATA install-am install-apterDATA install-data \
-	install-data-am install-dioDATA install-exec install-exec-am \
-	install-fsftestDATA install-info install-info-am \
-	install-libLTLIBRARIES install-man install-strip install-tDATA \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-a_includeDATA install-am install-data install-data-am \
+	install-exec install-exec-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-a_includeDATA uninstall-am uninstall-apterDATA \
-	uninstall-dioDATA uninstall-fsftestDATA uninstall-info-am \
-	uninstall-libLTLIBRARIES uninstall-tDATA
+	uninstall-a_includeDATA uninstall-am uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

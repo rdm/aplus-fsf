@@ -56,7 +56,4 @@ INCLUDES = -I..
 
 idapdir = $(libdir)
 
-idap_DATA = idap.+ adap.+
-
-EXTRA_DIST = idap.+ adap.+
 

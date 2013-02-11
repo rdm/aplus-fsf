@@ -7,7 +7,7 @@ Build/Install
   Mac OS X
 
    sed 's;missing_dir=`cd $ac_aux_dir && pwd`;missing_dir=`pwd`/$ac_aux_dir;' \
-     configure > configure.ok; chmod +x configure.ok
+     configure > configure.ok; chmod +x cnfigure.ok
    CFLAGS=-O3 CXXFLAGS=-O3 ./configure.ok --prefix=/usr/local/aplus-fsf-4.20
    ./fix4mac
    make install

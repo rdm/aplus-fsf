@@ -99,10 +99,6 @@ libcxs_la_SOURCES = S.c
 INCLUDES = -I..
 
 sdir = $(libdir)
-
-s_DATA = disp.+ s.+ bigs.+
-
-EXTRA_DIST = disp.+ s.+ bigs.+
 subdir = src/cxs
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -130,8 +126,6 @@ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CFLAGS = @CFLAGS@
 DIST_SOURCES = $(libcxs_la_SOURCES)
-DATA = $(s_DATA)
-
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = $(libcxs_la_SOURCES)
 
@@ -214,24 +208,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-sDATA_INSTALL = $(INSTALL_DATA)
-install-sDATA: $(s_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(sdir)
-	@list='$(s_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(sDATA_INSTALL) $$d$$p $(DESTDIR)$(sdir)/$$f"; \
-	  $(sDATA_INSTALL) $$d$$p $(DESTDIR)$(sdir)/$$f; \
-	done
-
-uninstall-sDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(s_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(sdir)/$$f"; \
-	  rm -f $(DESTDIR)$(sdir)/$$f; \
-	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -296,10 +272,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(DATA)
+all-am: Makefile $(LTLIBRARIES)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(sdir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -343,7 +319,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-sDATA
+install-data-am:
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -362,7 +338,7 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES uninstall-sDATA
+uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLTLIBRARIES clean-libtool distclean distclean-compile \
@@ -370,12 +346,11 @@ uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES uninstall-sDATA
 	distclean-tags distdir dvi dvi-am info info-am install \
 	install-am install-data install-data-am install-exec \
 	install-exec-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-sDATA install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-libLTLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-am uninstall-info-am uninstall-libLTLIBRARIES \
-	uninstall-sDATA
+	uninstall-am uninstall-info-am uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -21,11 +21,11 @@
 #include <string.h>
 #endif
 
-#if defined(__alpha) || defined(_WINDOWS) || defined(__i386) || defined(__ia64)
+#if defined(linux) || defined(__alpha) || defined(_WINDOWS) || defined(__i386) || defined(__ia64)
 #define MS_LITTLE_ENDIAN  1
 #endif
 
-#if defined(__alpha) || ( defined(__sgi) && (_MIPS_SZLONG == 64)) || defined(__ia64)
+#if defined(__alpha) || ( defined(__sgi) && (_MIPS_SZLONG == 64)) || defined(__ia64) || defined(__x86_64)
 #define MS_64BIT           1
 #endif
 

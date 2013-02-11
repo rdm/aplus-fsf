@@ -365,7 +365,7 @@ static void envinit(void)
 	if ((apath = getenv("APATH")) == (char *)(0))
 	{
 		apath = bnstring("APATH=.:", atree,
-                                 "/lib",(char *)(0));
+                                 "/acore",(char *)(0));
 
 		putenv(apath);
 	}

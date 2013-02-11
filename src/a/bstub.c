@@ -75,7 +75,7 @@ char * _mab(unsigned long w)
     {
       unsigned long aBytes=w+2*sizeof(*pl);
       printf("\343 ma(): malloc(%lu) failure: errno=%d\n",aBytes,errno);
-      err(2, (A)aBytes);
+      aplus_err(2, (A)aBytes);
       p=(char *)pl;
     }
   else
@@ -294,7 +294,7 @@ char * mab(unsigned long w)
     {
       unsigned long aBytes=w+2*sizeof(*pl);
       printf("\343 ma(): malloc(%lu) failure: errno=%d/n",aBytes,errno);
-      err(2, aBytes);
+      aplus_err(2, aBytes);
       p=(char *)pl;
     }
   else

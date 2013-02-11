@@ -287,7 +287,8 @@ AC_OUTPUT(\
 	src/html/tutorials/graphs/Makefile \
 	src/html/tutorials/s.tutorials/Makefile \
         src/contrib/Makefile \
-        src/scripts/Makefile \
+        src/acore/Makefile \
+        src/autils/Makefile \
 	src/tutorials/Makefile \
 	src/tutorials/graphs/Makefile \
 	src/tutorials/s.tutorials/Makefile \

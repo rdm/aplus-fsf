@@ -3,8 +3,8 @@
 
 $cx tss
 
-if( ()½scriptsDirûsys.readenv{"SCRIPTS_DIR"} ) {
-  scriptsDirû"/usr/local/aplus-fsf-4.22/scripts";
+if( ()½scriptsDirûsys.readenv{"UTILS_DIR"} ) {
+  scriptsDirû"/usr/local/aplus-fsf-4.22/autils";
 }
 
 _load{scriptsDir,"/act"}

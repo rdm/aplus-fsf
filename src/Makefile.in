@@ -108,7 +108,8 @@ SUBDIRS = \
 	main \
 	html \
 	contrib \
-	scripts \
+	acore \
+	autils \
 	lisp.1 \
 	lisp.0 \
 	fonts \

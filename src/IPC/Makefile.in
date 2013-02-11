@@ -140,10 +140,6 @@ libIPC_la_SOURCES = \
 INCLUDES = -I..
 
 idapdir = $(libdir)
-
-idap_DATA = idap.+ adap.+
-
-EXTRA_DIST = idap.+ adap.+
 subdir = src/IPC
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -205,8 +201,6 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 DIST_SOURCES = $(libIPC_la_SOURCES)
-DATA = $(idap_DATA)
-
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = $(libIPC_la_SOURCES)
 
@@ -308,24 +302,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-idapDATA_INSTALL = $(INSTALL_DATA)
-install-idapDATA: $(idap_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(idapdir)
-	@list='$(idap_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(idapDATA_INSTALL) $$d$$p $(DESTDIR)$(idapdir)/$$f"; \
-	  $(idapDATA_INSTALL) $$d$$p $(DESTDIR)$(idapdir)/$$f; \
-	done
-
-uninstall-idapDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(idap_DATA)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(idapdir)/$$f"; \
-	  rm -f $(DESTDIR)$(idapdir)/$$f; \
-	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -390,10 +366,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(DATA)
+all-am: Makefile $(LTLIBRARIES)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(idapdir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -437,7 +413,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-idapDATA
+install-data-am:
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -456,21 +432,19 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-idapDATA uninstall-info-am \
-	uninstall-libLTLIBRARIES
+uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLTLIBRARIES clean-libtool distclean distclean-compile \
 	distclean-depend distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am info info-am install \
 	install-am install-data install-data-am install-exec \
-	install-exec-am install-idapDATA install-info install-info-am \
+	install-exec-am install-info install-info-am \
 	install-libLTLIBRARIES install-man install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-am uninstall-idapDATA uninstall-info-am \
-	uninstall-libLTLIBRARIES
+	uninstall-am uninstall-info-am uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

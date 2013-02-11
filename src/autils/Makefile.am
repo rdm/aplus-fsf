@@ -8,9 +8,9 @@
 ##                                                                           ##
 ###############################################################################
 
-scriptsdir = $(prefix)/scripts
+autilsdir = $(prefix)/autils
 
-scripts_DATA = \
+autils_DATA = \
 	README \
 	abx.+ \
 	abx.doc \
@@ -46,7 +46,6 @@ scripts_DATA = \
 	fcp.+ \
 	fcp.doc \
 	file.+ \
-	files \
 	fit.+ \
 	fkt.+ \
 	fkt.doc \
@@ -130,7 +129,6 @@ EXTRA_DIST = \
 	fcp.+ \
 	fcp.doc \
 	file.+ \
-	files \
 	fit.+ \
 	fkt.+ \
 	fkt.doc \

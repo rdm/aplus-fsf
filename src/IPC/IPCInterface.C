@@ -607,7 +607,7 @@ void ipcInstall(void)
     {
       atree = "/usr/local/a+";
     }
-    ipcfile = bnstring(atree, "/lib/idap.+", (char *)(0));
+    ipcfile = bnstring(atree, "/acore/idap.+", (char *)(0));
     loadafile(ipcfile,0);
     bfree(ipcfile);
   }

@@ -16,8 +16,5 @@ INCLUDES = -I..
 
 sdir = $(libdir)
 
-s_DATA = disp.+ s.+ bigs.+
-
-EXTRA_DIST = disp.+ s.+ bigs.+
 
 

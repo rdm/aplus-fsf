@@ -92,190 +92,46 @@ am__include = @am__include@
 am__quote = @am__quote@
 install_sh = @install_sh@
 
-scriptsdir = $(prefix)/scripts
+acoredir = $(prefix)/acore
 
-scripts_DATA = \
-	README \
-	abx.+ \
-	abx.doc \
-	act.+ \
-	act.doc \
-	afm.+ \
-	afm.doc \
-	apl.+ \
-	apl.doc \
-	bfm.+ \
-	bfm.doc \
-	blt.+ \
-	blt.doc \
-	box.+ \
-	bro.+ \
-	bro.doc \
-	bxt.+ \
-	bxt.doc \
-	cbr.+ \
-	cbr.doc \
-	cft.+ \
-	cft.doc \
-	client.+ \
-	client.doc \
+acore_DATA = \
+	adap.+ \
+	apter.+ \
+	bigs.+ \
 	dio.+ \
-	dio.doc \
 	disp.+ \
-	disp.doc \
-	dlu.+ \
-	dlu.doc \
-	doc.+ \
-	doc.doc \
-	fcp.+ \
-	fcp.doc \
-	file.+ \
-	files \
-	fit.+ \
-	fkt.+ \
-	fkt.doc \
-	flu.+ \
-	flu.doc \
-	fnt.+ \
-	fnt.doc \
-	gyr.+ \
-	gyr.doc \
-	manydoc.+ \
-	manydoc.doc \
-	pop.+ \
-	pop.doc \
-	qio.+ \
-	qio.doc \
-	rap.+ \
-	rap.doc \
-	rgb.+ \
-	rgb.doc \
-	scriptsDir.+ \
-	server.+ \
-	server.doc \
-	sst.+ \
-	sst.doc \
-	stp.+ \
-	stp.doc \
-	tbr.+ \
-	tbr.doc \
-	ted.+ \
-	ted.doc \
-	tim.+ \
-	tim.doc \
-	tl.+ \
-	tl.doc \
-	trc.+ \
-	trc.doc \
-	tss.+ \
-	tss.doc \
-	vim.+ \
-	vim.doc \
-	vlt.+ \
-	vlt.doc \
-	xyz.+ \
-	xyz.doc \
-	zgl.+ \
-	zgl.doc
+	fsftest.+ \
+	idap.+ \
+	s.+ \
+	t.+ \
+	watch.+
 
 
 EXTRA_DIST = \
-	README \
-	abx.+ \
-	abx.doc \
-	act.+ \
-	act.doc \
-	afm.+ \
-	afm.doc \
-	apl.+ \
-	apl.doc \
-	bfm.+ \
-	bfm.doc \
-	blt.+ \
-	blt.doc \
-	box.+ \
-	bro.+ \
-	bro.doc \
-	bxt.+ \
-	bxt.doc \
-	cbr.+ \
-	cbr.doc \
-	cft.+ \
-	cft.doc \
-	client.+ \
-	client.doc \
+	adap.+ \
+	apter.+ \
+	bigs.+ \
 	dio.+ \
-	dio.doc \
 	disp.+ \
-	disp.doc \
-	dlu.+ \
-	dlu.doc \
-	doc.+ \
-	doc.doc \
-	fcp.+ \
-	fcp.doc \
-	file.+ \
-	files \
-	fit.+ \
-	fkt.+ \
-	fkt.doc \
-	flu.+ \
-	flu.doc \
-	fnt.+ \
-	fnt.doc \
-	gyr.+ \
-	gyr.doc \
-	manydoc.+ \
-	manydoc.doc \
-	pop.+ \
-	pop.doc \
-	qio.+ \
-	qio.doc \
-	rap.+ \
-	rap.doc \
-	rgb.+ \
-	rgb.doc \
-	scriptsDir.+ \
-	server.+ \
-	server.doc \
-	sst.+ \
-	sst.doc \
-	stp.+ \
-	stp.doc \
-	tbr.+ \
-	tbr.doc \
-	ted.+ \
-	ted.doc \
-	tim.+ \
-	tim.doc \
-	tl.+ \
-	tl.doc \
-	trc.+ \
-	trc.doc \
-	tss.+ \
-	tss.doc \
-	vim.+ \
-	vim.doc \
-	vlt.+ \
-	vlt.doc \
-	xyz.+ \
-	xyz.doc \
-	zgl.+ \
-	zgl.doc
+	fsftest.+ \
+	idap.+ \
+	s.+ \
+	t.+ \
+	watch.+
 
-subdir = src/scripts
+subdir = src/acore
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
-DATA = $(scripts_DATA)
+DATA = $(acore_DATA)
 
-DIST_COMMON = README Makefile.am Makefile.in
+DIST_COMMON = Makefile.am Makefile.in
 all: all-am
 
 .SUFFIXES:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/scripts/Makefile
+	  $(AUTOMAKE) --foreign  src/acore/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
 
@@ -288,23 +144,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-scriptsDATA_INSTALL = $(INSTALL_DATA)
-install-scriptsDATA: $(scripts_DATA)
+acoreDATA_INSTALL = $(INSTALL_DATA)
+install-acoreDATA: $(acore_DATA)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(scriptsdir)
-	@list='$(scripts_DATA)'; for p in $$list; do \
+	$(mkinstalldirs) $(DESTDIR)$(acoredir)
+	@list='$(acore_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(scriptsDATA_INSTALL) $$d$$p $(DESTDIR)$(scriptsdir)/$$f"; \
-	  $(scriptsDATA_INSTALL) $$d$$p $(DESTDIR)$(scriptsdir)/$$f; \
+	  echo " $(acoreDATA_INSTALL) $$d$$p $(DESTDIR)$(acoredir)/$$f"; \
+	  $(acoreDATA_INSTALL) $$d$$p $(DESTDIR)$(acoredir)/$$f; \
 	done
 
-uninstall-scriptsDATA:
+uninstall-acoreDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(scripts_DATA)'; for p in $$list; do \
+	@list='$(acore_DATA)'; for p in $$list; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(scriptsdir)/$$f"; \
-	  rm -f $(DESTDIR)$(scriptsdir)/$$f; \
+	  echo " rm -f $(DESTDIR)$(acoredir)/$$f"; \
+	  rm -f $(DESTDIR)$(acoredir)/$$f; \
 	done
 tags: TAGS
 TAGS:
@@ -340,7 +196,7 @@ check: check-am
 all-am: Makefile $(DATA)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(scriptsdir)
+	$(mkinstalldirs) $(DESTDIR)$(acoredir)
 
 install: install-am
 install-exec: install-exec-am
@@ -382,7 +238,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-scriptsDATA
+install-data-am: install-acoreDATA
 
 install-exec-am:
 
@@ -400,17 +256,17 @@ mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-scriptsDATA
+uninstall-am: uninstall-acoreDATA uninstall-info-am
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
-	dvi-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-scriptsDATA install-strip \
+	dvi-am info info-am install install-acoreDATA install-am \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-man install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool uninstall uninstall-am uninstall-info-am \
-	uninstall-scriptsDATA
+	mostlyclean-libtool uninstall uninstall-acoreDATA uninstall-am \
+	uninstall-info-am
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

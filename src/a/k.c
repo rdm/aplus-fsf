@@ -313,13 +313,13 @@ A gf(F f)GA(Ft,0,1,*(F*)z->p=f)
 A ge(I x){A z=gs(Et);*z->p=x;R z;}
 
 #define EV(z) {I t;switch(aplusMask&z){CS(0,ic((A)z))CS(3,z=ee(XE(z)))\
- CS(1,ic((A)(z=(I)gt(XV(z)))))CS(5,for(;!(t=X[U(z)]);)err(4,(A)z);ic((A)(z=t)))}}
+ CS(1,ic((A)(z=(I)gt(XV(z)))))CS(5,for(;!(t=X[U(z)]);)aplus_err(4,(A)z);ic((A)(z=t)))}}
 #if 0
-I ev(I z){if(q)err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
+I ev(I z){if(q)aplus_err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
 #else
  I ev(I z){
    if(q)
-     err(q,(A)(QE(z)?XE(z)->f:z));
+     aplus_err(q,(A)(QE(z)?XE(z)->f:z));
  
    {
     I t;
@@ -335,7 +335,7 @@ I ev(I z){if(q)err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
        z=ee(etmp);
        break;
       CS(1,ic((A)(z=(I)gt(XV(z)))))
-      CS(5,for(;!(t=X[U(z)]);)err(4,(A)z);ic((A)(z=t)))
+      CS(5,for(;!(t=X[U(z)]);)aplus_err(4,(A)z);ic((A)(z=t)))
     }
  }
  
@@ -517,7 +517,7 @@ Z I upd(I x,I d,I i,A p,I r,I o){
   extern I Sf;
   Q(QP(i)&&!g,18);
   if(f){if(p||i)gt(v);}else Q((p||i)&&!v->a,4);
-  if(p){z=(I*)pka(p,(A *)v);if(q)R err(q,(A)MP(36)),0;}else z=(I*)v;
+  if(p){z=(I*)pka(p,(A *)v);if(q)R aplus_err(q,(A)MP(36)),0;}else z=(I*)v;
   if(QE(i))Q(!(i=*Y=(I)e0(XE(i),(A)*z)),9);
   if(f)
   {
@@ -648,10 +648,10 @@ I xis(E e)
        break;
 	  case 5:
 		while (!(t=X[U(w)]))
-			err(4, (A)w) ;
+			aplus_err(4, (A)w) ;
 		ic((A)(w=t)) ;
 		break ;
-/*      CS(5,for(;!(t=X[U(w)]);)err(4,(A)w);ic((A)(w=t))) */
+/*      CS(5,for(;!(t=X[U(w)]);)aplus_err(4,(A)w);ic((A)(w=t))) */
 	  }
 	}
 /*	printf("w = %ld\n", w) ; */
@@ -664,7 +664,7 @@ I xis(E e)
 	(e=XE(a),e->f==MN(7))?lst(e->n,e->a,(A)w):
 	peak(e->f)?pea(e,(A)w):
 	mrg((I)e));)
-    err(q,(A)MN(0));
+    aplus_err(q,(A)MN(0));
   R *Y++;
 }
 #else
@@ -677,7 +677,7 @@ I xis(E e)
 	(e=XE(a),e->f==MN(7))?lst(e->n,e->a,(A)w):
 	peak(e->f)?pea(e,(A)w):
 	mrg((I)e));)
-    err(q,(A)MN(0));
+    aplus_err(q,(A)MN(0));
   R *Y++;
 }
 #endif
