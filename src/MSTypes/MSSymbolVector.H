@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -24,12 +24,12 @@
 #include <MSTypes/MSTypeVector.H>
 #endif
 
-#if (__GNUC__ < 3)
-class istream;
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
-#include <fstream>
+// #include <fstream>
 using namespace std;
+#else
+class istream;
 #endif
 
 template <class Type> class MSTypeVector;
@@ -50,7 +50,7 @@ class MSTypesExport MSBaseVectorOps<MSSymbol, MSAllocator<MSSymbol> >;
 #if !defined(MS_MSSymbolVector_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSTypeVector<MSSymbol> : public MSBaseVector<MSSymbol,MSAllocator<MSSymbol> >
 #else
-class MSTypesExport MSTypeVector<MSSymbol> : public MSBaseVector<MSSymbol,MSAllocator<MSSymbol> >
+template <> class MSTypesExport MSTypeVector<MSSymbol> : public MSBaseVector<MSSymbol,MSAllocator<MSSymbol> >
 #endif
 {
 public:

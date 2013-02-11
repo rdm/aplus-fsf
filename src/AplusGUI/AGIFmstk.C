@@ -1,13 +1,21 @@
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 #include <math.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -26,6 +34,12 @@ extern int AplusEvaluationDepth;
 static A cdipv(AClientData *ac_,A data_,A index_,A pick_,V v_)
 {
 //   ++AplusEvaluationDepth;  fix in mstk
+
+  if(AScbTraceHook::function()) 
+    {
+      AScbTraceHook::run(ac_->function(),(I)ac_->data(),(I)data_,(I)index_,(I)pick_,v_);
+    }
+
   A r=af4(ac_->function(),(I)ac_->data(),(I)data_,(I)index_,(I)pick_,v_);
 //   --AplusEvaluationDepth;  fix in mstk
   if (r==0) showError(qs);
@@ -48,16 +62,17 @@ A getVarFunc(AClientData *ac_)
 }
 
 //  MSWidgetView 'A' interface functions
-static void s_width(MSWidgetView *pWidgetView_,I w_) { pWidgetView_->width(w_); }
-static I g_width(MSWidgetView *pWidgetView_) { return pWidgetView_->width(); }
-static void s_height(MSWidgetView *pWidgetView_,I h_) { pWidgetView_->height(h_); }
-static I g_height(MSWidgetView *pWidgetView_) { return pWidgetView_->height(); }
-static void s_x(MSWidgetView *pWidgetView_,I x_) {pWidgetView_->moveTo(x_,pWidgetView_->y_origin());}
-static I g_x(MSWidgetView *pWidgetView_) {return pWidgetView_->x_origin();}
-static void s_y(MSWidgetView *pWidgetView_,I y_) {pWidgetView_->moveTo(pWidgetView_->x_origin(),y_);}
-static I g_y(MSWidgetView *pWidgetView_) {return pWidgetView_->y_origin();}
+static void s_width(MSWidgetView *pWidgetView_,int w_) { pWidgetView_->width(w_); }
+static I g_width(MSWidgetView *pWidgetView_) { return (I) pWidgetView_->width(); }
+static void s_height(MSWidgetView *pWidgetView_,int h_) { pWidgetView_->height(h_); }
+static I g_height(MSWidgetView *pWidgetView_) { return (I) pWidgetView_->height(); }
+static void s_x(MSWidgetView *pWidgetView_,int x_) {pWidgetView_->moveTo(x_,pWidgetView_->y_origin());}
+static I g_x(MSWidgetView *pWidgetView_) {return (I) pWidgetView_->x_origin();}
+static void s_y(MSWidgetView *pWidgetView_,int y_) {pWidgetView_->moveTo(pWidgetView_->x_origin(),y_);}
+static I g_y(MSWidgetView *pWidgetView_) {return (I) pWidgetView_->y_origin();}
 static void s_acceptFocus(MSWidgetView *pWidgetView_,MSBoolean b_) {pWidgetView_->acceptFocus(b_);}
-static MSBoolean g_acceptFocus(MSWidgetView *pWidgetView_) {return pWidgetView_->acceptFocus();}
+static I g_acceptFocus(MSWidgetView *pWidgetView_) 
+{return MSTrue==pWidgetView_->acceptFocus() ? 1 : 0;}
 
 static void s_defaultLeader(MSShell *leader_) {MSShell::defaultLeader(leader_);}
 static MSShell *g_defaultLeader(void) {return MSShell::defaultLeader();}
@@ -160,19 +175,19 @@ static unsigned long g_colorFgPixel(ColorObject *win_) {return win_->pixelFgValu
 static A g_colorFgString(ColorObject *win_) {return (A)(gsv(0,(char *)win_->colorFg()));}
 */
 
-I bServerParseColor(MSDisplayServer *s_,char * cp_) 
+int bServerParseColor(MSDisplayServer *s_,char * cp_) 
 { 
   XColor rgb;
   XParseColor(s_->display(),s_->colorManager()->colormap(),cp_,&rgb); 
   return rgb.pixel;
 }
 
-I bAllocColor(MSDisplayServer *s_,char *cp_) 
+int bAllocColor(MSDisplayServer *s_,char *cp_) 
 { 
   static XColor rgb;
   XParseColor(s_->display(),s_->colorManager()->colormap(),cp_,&rgb); 
   int status=XAllocColor(s_->display(),s_->colorManager()->colormap(),&rgb);
-  return (status!=0)?(I)rgb.pixel:-1;
+  return (status!=0)?(int)rgb.pixel:-1;
 }
 
 static void bFreeColor(MSDisplayServer *s_,unsigned long pixel_) 
@@ -206,10 +221,14 @@ static MSWidgetView *g_focus(MSWidgetView *pWidgetView_)
 
 static MSWidgetView *g_focusWindow(void) { return (MSWidgetView *)MSWidget::focusWindow(); }
 
-static MSBoolean g_freeze(MSWidgetView *pWidgetView_) { return pWidgetView_->frozen(); }
-static MSBoolean g_visible(MSWidgetView *pWidgetView_) { return pWidgetView_->visible(); }
-static MSBoolean g_sensitive(MSWidgetView *pWidgetView_) { return pWidgetView_->sensitive(); }
-static MSBoolean g_dynamic(MSWidgetView *pWidgetView_) { return pWidgetView_->dynamic(); }
+static I g_freeze(MSWidgetView *pWidgetView_) 
+{ return MSTrue==pWidgetView_->frozen() ? 1 : 0; }
+static I g_visible(MSWidgetView *pWidgetView_) 
+{ return MSTrue==pWidgetView_->visible() ? 1 : 0; }
+static I g_sensitive(MSWidgetView *pWidgetView_) 
+{ return MSTrue==pWidgetView_->sensitive() ? 1 : 0; }
+static I g_dynamic(MSWidgetView *pWidgetView_) 
+{ return MSTrue==pWidgetView_->dynamic() ? 1 : 0; }
 static void s_sensitive(MSWidgetView *pWidgetView_,MSBoolean b_) { pWidgetView_->sensitive(b_); }
 static void s_dynamic(MSWidgetView *pWidgetView_,MSBoolean b_) { pWidgetView_->dynamic(b_); }
 static void s_background(MSWidgetView *pWidgetView_,unsigned long p_)
@@ -225,16 +244,16 @@ static void s_hlColor(MSWidgetView *pWidgetView_,unsigned long p_)
 static unsigned long g_hlColor(MSWidgetView *pWidgetView_)
 {return (pWidgetView_!=0) ? pWidgetView_->highlightColor() : 0;}
 
-static void s_hlThickness(MSWidgetView *pWidgetView_,I ht_)
+static void s_hlThickness(MSWidgetView *pWidgetView_,int ht_)
 { if (pWidgetView_!=0) pWidgetView_->highlightThickness(ht_); }
 
 static I g_hlThickness(MSWidgetView *pWidgetView_)
-{return (pWidgetView_!=0) ? pWidgetView_->highlightThickness() : 0;}
+{return (pWidgetView_!=0) ? (I) pWidgetView_->highlightThickness() : 0;}
 
-static void s_shadowThickness(MSWidgetView *pWidgetView_,I st_)
+static void s_shadowThickness(MSWidgetView *pWidgetView_,int st_)
 { if (pWidgetView_!=0) pWidgetView_->shadowThickness(st_); }
 
-static I g_shadowThickness(MSWidgetView *pWidgetView_)
+static int g_shadowThickness(MSWidgetView *pWidgetView_)
 {return (pWidgetView_!=0) ? pWidgetView_->shadowThickness() : 0;}
 
 static void s_shadowStyle(MSWidgetView *pWidgetView_, A value_)
@@ -329,8 +348,8 @@ static void s_freeze(MSWidgetView *pWidgetView_,MSBoolean b_)
 
 //  MSDisplayServer 'A' interface functions
 static Display *g_serverDisplay(MSDisplayServer *server_) {return server_->display();}
-static I 	g_screenWidth(MSDisplayServer *server_)   {return server_->width();}
-static I 	g_screenHeight(MSDisplayServer *server_)  {return server_->height();}
+static I 	g_screenWidth(MSDisplayServer *server_)   {return (I) server_->width();}
+static I 	g_screenHeight(MSDisplayServer *server_)  {return (I) server_->height();}
 
 
 // AplusCollapsible interface functions
@@ -432,9 +451,10 @@ static A g_toolTip(MSCollapsibleLayout *cl_)
 }
 
 // AXPassword interface functions
-static MSBoolean g_passwordValidity(AplusPassword *o_) 	       { return o_->valid(); }
+static I g_passwordValidity(AplusPassword *o_) 	       
+{ return MSTrue==o_->valid() ? 1 : 0; }
 static I  	 g_passwordFillChar(AplusPassword *o_) 	       { return (I)o_->fillChar(); }
-static void 	 s_passwordFillChar(AplusPassword *o_,I ch_) { o_->fillChar((char)ch_); }
+static void 	 s_passwordFillChar(AplusPassword *o_,int ch_) { o_->fillChar((char)ch_); }
 
 
 // AplusTreeView interface functions
@@ -451,12 +471,12 @@ static unsigned long g_treeSelectedNodeFg(AplusTreeView *tv_) {return tv_->selec
 static void s_treeSelectedNodeBg(AplusTreeView *tv_,unsigned long bg_) {tv_->selectedNodeBackground(bg_);}
 static unsigned long g_treeSelectedNodeBg(AplusTreeView *tv_) {return tv_->selectedNodeBackground();}
 
-static void s_treeVerticalSpace(AplusTreeView *tv_,I num_)
+static void s_treeVerticalSpace(AplusTreeView *tv_,int num_)
 {tv_->verticalSpacing(0<num_?num_:0);}
-static I g_treeVerticalSpace(AplusTreeView *tv_) {return tv_->verticalSpacing();}
-static void s_treeHorizontalSpace(AplusTreeView *tv_,I num_)
+static I g_treeVerticalSpace(AplusTreeView *tv_) {return (I) tv_->verticalSpacing();}
+static void s_treeHorizontalSpace(AplusTreeView *tv_,int num_)
 {tv_->horizontalSpacing(0<num_?num_:0);}
-static I g_treeHorizontalSpace(AplusTreeView *tv_) {return tv_->horizontalSpacing();}
+static I g_treeHorizontalSpace(AplusTreeView *tv_) {return (I) tv_->horizontalSpacing();}
 
 static void s_treeOrientation(AplusTreeView *tv_, A sym_)
 {
@@ -476,8 +496,8 @@ static A g_treeOrientation(AplusTreeView *tv_)
 static void s_treeShowButtons(AplusTreeView *tv_, MSBoolean b_)
 { tv_->showButtons(b_); }
 
-static MSBoolean g_treeShowButtons(AplusTreeView *tv_)
-{ return tv_->showButtons(); }
+static I g_treeShowButtons(AplusTreeView *tv_)
+{ return MSTrue==tv_->showButtons() ? 1 : 0; }
 
 static void s_treeLineColor(AplusTreeView *tv_, unsigned long color_)
 { tv_->lineForeground(color_); }
@@ -488,18 +508,18 @@ static unsigned long g_treeLineColor(AplusTreeView *tv_)
 // AplusTextM interface functions
 extern "C" A gst(I x, C *s);
 static A g_textBuffer(AplusText *o_)                      { return (A)gst(0,(char *)o_->string()); }
-static I g_textNumVisibleRows(AplusText *mp_)           { return mp_->rows();}
-static void s_textNumVisibleRows(AplusText *mp_,I num_) { mp_->rows(num_); }
-static I g_textNumVisibleCols(AplusText *mp_)           { return mp_->columns();}
-static void s_textNumVisibleCols(AplusText *mp_,I num_) { mp_->columns(num_); }
-static I g_textCursorPosition(AplusText *o_)            { return o_->cursorPosition();}
-static void s_textCursorPosition(AplusText *o_,I cp_)   { o_->cursorPosition(cp_);}
+static I g_textNumVisibleRows(AplusText *mp_)           { return (I) mp_->rows();}
+static void s_textNumVisibleRows(AplusText *mp_,int num_) { mp_->rows(num_); }
+static I g_textNumVisibleCols(AplusText *mp_)           { return (I) mp_->columns();}
+static void s_textNumVisibleCols(AplusText *mp_,int num_) { mp_->columns(num_); }
+static I g_textCursorPosition(AplusText *o_)            { return (I) o_->cursorPosition();}
+static void s_textCursorPosition(AplusText *o_,int cp_)   { o_->cursorPosition(cp_);}
 
 // AXCommand interface functions
 static char *g_commandBuffer(AplusCommand *o_) {return (char *)o_->buffer(); }
 static void s_commandBuffer(AplusCommand *o_,A a_) { o_->buffer(a_); }
-static I g_commandCursorPosition(AplusCommand *o_){return o_->cursorPosition();}
-static void s_commandCursorPosition(AplusCommand *o_,I cp_) 
+static I g_commandCursorPosition(AplusCommand *o_) {return (I) o_->cursorPosition();}
+static void s_commandCursorPosition(AplusCommand *o_,int cp_) 
 { o_->cursorPosition(cp_); }
 
 // AXPage interface functions
@@ -512,8 +532,8 @@ static A g_pageBoxes(AplusPage *p_) { return p_->boxes(); }
 static void s_pageBoxes(AplusPage *p_,A b_) { p_->boxes(b_); }
 static A g_pageLines(AplusPage *p_) { return p_->lines(); }
 static void s_pageLines(AplusPage *p_,A b_) { p_->lines(b_); }
-static I g_pageLineWidth(AplusPage *p_) { return p_->lineWidth(); }
-static void s_pageLineWidth(AplusPage *p_,I lw_) { p_->lineWidth(lw_); }
+static I g_pageLineWidth(AplusPage *p_) { return (I) p_->lineWidth(); }
+static void s_pageLineWidth(AplusPage *p_,int lw_) { p_->lineWidth(lw_); }
 static A g_pageBoxColors(AplusPage *p_) { return p_->boxColorVector(); }
 static void s_pageBoxColors(AplusPage *p_,A b_) { p_->boxColorVector(b_); }
 static A g_pageRubberBand(AplusPage *p_) { return p_->rBand(); }
@@ -573,7 +593,7 @@ static A g_pageUnderlineFunc(AplusPage *page_)
 
 
 //  XManager 'A' interface functions
-static I g_numChildren(AplusManager *mp_) { return mp_->childCount(); }
+static I g_numChildren(AplusManager *mp_) { return (I) mp_->childCount(); }
 static char *g_serverName(MSDisplayServer *server_) {return (char *) server_->name();}
 
 
@@ -585,20 +605,20 @@ static A g_actionBoxOptions(AplusButtonBox *ab_)
 
 static void s_actionHlColor(AplusButtonBox *o_, unsigned long c_) { o_->highlightColor(c_); }
 static unsigned long g_actionHlColor(AplusButtonBox *o_) { return o_->highlightColor(); }
-static void s_actionHlThickness(AplusButtonBox *o_, I t_) { o_->buttonHighlightThickness(t_); }
-static I g_actionHlThickness(AplusButtonBox *o_) { return o_->buttonHighlightThickness(); }
-static void s_actionButtonShadowThickness(AplusButtonBox *o_, I t_) { o_->buttonShadowThickness(t_); }
-static I g_actionButtonShadowThickness(AplusButtonBox *o_) { return o_->buttonShadowThickness(); }
+static void s_actionHlThickness(AplusButtonBox *o_, int t_) { o_->buttonHighlightThickness(t_); }
+static I g_actionHlThickness(AplusButtonBox *o_) { return (I) o_->buttonHighlightThickness(); }
+static void s_actionButtonShadowThickness(AplusButtonBox *o_, int t_) { o_->buttonShadowThickness(t_); }
+static I g_actionButtonShadowThickness(AplusButtonBox *o_) { return (I) o_->buttonShadowThickness(); }
 
 static void s_checkHlColor(AplusCheckBox *o_, unsigned long c_) { o_->highlightColor(c_); }
 static unsigned long g_checkHlColor(AplusCheckBox *o_) { return o_->highlightColor(); }
-static void s_checkHlThickness(AplusCheckBox *o_, I t_) { o_->buttonHighlightThickness(t_); }
-static I g_checkHlThickness(AplusCheckBox *o_) { return o_->buttonHighlightThickness(); }
+static void s_checkHlThickness(AplusCheckBox *o_, int t_) { o_->buttonHighlightThickness(t_); }
+static I g_checkHlThickness(AplusCheckBox *o_) { return (I) o_->buttonHighlightThickness(); }
 
 static void s_radioHlColor(AplusRadioBox *o_, unsigned long c_) { o_->highlightColor(c_); }
 static unsigned long g_radioHlColor(AplusRadioBox *o_) { return o_->highlightColor(); }
-static void s_radioHlThickness(AplusRadioBox *o_, I t_) { o_->buttonHighlightThickness(t_); }
-static I g_radioHlThickness(AplusRadioBox *o_) { return o_->buttonHighlightThickness(); }
+static void s_radioHlThickness(AplusRadioBox *o_, int t_) { o_->buttonHighlightThickness(t_); }
+static I g_radioHlThickness(AplusRadioBox *o_) { return (I) o_->buttonHighlightThickness(); }
 
 // XTextObject 'A' interface functions /* maps to MSPrimitiveText */
 static void s_labelOptions(MSPrimitiveText *pt_,A x_)
@@ -811,11 +831,11 @@ static A g_scaleLabelOut(MSScale *) { return aplus_nl; }
 //  return (isNull(ac)==MSTrue) ? sp_->labelFormatSym() : ac; 
 //}
 
-static void s_scaleMajorTickSize(MSScale *sp_,I val_) { sp_->majorTickSize(val_); }
+static void s_scaleMajorTickSize(MSScale *sp_,int val_) { sp_->majorTickSize(val_); }
 static I g_scaleMajorTickSize(MSScale *sp_) { return (I)sp_->majorTickSize(); }
-static void s_scaleMinorTickSize(MSScale *sp_,I val_) { sp_->minorTickSize(val_); }
+static void s_scaleMinorTickSize(MSScale *sp_,int val_) { sp_->minorTickSize(val_); }
 static I g_scaleMinorTickSize(MSScale *sp_) { return (I)sp_->minorTickSize(); }
-static void s_scaleMinorTickCt(MSScale *sp_,I val_) { sp_->minorTickCount(val_); }
+static void s_scaleMinorTickCt(MSScale *sp_,int val_) { sp_->minorTickCount(val_); }
 static I g_scaleMinorTickCt(MSScale *sp_) { return (I)sp_->minorTickCount(); }
 
 static void s_scaleEditorBg(MSScale *,unsigned long) { }
@@ -846,7 +866,7 @@ static void s_scaleEdit(MSScale *,MSBoolean)
 //   }
 }
 
-static MSBoolean g_scaleEdit(MSScale *){ return MSFalse; }
+static I g_scaleEdit(MSScale *){ return 0; } // MSFalse
 
 // MSBoolean g_scaleEdit(MSScale *sp_){ return sp_->editor()->mapped(); }
 
@@ -1052,7 +1072,7 @@ static A g_fieldBreakFontFunc(MSWidgetView *o_)
   return out;
 }
 //////////////////////////////////////////////////////////////////////////////
-static void s_fieldBreakLeading(MSWidgetView *o_, I x_)
+static void s_fieldBreakLeading(MSWidgetView *o_, int x_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->breakLeading(x_);
@@ -1060,7 +1080,7 @@ static void s_fieldBreakLeading(MSWidgetView *o_, I x_)
 static I g_fieldBreakLeading(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->breakLeading();
+  return (I) tc->breakLeading();
 }
 static void s_fieldBreakLeadingFunc(MSWidgetView *o_, A fc_)
 {
@@ -1083,7 +1103,7 @@ static A g_fieldBreakLeadingFunc(MSWidgetView *o_)
   return out;
 }
 //////////////////////////////////////////////////////////////////////////////
-static void s_fieldBreakOffset(MSWidgetView *o_, I x_)
+static void s_fieldBreakOffset(MSWidgetView *o_, int x_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->breakOffset(x_);
@@ -1091,7 +1111,7 @@ static void s_fieldBreakOffset(MSWidgetView *o_, I x_)
 static I g_fieldBreakOffset(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->breakOffset();
+  return (I) tc->breakOffset();
 }
 static void s_fieldBreakOffsetFunc(MSWidgetView *o_, A fc_)
 {
@@ -1119,10 +1139,10 @@ static void s_fieldBreakOn(MSWidgetView *o_, MSBoolean a_)
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->breakOn(a_);
 }
-static MSBoolean g_fieldBreakOn(MSWidgetView *o_)
+static I g_fieldBreakOn(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->breakOn();
+  return MSTrue==tc->breakOn() ? 1 : 0;
 }
 
 static void s_fieldBreakProcessOn(MSWidgetView *o_, MSBoolean a_)
@@ -1130,10 +1150,10 @@ static void s_fieldBreakProcessOn(MSWidgetView *o_, MSBoolean a_)
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->breakProcessOn(a_);
 }
-static MSBoolean g_fieldBreakProcessOn(MSWidgetView *o_)
+static I g_fieldBreakProcessOn(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->breakProcessOn();
+  return MSTrue==tc->breakProcessOn() ? 1 : 0;
 }
 //////////////////////////////////////////////////////////////////////////////
 static void s_fieldBreakStyle(MSWidgetView *o_, A a_)
@@ -1342,10 +1362,10 @@ static void s_fieldPageBreakOn(MSWidgetView *o_, MSBoolean a_)
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->pageBreakOn(a_);
 }
-static MSBoolean g_fieldPageBreakOn(MSWidgetView *o_)
+static I g_fieldPageBreakOn(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->pageBreakOn();
+  return MSTrue==tc->pageBreakOn() ? 1 : 0;
 }
 //////////////////////////////////////////////////////////////////////////////
 static void s_fieldReportFont(MSWidgetView *o_, A a_)
@@ -1426,10 +1446,10 @@ static void s_fieldSuppressDuplicate(MSWidgetView *o_, MSBoolean suppress_)
   AplusTableColumn *tc = (AplusTableColumn *)o_;
   tc->suppressDuplicate(suppress_);
 }
-static MSBoolean g_fieldSuppressDuplicate(MSWidgetView *o_)
+static I g_fieldSuppressDuplicate(MSWidgetView *o_)
 {
   AplusTableColumn *tc = (AplusTableColumn *)o_;
-  return tc->suppressDuplicate();
+  return MSTrue==tc->suppressDuplicate()? 1 : 0;
 }
 static void s_fieldComputationMode(MSWidgetView *o_, A cm_)
 {
@@ -1492,8 +1512,8 @@ static A g_hmenuMnemonics(AplusMenu *o_) { return o_->mnemonics(); }
 
 
 //  AXChoice 'A' interface functions   /* MSOptionMenu */
-static void s_choiceNumCols(AplusChoice *o_,I n_) { o_->columns(n_); }
-static I g_choiceNumCols(AplusChoice *o_) { return o_->columns(); }
+static void s_choiceNumCols(AplusChoice *o_,int n_) { o_->columns(n_); }
+static I g_choiceNumCols(AplusChoice *o_) { return (I) o_->columns(); }
 
 
 //  AXCross 'A' interface functions  /* AplusMatrix */
@@ -1502,7 +1522,8 @@ static A g_matrixRowIndex(AplusMatrix *o_) { return o_->rowIndexVector(); }
 static void s_matrixColIndex(AplusMatrix *o_,A a_) { o_->colIndex(a_); }
 static A g_matrixColIndex(AplusMatrix *o_) { return o_->colIndexVector(); }
 static void s_matrixCornerIndex(AplusMatrix *o_,MSBoolean b_){o_->cornerIndex(b_);}
-static MSBoolean g_matrixCornerIndex(AplusMatrix *o_) { return o_->cornerIndex(); }
+static I g_matrixCornerIndex(AplusMatrix *o_) 
+{ return MSTrue==o_->cornerIndex() ? 1 : 0; }
 static void s_matrixRowIndexBg(AplusMatrix *o_,unsigned long bg_) { o_->rowIndexBg(bg_); }
 static unsigned long g_matrixRowIndexBg(AplusMatrix *o_) {return o_->rowIndexBg();}
 static void s_matrixColIndexBg(AplusMatrix *o_,unsigned long bg_) { o_->colIndexBg(bg_); }
@@ -1510,8 +1531,8 @@ static unsigned long g_matrixColIndexBg(AplusMatrix *o_) {return o_->colIndexBg(
 static void s_matrixCornerIndexBg(AplusMatrix *o_,unsigned long bg_) { o_->cornerIndexBg(bg_); }
 static unsigned long g_matrixCornerIndexBg(AplusMatrix *o_) { return o_->cornerIndexBg(); }
 
-static I g_matrixNumHeadingRows(AplusMatrix *mp_) { return mp_->numHeadings(); }
-static void s_matrixNumHeadingRows(AplusMatrix *mp_,I num_) { mp_->numHeadings(num_); }
+static I g_matrixNumHeadingRows(AplusMatrix *mp_) { return (I) mp_->numHeadings(); }
+static void s_matrixNumHeadingRows(AplusMatrix *mp_,int num_) { mp_->numHeadings(num_); }
 static A g_matrixColSpace(AplusMatrix *mp_) { return mp_->colSpace(); }
 static void s_matrixColSpace(AplusMatrix *mp_,A a_) { mp_->colSpace(a_); }
 static void s_matrixColSpaceFunc(AplusMatrix *o_,A fc_)
@@ -1529,10 +1550,10 @@ static A g_matrixColSpaceFunc(AplusMatrix *o_) {  return (A)getVarFunc((AClientD
 
 
 //  AXSObject 'A' interface functions    /* MSRowColumnView */
-static I g_numVisibleRows(MSRowColumnView *mp_) { return mp_->rows(); }
-static void s_numVisibleRows(MSRowColumnView *mp_,I num_) {mp_->rows(num_); }
-static I g_numVisibleCols(MSRowColumnView *mp_) { return mp_->columns(); }
-static void s_numVisibleCols(MSRowColumnView *mp_,I num_) {mp_->columns(num_); }
+static I g_numVisibleRows(MSRowColumnView *mp_) { return (I) mp_->rows(); }
+static void s_numVisibleRows(MSRowColumnView *mp_,int num_) {mp_->rows(num_); }
+static I g_numVisibleCols(MSRowColumnView *mp_) { return (I) mp_->columns(); }
+static void s_numVisibleCols(MSRowColumnView *mp_,int num_) {mp_->columns(num_); }
 
 static void s_arrayCycleFunc(MSRowColumnView *o_, A fc_)
 {
@@ -1630,22 +1651,22 @@ static unsigned long g_arrayEditorBg(MSRowColumnView *o_)
 { return o_->editorBackground(); } 
 static unsigned long g_arrayEditorFg(MSRowColumnView *o_) 
 { return o_->editorForeground(); } 
-static void s_arraySelectRow(MSRowColumnView *o_,I row_) 
+static void s_arraySelectRow(MSRowColumnView *o_,int row_) 
 {
   if(MSFalse==o_->editing())o_->selectedRow(row_);
   else showError("Invalid row selection: array in edit mode");
 }
-static void s_arrayFirstRow(MSRowColumnView *o_,I row_) { o_->firstRow(row_); }
-static void s_arrayFirstCol(MSRowColumnView *o_,I col_) { o_->firstColumn(col_); }
-static void s_arraySbSize(MSRowColumnView *o_,I size_) { o_->vsbSize(size_); o_->hsbSize(size_); }
-static void s_arrayHsbSize(MSRowColumnView *o_,I size_) { o_->hsbSize(size_); }
-static void s_arrayVsbSize(MSRowColumnView *o_,I size_) { o_->vsbSize(size_); }
-static I g_arraySelectRow(MSRowColumnView *o_) { return o_->selectedRow(); }
-static I g_arrayFirstRow(MSRowColumnView *o_) { return o_->firstRow(); }
-static I g_arrayFirstCol(MSRowColumnView *o_) { return o_->firstColumn(); }
-static I g_arraySbSize(MSRowColumnView *o_) { return o_->hsbSize(); }
-static I g_arrayHsbSize(MSRowColumnView *o_) { return o_->hsbSize(); }
-static I g_arrayVsbSize(MSRowColumnView *o_) { return o_->vsbSize(); }
+static void s_arrayFirstRow(MSRowColumnView *o_,int row_) { o_->firstRow(row_); }
+static void s_arrayFirstCol(MSRowColumnView *o_,int col_) { o_->firstColumn(col_); }
+static void s_arraySbSize(MSRowColumnView *o_,int size_) { o_->vsbSize(size_); o_->hsbSize(size_); }
+static void s_arrayHsbSize(MSRowColumnView *o_,int size_) { o_->hsbSize(size_); }
+static void s_arrayVsbSize(MSRowColumnView *o_,int size_) { o_->vsbSize(size_); }
+static I g_arraySelectRow(MSRowColumnView *o_) { return (I) o_->selectedRow(); }
+static I g_arrayFirstRow(MSRowColumnView *o_) { return (I) o_->firstRow(); }
+static I g_arrayFirstCol(MSRowColumnView *o_) { return (I) o_->firstColumn(); }
+static I g_arraySbSize(MSRowColumnView *o_) { return (I) o_->hsbSize(); }
+static I g_arrayHsbSize(MSRowColumnView *o_) { return (I) o_->hsbSize(); }
+static I g_arrayVsbSize(MSRowColumnView *o_) { return (I) o_->vsbSize(); }
 
 static void s_arraySelectionMode(MSRowColumnView *o_,A sym_)
 {
@@ -1670,7 +1691,8 @@ static A g_arraySelectionMode(MSRowColumnView *o_)
   return a;
 }
 
-static MSBoolean g_arrayEdit(MSRowColumnView *o_) {return o_->editing();}
+static I g_arrayEdit(MSRowColumnView *o_) 
+{return MSTrue==o_->editing() ? 1 : 0;}
 
 static void s_arrayEdit(MSRowColumnView *o_,MSBoolean b_) 
 {
@@ -1711,35 +1733,37 @@ static void s_arraySelectBg(MSArrayView *o_,unsigned long p_)
 static unsigned long g_arraySelectBg(MSArrayView *o_)
 {return o_->selectedCellBackground(); } 
 
-static void s_arraySelectCol(MSArrayView *o_,I col_) 
+static void s_arraySelectCol(MSArrayView *o_,int col_) 
 {
   if(MSFalse==o_->editing())o_->selectedColumn(col_);
   else showError("Invalid column selection: array in edit mode");
 }
-static I g_arraySelectCol(MSArrayView *o_) { return o_->selectedColumn(); }
+static I g_arraySelectCol(MSArrayView *o_) { return (I) o_->selectedColumn(); }
 
-static void s_arraySeparatorInterval(MSArrayView *o_,I inc_) {o_->rowSeparator(inc_); }
-static I g_arraySeparatorInterval(MSArrayView *o_) {return o_->rowSeparator();}
+static void s_arraySeparatorInterval(MSArrayView *o_,int inc_) {o_->rowSeparator(inc_); }
+static I g_arraySeparatorInterval(MSArrayView *o_) {return (I) o_->rowSeparator();}
 
-static void s_arrayColSeparator(MSArrayView *o_,I inc_) {o_->columnSeparator(inc_);}
-static I g_arrayColSeparator(MSArrayView *o_) {return o_->columnSeparator();}
+static void s_arrayColSeparator(MSArrayView *o_,int inc_) {o_->columnSeparator(inc_);}
+static I g_arrayColSeparator(MSArrayView *o_) {return (I) o_->columnSeparator();}
 
 
 // AXTable fns    /* MSTable */
-static void s_tableNumFixedFields(MSArrayView *o_,I n_) { o_->fixedColumns(n_); }
-static I g_tableNumFixedFields(MSArrayView *o_) {return o_->fixedColumns(); }
+static void s_tableNumFixedFields(MSArrayView *o_,int n_) { o_->fixedColumns(n_); }
+static I g_tableNumFixedFields(MSArrayView *o_) {return (I) o_->fixedColumns(); }
 static void s_tableColumnDragDrop(MSArrayView *o_, MSBoolean b_) { ((MSTable *)o_)->columnDragDrop(b_); }
-static MSBoolean g_tableColumnDragDrop(MSArrayView *o_) { return ((MSTable *)o_)->columnDragDrop(); }
+static I g_tableColumnDragDrop(MSArrayView *o_) 
+{ return MSTrue==((MSTable *)o_)->columnDragDrop() ? 1 : 0; }
 static void s_tableColumnResize(MSArrayView *o_, MSBoolean b_) { ((MSTable *)o_)->columnResize(b_); }
-static MSBoolean g_tableColumnResize(MSArrayView *o_) { return ((MSTable *)o_)->columnResize(); }
+static I g_tableColumnResize(MSArrayView *o_) 
+{ return MSTrue==((MSTable *)o_)->columnResize() ? 1 : 0; }
 
 static void s_tableBreakFont(MSArrayView *o_, A x_) { ((MSTable *) o_)->breakFont(AplusConvert::asMSString(x_)); }
 static A g_tableBreakFont(MSArrayView *o_) { return AplusConvert::asA(((MSTable *) o_)->breakFont()); }
 static void s_tableBreakStyle(MSArrayView *o_, A x_) { ((MSTable *) o_)->breakStyle(GUIEnum.formatStyle(x_)); }
 static A g_tableBreakStyle(MSArrayView *o_) { return GUIEnum.formatStyle(((MSTable *) o_)->breakStyle()); }
 
-static void s_tableFixedReportColumns(MSArrayView *o_, I x_) { ((MSTable *) o_)->MSReportTable::fixedReportColumns(x_); }
-static I g_tableFixedReportColumns(MSArrayView *o_) { return ((MSTable *) o_)->fixedReportColumns(); }
+static void s_tableFixedReportColumns(MSArrayView *o_, int x_) { ((MSTable *) o_)->MSReportTable::fixedReportColumns(x_); }
+static I g_tableFixedReportColumns(MSArrayView *o_) { return (I) ((MSTable *) o_)->fixedReportColumns(); }
 
 static void s_tableGroupHeading(MSArrayView *o_, A x_) 
 { 
@@ -1797,11 +1821,11 @@ static void s_tableGroupHeading(MSArrayView *o_, A x_)
 }
 static A g_tableGroupHeading(MSArrayView *o_) { return aplus_nl; }
 
-static I g_tableGrandTotal(MSArrayView *o_) { return ((MSTable *) o_)->grandTotal(); }
+static I g_tableGrandTotal(MSArrayView *o_) { return (I) ((MSTable *) o_)->grandTotal(); }
 static I g_tableCurrentBreakColumn(MSArrayView *o_)
 {
   MSTable *t=(MSTable *) o_;
-  if (t->breakColumn().length()>0) return t->breakColumn().lastElement();
+  if (t->breakColumn().length()>0) return (I) t->breakColumn().lastElement();
   return -1;
 }
 static void s_tableGrandTotalText(MSArrayView *o_, A sym_, A printText_)
@@ -1822,35 +1846,37 @@ static A g_tableHeadingStyle(MSArrayView *o_) { return GUIEnum.formatStyle(((MST
 static void s_tableReportFont(MSArrayView *o_, A x_) { ((MSTable *) o_)->reportFont(AplusConvert::asMSString(x_)); }
 static A g_tableReportFont(MSArrayView *o_) { return AplusConvert::asA(((MSTable *) o_)->reportFont()); }
 static void s_tableReportGrandTotalOn(MSArrayView *o_, MSBoolean x_) { ((MSTable *) o_)->reportGrandTotalOn(x_); }
-static MSBoolean g_tableReportGrandTotalOn(MSArrayView *o_) { return ((MSTable *) o_)->reportGrandTotalOn(); }
+static I g_tableReportGrandTotalOn(MSArrayView *o_) 
+{ return MSTrue==((MSTable *) o_)->reportGrandTotalOn() ? 1 : 0; }
 static void s_tableReportHeadingFont(MSArrayView *o_, A x_) { ((MSTable *) o_)->reportHeadingFont(AplusConvert::asMSString(x_)); }
 static A g_tableReportHeadingFont(MSArrayView *o_) { return AplusConvert::asA(((MSTable *) o_)->reportHeadingFont()); }
 static void s_tableReportTotalOn(MSArrayView *o_, MSBoolean x_) { ((MSTable *) o_)->reportTotalOn(x_); }
-static MSBoolean g_tableReportTotalOn(MSArrayView *o_) { return ((MSTable *) o_)->reportTotalOn(); }
+static I g_tableReportTotalOn(MSArrayView *o_) 
+{ return  MSTrue==((MSTable *) o_)->reportTotalOn() ? 1 : 0; }
 static void s_tableReportTotalFont(MSArrayView *o_, A x_) { ((MSTable *) o_)->reportTotalFont(AplusConvert::asMSString(x_)); }
 static A g_tableReportTotalFont(MSArrayView *o_) { return AplusConvert::asA(((MSTable *) o_)->reportTotalFont()); }
-static void s_tableReportTotalLeading(MSArrayView *o_, I x_) { ((MSTable *) o_)->reportTotalLeading(x_); }
-static I g_tableReportTotalLeading(MSArrayView *o_) { return ((MSTable *) o_)->reportTotalLeading(); }
+static void s_tableReportTotalLeading(MSArrayView *o_, int x_) { ((MSTable *) o_)->reportTotalLeading(x_); }
+static I g_tableReportTotalLeading(MSArrayView *o_) { return (I) ((MSTable *) o_)->reportTotalLeading(); }
 static void s_tableReportTotalStyle(MSArrayView *o_, A x_) { ((MSTable *) o_)->reportTotalStyle(GUIEnum.formatStyle(x_)); }
 static A g_tableReportTotalStyle(MSArrayView *o_) { return GUIEnum.formatStyle(((MSTable *) o_)->reportTotalStyle()); }
 static void s_tableStyle(MSArrayView *o_, A x_) { ((MSTable *) o_)->style(GUIEnum.formatStyle(x_)); }
 static A g_tableStyle(MSArrayView *o_) { return GUIEnum.formatStyle(((MSTable *) o_)->style()); }
 static void s_tableRowControl(MSArrayView *o_, A vals_) { ((MSTable *)o_)->rowControl(AplusConvert::asMSUnsignedVector(vals_)); }
 static A g_tableRowControl(MSArrayView *o_) { return AplusConvert::asA(((MSTable *)o_)->rowControl()); }
-static void s_tableRowPageSpan(MSArrayView *o_, I rowPageSpan_) { ((MSTable *)o_)->rowPageSpan(rowPageSpan_); }
-static I g_tableRowPageSpan(MSArrayView *o_) { return ((MSTable *)o_)->rowPageSpan(); }
+static void s_tableRowPageSpan(MSArrayView *o_, int rowPageSpan_) { ((MSTable *)o_)->rowPageSpan(rowPageSpan_); }
+static I g_tableRowPageSpan(MSArrayView *o_) { return (I) ((MSTable *)o_)->rowPageSpan(); }
 static void s_tableColumnControl(MSArrayView *o_, A vals_) { ((MSTable *)o_)->columnControl(AplusConvert::asMSUnsignedVector(vals_)); }
 static A g_tableColumnControl(MSArrayView *o_) { return AplusConvert::asA(((MSTable *)o_)->columnControl()); }
 static void s_tableColumnPageSpan(MSArrayView *o_, unsigned columnPageSpan_) { ((MSTable *)o_)->columnPageSpan(columnPageSpan_); }
-static I g_tableColumnPageSpan(MSArrayView *o_) { return ((MSTable *)o_)->columnPageSpan(); }
-static void s_tableNewspaperColumn(MSArrayView *o_, I x_) { ((MSTable *) o_)->newspaperColumns(x_); }
-static I g_tableNewspaperColumn(MSArrayView *o_) { return ((MSTable *) o_)->newspaperColumns(); }
+static I g_tableColumnPageSpan(MSArrayView *o_) { return (I) ((MSTable *)o_)->columnPageSpan(); }
+static void s_tableNewspaperColumn(MSArrayView *o_, int x_) { ((MSTable *) o_)->newspaperColumns(x_); }
+static I g_tableNewspaperColumn(MSArrayView *o_) { return (I) ((MSTable *) o_)->newspaperColumns(); }
 static A g_tableColumnSpacing(MSArrayView *o_) { return AplusConvert::asA(((MSTable *)o_)->reportColumnSpacing()); }
 static void s_tableColumnSpacing(MSArrayView *o_, A floats_) { ((MSTable *)o_)->reportColumnSpacing(AplusConvert::asMSFloatVector(floats_)); }
-static I g_tableFrameLineWidth(MSArrayView *o_) { return ((MSTable *)o_)->frameLineWidth(); }
-static void s_tableFrameLineWidth(MSArrayView *o_, I flw_) { ((MSTable *)o_)->frameLineWidth(flw_); }
-static I g_tableFrameOffset(MSArrayView *o_) { return ((MSTable *)o_)->frameOffset(); }
-static void s_tableFrameOffset(MSArrayView *o_, I fo_) { ((MSTable *)o_)->frameOffset(fo_); }
+static I g_tableFrameLineWidth(MSArrayView *o_) { return (I) ((MSTable *)o_)->frameLineWidth(); }
+static void s_tableFrameLineWidth(MSArrayView *o_, int flw_) { ((MSTable *)o_)->frameLineWidth(flw_); }
+static I g_tableFrameOffset(MSArrayView *o_) { return (I) ((MSTable *)o_)->frameOffset(); }
+static void s_tableFrameOffset(MSArrayView *o_, int fo_) { ((MSTable *)o_)->frameOffset(fo_); }
 static A g_tableFrameStyle(MSArrayView *o_) { return GUIEnum.formatStyle(((MSTable *)o_)->frameStyle()); }
 static void s_tableFrameStyle(MSArrayView *o_, A sym_) { ((MSTable *)o_)->frameStyle(GUIEnum.formatStyle(sym_)); }
 static A g_tableLeading(MSArrayView *o_) { return AplusConvert::asA(((MSTable *)o_)->leading()); }
@@ -1914,7 +1940,7 @@ static void s_tableLeftMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->leftMargin((double)*(int*)value_->p);
+	  pTable->leftMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1940,7 +1966,7 @@ static void s_tableRightMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->rightMargin((double)*(int*)value_->p);
+	  pTable->rightMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1966,7 +1992,7 @@ static void s_tableTopOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->topOffset((double)*(int*)value_->p);
+	  pTable->topOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1991,7 +2017,7 @@ static void s_tableBottomOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->bottomOffset((double)*(int*)value_->p);
+	  pTable->bottomOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -2005,11 +2031,11 @@ static A g_tableBottomOffset(MSWidgetView *pWidget_)
   return gf(offset/MSPointsPerInch);
 }
 
-static void s_tablePrintRow(MSWidgetView *pWidget_, I value_) { ((AplusTable *)pWidget_)->printRow(value_); }
-static I  g_tablePrintRow(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->printRow(); }
+static void s_tablePrintRow(MSWidgetView *pWidget_, int value_) { ((AplusTable *)pWidget_)->printRow(value_); }
+static I  g_tablePrintRow(MSWidgetView *pWidget_) { return (I) ((AplusTable *)pWidget_)->printRow(); }
 
-static void s_tablePrintColumn(MSWidgetView *pWidget_, I value_) { ((AplusTable *)pWidget_)->printColumn(value_); }
-static I  g_tablePrintColumn(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->printColumn(); }
+static void s_tablePrintColumn(MSWidgetView *pWidget_, int value_) { ((AplusTable *)pWidget_)->printColumn(value_); }
+static I  g_tablePrintColumn(MSWidgetView *pWidget_) { return (I) ((AplusTable *)pWidget_)->printColumn(); }
 
 static void s_tableJustify(MSWidgetView *pWidget_, A value_)
 {
@@ -2062,7 +2088,7 @@ static void s_tableFgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->fgGrayScale((double)*(int*)value_->p);
+	  pTable->fgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -2079,7 +2105,7 @@ static void s_tableBgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->bgGrayScale((double)*(int*)value_->p);
+	  pTable->bgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -2096,7 +2122,7 @@ static void s_tableHeadingFgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->headingFgGrayScale((double)*(int*)value_->p);
+	  pTable->headingFgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -2113,30 +2139,32 @@ static void s_tableHeadingBgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pTable->headingBgGrayScale((double)*(int*)value_->p);
+	  pTable->headingBgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
 static A g_tableHeadingBgGrayScale(MSWidgetView *pWidget_) { return gf(((AplusTable *)pWidget_)->headingBgGrayScale()); }
 
-static void s_tableBreakOffset(MSWidgetView *pWidget_, I value_) { ((AplusTable *)pWidget_)->breakOffset(value_); }
-static I  g_tableBreakOffset(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->breakOffset(); }
+static void s_tableBreakOffset(MSWidgetView *pWidget_, int value_) { ((AplusTable *)pWidget_)->breakOffset(value_); }
+static I  g_tableBreakOffset(MSWidgetView *pWidget_) { return (I) ((AplusTable *)pWidget_)->breakOffset(); }
 
-static void s_tableBreakLeading(MSWidgetView *pWidget_, I value_) { ((AplusTable *)pWidget_)->breakLeading(value_); }
-static I  g_tableBreakLeading(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->breakLeading(); }
+static void s_tableBreakLeading(MSWidgetView *pWidget_, int value_) { ((AplusTable *)pWidget_)->breakLeading(value_); }
+static I  g_tableBreakLeading(MSWidgetView *pWidget_) { return (I) ((AplusTable *)pWidget_)->breakLeading(); }
 
-static void s_tableReportHeadingOffset(MSWidgetView *pWidget_, I value_)
+static void s_tableReportHeadingOffset(MSWidgetView *pWidget_, int value_)
 { ((AplusTable *)pWidget_)->reportHeadingOffset(value_); }
-static I  g_tableReportHeadingOffset(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->reportHeadingOffset(); }
+static I  g_tableReportHeadingOffset(MSWidgetView *pWidget_) { return (I) ((AplusTable *)pWidget_)->reportHeadingOffset(); }
 
 static void s_tableComputeBreaks(MSWidgetView *pWidget_) { ((AplusTable *)pWidget_)->computeBreaks(); }
 
 static void s_tableDynamicRecompute(MSWidgetView *pWidget_, MSBoolean value_)
 { ((AplusTable *)pWidget_)->dynamicRecompute(value_); }
-static MSBoolean g_tableDynamicRecompute(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->dynamicRecompute(); }
+static I g_tableDynamicRecompute(MSWidgetView *pWidget_) 
+{ return MSTrue==((AplusTable *)pWidget_)->dynamicRecompute() ? 1 : 0; }
 
 static void s_tableShowBreaks(MSWidgetView *pWidget_, MSBoolean value_) { ((AplusTable *)pWidget_)->showBreaks(value_); }
-static MSBoolean g_tableShowBreaks(MSWidgetView *pWidget_) { return ((AplusTable *)pWidget_)->showBreaks(); }
+static I g_tableShowBreaks(MSWidgetView *pWidget_) 
+{ return MSTrue==((AplusTable *)pWidget_)->showBreaks() ? 1 : 0; }
 
 static void s_tableHeadingFg(MSWidgetView *pWidget_, unsigned long value_)
 { ((AplusTable *)pWidget_)->headingForeground(value_); }
@@ -2164,8 +2192,8 @@ static A g_tableDelimiter(MSWidgetView *pWidget_) { return AplusConvert::asA(((A
 //{ return AplusConvert::asA(((AplusTable *)pWidget_)->breakTextIndex()); }
 
 // XScrollW fns    /* MSScrolledWindow */
-static I g_windowSbSize(MSScrolledWindow *w_) { return w_->scrollBarSize(); }
-static void s_windowSbSize(MSScrolledWindow *w_,I s_) { w_->scrollBarSize(s_); }
+static I g_windowSbSize(MSScrolledWindow *w_) { return (I) w_->scrollBarSize(); }
+static void s_windowSbSize(MSScrolledWindow *w_,int s_) { w_->scrollBarSize(s_); }
 static void s_windowVsbBg(MSScrolledWindow *w_,unsigned long p_) {w_->vsbBackground(p_); } 
 static void s_windowHsbBg(MSScrolledWindow *w_,unsigned long p_) { w_->hsbBackground(p_); } 
 static unsigned long g_windowVsbBg(MSScrolledWindow *) {return 0;}
@@ -2174,13 +2202,13 @@ static unsigned long g_windowHsbBg(MSScrolledWindow *) {return 0;}
 //static unsigned long g_windowHsbBg(MSScrolledWindow *w_) {return w_->hsbBackground();}
 
 // AXPushB fns   /* MSButton */
-static void s_buttonMargin(MSButton *btn_,I m_) { btn_->margin(m_); }
-static I g_buttonMargin(MSButton *btn_) { return btn_->margin(); }
+static void s_buttonMargin(MSButton *btn_,int m_) { btn_->margin(m_); }
+static I g_buttonMargin(MSButton *btn_) { return (I) btn_->margin(); }
 
 
 // AXLabelM fns  /* MSLabel */
-static void s_labelMargin(AplusLabel *btn_,I m_) { btn_->margin(m_); }
-static I g_labelMargin(AplusLabel *btn_) { return btn_->margin(); }
+static void s_labelMargin(AplusLabel *btn_,int m_) { btn_->margin(m_); }
+static I g_labelMargin(AplusLabel *btn_) { return (I) btn_->margin(); }
    
 
 // AXScalar fns  /* MSEntryField */
@@ -2189,9 +2217,11 @@ static void s_scalarEditorFg(AplusEntryField *o_,unsigned long p_) { o_->editorF
 static unsigned long g_scalarEditorBg(AplusEntryField *o_) { return o_->editorBackground(); } 
 static unsigned long g_scalarEditorFg(AplusEntryField *o_){ return o_->editorForeground(); } 
 static void s_scalarEdit(AplusEntryField *o_,MSBoolean b_){ (b_==MSTrue)?o_->edit():(void)o_->activateEditor(); }
-static MSBoolean g_scalarEdit(AplusEntryField *o_) { return o_->editing(); }
+static I g_scalarEdit(AplusEntryField *o_) 
+{ return MSTrue==o_->editing() ? 1 : 0; }
 static void s_scalarArrowButtons(AplusEntryField *o_, MSBoolean b_) { o_->arrowButtons(b_); }
-static MSBoolean g_scalarArrowButtons(AplusEntryField *o_) { return o_->arrowButtons(); }
+static I g_scalarArrowButtons(AplusEntryField *o_) 
+{ return MSTrue==o_->arrowButtons() ? 1 : 0; }
 
 static void s_scalarCycleFunc(AplusEntryField *o_,A fc_)
 {
@@ -2289,8 +2319,8 @@ static A g_scalarValueShadowStyle(AplusEntryField *ef_)
   return converter(ef_->valueShadowStyle());
 }
 
-static void s_scalarValueShadowThickness(AplusEntryField *ef_, I value_) { ef_->valueShadowThickness(value_); }
-static I g_scalarValueShadowThickness(AplusEntryField *ef_) { return ef_->valueShadowThickness(); }
+static void s_scalarValueShadowThickness(AplusEntryField *ef_, int value_) { ef_->valueShadowThickness(value_); }
+static I g_scalarValueShadowThickness(AplusEntryField *ef_) { return (I) ef_->valueShadowThickness(); }
 
 // cycleColorMode() method does not yet exist for MSEntryField, but will.
 // static void s_scalarCycleColorMode(AplusEntryField *o_, A cm_)
@@ -2329,22 +2359,23 @@ static void s_slotEditorFg(AplusSlot *o_,unsigned long p_)
 static unsigned long g_slotEditorBg(AplusSlot *o_){return o_->editorBackground();}
 static unsigned long g_slotEditorFg(AplusSlot *o_){return o_->editorForeground();}
 static void s_slotEdit(AplusSlot *o_,MSBoolean b_) { (b_==MSTrue)?o_->startEditing():o_->stopEditing(); }
-static MSBoolean g_slotEdit(AplusSlot *o_) { return o_->editing(); }
-static void s_slotSelected(AplusSlot *o_,I index_) { o_->selectedItem(index_); }
-static I g_slotSelected(AplusSlot *o_) { return o_->selectedItem(); }
+static I g_slotEdit(AplusSlot *o_) 
+{ return MSTrue==o_->editing() ? 1 : 0; }
+static void s_slotSelected(AplusSlot *o_,int index_) { o_->selectedItem(index_); }
+static I g_slotSelected(AplusSlot *o_) { return (I) o_->selectedItem(); }
 static void s_slotHlColor(AplusSlot *o_, unsigned long c_) { o_->highlightColor(c_); }
 static unsigned long g_slotHlColor(AplusSlot *o_) { return o_->highlightColor(); }
-static void s_slotHlThickness(AplusSlot *o_, I t_) { o_->highlightThickness(t_); }
-static I g_slotHlThickness(AplusSlot *o_) { return o_->highlightThickness(); }
-static void s_slotShadowThickness(AplusSlot *o_, I t_) { o_->shadowThickness(t_); }
-static I g_slotShadowThickness(AplusSlot *o_) { return o_->shadowThickness(); }
+static void s_slotHlThickness(AplusSlot *o_, int t_) { o_->highlightThickness(t_); }
+static I g_slotHlThickness(AplusSlot *o_) { return (I) o_->highlightThickness(); }
+static void s_slotShadowThickness(AplusSlot *o_, int t_) { o_->shadowThickness(t_); }
+static I g_slotShadowThickness(AplusSlot *o_) { return (I) o_->shadowThickness(); }
 static void s_slotArrowButtons(AplusSlot *o_, A states_) { o_->arrowButtons((A)ic(states_)); }
 static A g_slotArrowButtons(AplusSlot *o_) { return (A)ic(o_->arrowButtons()); }
   
 
 // AXBox fns 
-static void s_boxSelected(AplusButtonBox *o_,I index_) { o_->selectedItem(index_); }
-static I g_boxSelected(AplusButtonBox *o_) { return o_->selectedItem(); }
+static void s_boxSelected(AplusButtonBox *o_,int index_) { o_->selectedItem(index_); }
+static I g_boxSelected(AplusButtonBox *o_) { return (I) o_->selectedItem(); }
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2361,22 +2392,22 @@ static A g_layoutColSpace(MSLayoutManager *tp_) { A r=gf(tp_->columnSpacing()); 
 static I g_layoutRow(MSWidgetView *pWidgetView_)
 {
   MSLayoutManager *tp=(MSLayoutManager *) pWidgetView_->owner();
-  return tp->row((MSWidgetView *)pWidgetView_);
+  return (I) tp->row((MSWidgetView *)pWidgetView_);
 }
 static I g_layoutCol(MSWidgetView *pWidgetView_)
 {
   MSLayoutManager *tp=(MSLayoutManager *) pWidgetView_->owner();
-  return tp->column((MSWidgetView *)pWidgetView_);
+  return (I) tp->column((MSWidgetView *)pWidgetView_);
 }
 static I g_layoutHspan(MSWidgetView *pWidgetView_)
 {
   MSLayoutManager *tp=(MSLayoutManager *) pWidgetView_->owner();
-  return tp->columnSpan((MSWidgetView *)pWidgetView_);
+  return (I) tp->columnSpan((MSWidgetView *)pWidgetView_);
 }
 static I g_layoutVspan(MSWidgetView *pWidgetView_)
 {
   MSLayoutManager *tp=(MSLayoutManager *) pWidgetView_->owner();
-  return tp->rowSpan((MSWidgetView *)pWidgetView_);
+  return (I) tp->rowSpan((MSWidgetView *)pWidgetView_);
 }
 static unsigned long g_layoutOptions(MSWidgetView *pWidgetView_)
 {
@@ -2384,14 +2415,14 @@ static unsigned long g_layoutOptions(MSWidgetView *pWidgetView_)
   return tp->options(pWidgetView_);
 }
 
-static MSBoolean g_layoutUniformRows(MSLayoutManager *tb_) 
-{ return tb_->uniformRows(); }
-static MSBoolean g_layoutUniformCols(MSLayoutManager *tb_) 
-{ return tb_->uniformColumns(); }
-static MSBoolean g_layoutLockSize(MSLayoutManager *tb_) 
-{ return tb_->lockSize(); }
-static MSBoolean g_layoutLockPositions(MSLayoutManager *tb_)
-{return tb_->lockPositions();}
+static I g_layoutUniformRows(MSLayoutManager *tb_) 
+{ return MSTrue==tb_->uniformRows() ? 1 : 0; }
+static I g_layoutUniformCols(MSLayoutManager *tb_) 
+{ return  MSTrue==tb_->uniformColumns() ? 1 : 0; }
+static I g_layoutLockSize(MSLayoutManager *tb_) 
+{ return MSTrue==tb_->lockSize() ? 1 : 0; }
+static I g_layoutLockPositions(MSLayoutManager *tb_)
+{return MSTrue==tb_->lockPositions() ? 1 : 0;}
 static void s_layoutUniformRows(MSLayoutManager *tb_,MSBoolean b_)
 { tb_->uniformRows(b_);}
 static void s_layoutUniformCols(MSLayoutManager *tb_,MSBoolean b_)
@@ -2401,8 +2432,8 @@ static void s_layoutLockSize(MSLayoutManager *tb_,MSBoolean b_)
 static void s_layoutLockPositions(MSLayoutManager *tb_,MSBoolean b_)
 {tb_->lockPositions(b_); }
 
-static void s_layoutMargin(MSLayoutManager *pWidgetView_, I margin_) { pWidgetView_->margin(margin_); }
-static I g_layoutMargin(MSLayoutManager *pWidgetView_) { return pWidgetView_->margin(); }
+static void s_layoutMargin(MSLayoutManager *pWidgetView_, int margin_) { pWidgetView_->margin(margin_); }
+static I g_layoutMargin(MSLayoutManager *pWidgetView_) { return (I) pWidgetView_->margin(); }
 
 //  AplusNotebook 'A' interface functions
 
@@ -2411,19 +2442,19 @@ static A g_notebookOrientation(AplusNotebook *nb_)
   return gsym((MSNotebook::Vertical==nb_->orientation())?"vertical":"horizontal");
 }
 
-static MSBoolean g_notebookShowBinding(AplusNotebook *nb_) 
-{ return nb_->showBinding(); }
-static unsigned long g_notebookBindingWidth(AplusNotebook *nb_) 
+static I g_notebookShowBinding(AplusNotebook *nb_) 
+{ return MSTrue== nb_->showBinding() ? 1 : 0; }
+static unsigned g_notebookBindingWidth(AplusNotebook *nb_) 
 { return nb_->bindingWidth(); }
-static unsigned long g_notebookFrameThickness(AplusNotebook *nb_) 
+static unsigned g_notebookFrameThickness(AplusNotebook *nb_) 
 { return nb_->frameThickness(); }
-static unsigned long g_notebookMarginHeight(AplusNotebook *nb_)
+static unsigned g_notebookMarginHeight(AplusNotebook *nb_)
 { return nb_->marginHeight(); }
-static unsigned long g_notebookMarginWidth(AplusNotebook *nb_)
+static unsigned g_notebookMarginWidth(AplusNotebook *nb_)
 { return nb_->marginWidth(); }
-static unsigned long g_notebookBackpages(AplusNotebook *nb_)
+static unsigned g_notebookBackpages(AplusNotebook *nb_)
 { return nb_->backpages(); }
-static unsigned long g_notebookBackpageThickness(AplusNotebook *nb_) 
+static unsigned g_notebookBackpageThickness(AplusNotebook *nb_) 
 { return nb_->backpageThickness(); }
 static unsigned long g_notebookBackpageFg(AplusNotebook *nb_)
 { return nb_->backpageForeground(); }
@@ -2457,23 +2488,23 @@ static char *g_notebookPageTitle(AplusNotebook *nb_, MSWidgetView *page_)
   return (char *)nb_->titleFromWidget(page_);
 }
 
-static MSBoolean g_notebookPageSelection(AplusNotebook *nb_,
+static I g_notebookPageSelection(AplusNotebook *nb_,
 					 MSWidgetView *page_)
-{ return nb_->tabAttribute(page_).sensitive(); }
-static MSBoolean g_notebookShowTabs(AplusNotebook *nb_)
-{ return nb_->showTabs(); }
-static MSBoolean g_notebookShowPopup(AplusNotebook *nb_)
-{ return nb_->showPopup(); }
-static unsigned long  g_notebookBorderWidth(AplusNotebook *nb_) 
+{ return  MSTrue==nb_->tabAttribute(page_).sensitive() ? 1 : 0; }
+static I g_notebookShowTabs(AplusNotebook *nb_)
+{ return MSTrue==nb_->showTabs() ? 1 : 0; }
+static I g_notebookShowPopup(AplusNotebook *nb_)
+{ return MSTrue==nb_->showPopup() ? 1 : 0; }
+static unsigned g_notebookBorderWidth(AplusNotebook *nb_) 
 { return nb_->borderWidth(); }
-static unsigned long  g_notebookBorderHeight(AplusNotebook *nb_)
+static unsigned g_notebookBorderHeight(AplusNotebook *nb_)
 { return nb_->borderHeight(); }
-static unsigned long long g_notebookSelectedPageFg(AplusNotebook *nb_)
+static unsigned long g_notebookSelectedPageFg(AplusNotebook *nb_)
 { return nb_->selectedPageForeground(); }
-static unsigned long long g_notebookSelectedPageBg(AplusNotebook *nb_)
+static unsigned long g_notebookSelectedPageBg(AplusNotebook *nb_)
 { return nb_->selectedPageBackground(); }
-static MSBoolean g_notebookLockSize(AplusNotebook *nb_) 
-{ return nb_->lockSize(); }
+static I g_notebookLockSize(AplusNotebook *nb_) 
+{ return MSTrue==nb_->lockSize() ? 1 : 0; }
 
 static void s_notebookOrientation(AplusNotebook *nb_, A sym_)
 {

@@ -1,10 +1,12 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+
 /* This file contains debugging aids internal to A+. */
 
 #include <stdio.h>
@@ -84,8 +86,19 @@ Z void dbg_callcb(C *s,I n,A arg1,A arg2,A arg3)
 {
   if(dbg_hold)R;
   dbg_hold=1;
-  callafunc(dbg_cbfunc,dbg_cbdata,ge(MS(si(s))),n,arg1,arg2,arg3);
-  if(1<=n)dc(arg1);if(2<=n)dc(arg2);if(3<=n)dc(arg3);
+  {
+    A event=ge(MS(si(s)));
+    callafunc(dbg_cbfunc,dbg_cbdata,event,n,arg1,arg2,arg3);
+    dc(event);
+  }
+  
+
+  /*   if(1<=n)dc(arg1);if(2<=n)dc(arg2);if(3<=n)dc(arg3); */
+
+  if(n==1)      dc(arg1);
+  else if(n==2) dc(arg1),dc(arg2);
+  else if(n==3) dc(arg1),dc(arg2),dc(arg3);
+
   dbg_hold=0;
 }
 
@@ -94,7 +107,6 @@ Z C *dbg_pfx(void){I idx=dbg_depth-1,i;
   if(dbg_ch!=' ')for(i=0;i<dbg_depth-1;++i)trcb[4+(i*dbg_ti)]=dbg_ch;
   R trcb;
 }
-
 #if defined(HAVE_SVR4)  && !defined(__sgi) && !defined(__osf__)
 I nanbeamchk(C *f,A af)
 {
@@ -107,7 +119,12 @@ I nanbeamchk(C *f,A af)
   if(nans){DH("\343%sWarning: found %ld Nan%s in %s.\n",
 	      dbg_pfx(),nans,(1==nans)?"":"s",f);FFL;}
   if(dbg_cbfunc&&(nans||infs))
-    {dbg_callcb("nan",2,gsv(0,f),gvi(It,2,infs,nans),(A)0);}
+    {
+      dbg_callcb("nan",2,
+		 gsv(0,f),
+		 gvi(It,2,infs,nans),
+		 (A)0);
+    }
 }
 #else
 #define FPCLASS(x) (NANMASK==((x)&NANMASK)? \
@@ -136,7 +153,12 @@ I nanbeamchk(C *f,A af)
   if(nans){DH("\343%sWarning: found %ld Nan%s in %s.\n",
 	      dbg_pfx(),nans,(1==nans)?"":"s",f);FFL;}
   if(dbg_cbfunc&&(nans||infs))
-    {dbg_callcb("nan",2,(A)gsv(0,f),gvi(It,2,infs,nans),(A)0);}
+    {
+      dbg_callcb("nan",2,
+		 (A)gsv(0,f),
+		 gvi(It,2,infs,nans),
+		 (A)0);
+    }
   R -1;
 }
 #endif
@@ -144,11 +166,11 @@ I bitwisechk(A a,A w,I i)
 {
   I anonbool=0, wnonbool=0, tot=0;
   if(dbg_hold)R 0;
-  DO(a->n,if((unsigned)(a->p[i])&(unsigned)(~0x01))++anonbool;);
-  if(w)DO(w->n,if((unsigned)(w->p[i])&(unsigned)(~0x01))++wnonbool;);
+  DO(a->n,if((unsigned long)(a->p[i])&(unsigned long)(~0x01))++anonbool;);
+  if(w)DO(w->n,if((unsigned long)(w->p[i])&(unsigned long)(~0x01))++wnonbool;);
   if(anonbool||wnonbool)
   {
-    C **primnames=get_primlist(APL,0);
+    C **primnames=get_primlist(APL,0); /* APL either 0 or 1 */
     tot=anonbool+wnonbool;
     if(anonbool&&wnonbool)
     {
@@ -186,10 +208,15 @@ I functrc(A f,I x){
   if(dbg_hold||nix(cx->s)||(dbg_levels&&dbg_levels<dbg_depth))R 0;
   DH("\343%s%s.%s %sed\n",dbg_pfx(),cx->s->n,(XS(*f->d))->n,blurb[x]);
   FFL;
-  if(dbg_cbfunc){
-    dbg_callcb("func",2,ge(MS(symjoin(cx->s,XS(*f->d)))),ge(MS(si(blurb[x]))),(A)0);
-   R -1;
-  }
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("func",2,
+		 ge(MS(symjoin(cx->s,XS(*f->d)))),
+		 ge(MS(si(blurb[x]))),
+		 (A)0);
+      R -1;
+    }
+
   R -1;
 }
 
@@ -201,9 +228,14 @@ I xftrc(C *f,I x){
   DH("\343%s%s (%s function) %sed\n",dbg_pfx(),f,
      ('_'==*f)?"system":"external",blurb[x]);
   FFL;
-  if(dbg_cbfunc){
-    dbg_callcb('_'==*f?"sfs":"xfs",2,ge(MS(si(f))),ge(MS(si(blurb[x]))),(A)0);
-  }
+  if(dbg_cbfunc)
+    {
+      dbg_callcb('_'==*f?"sfs":"xfs",2,
+		 ge(MS(si(f))),
+		 ge(MS(si(blurb[x]))),
+		 (A)0);
+    }
+
   R -1;
 }
 
@@ -212,7 +244,14 @@ I loadtrc(C *f,I x){
   DH("\343%s%s %s %s\n",dbg_pfx(),
      x?"Load of":"Loading",f,!x?". . . ":1==x?"finished":"FAILED");
   FFL;
-  if(dbg_cbfunc){dbg_callcb("load",2,(A)gsv(0,f),ge(MS(si(blurb[x]))),(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("load",2,
+		 (A)gsv(0,f),
+		 ge(MS(si(blurb[x]))),
+		 (A)0);
+    }
+
   R -1;
 }
 
@@ -222,7 +261,14 @@ I xeqtrc(C *str,I x){
      dbg_pfx(),(x&1)?"Entering":"Exiting",(x&2)?" protected":"",
      (40<strlen(str))?"<too long>":str,x?"] . . .":"]");
   FFL;
-  if(dbg_cbfunc){dbg_callcb("xeq",2,(A)gsv(0,str),ge(MS(si(blurb[(x&1)?0:1]))),(A)0);}
+  if(dbg_cbfunc) 
+    {
+      dbg_callcb("xeq",2,
+		 (A)gsv(0,str),
+		 ge(MS(si(blurb[(x&1)?0:1]))),
+		 (A)0);
+    }
+
   R -1;
 }
 
@@ -231,7 +277,13 @@ I mdotrc(I x){
   DH("\343%s%s\n",
      dbg_pfx(),x?"Entering monadic do . . .":"Exiting monadic do");
   FFL;
-  if(dbg_cbfunc){dbg_callcb("mdo",1,ge(MS(si(blurb[x?0:1]))),(A)0,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("mdo",1,
+		 ge(MS(si(blurb[x?0:1]))),
+		 (A)0,(A)0);
+    }
+
   R -1;
 }
 
@@ -241,12 +293,18 @@ I beamtrc(C *f,I x,I i){ /* Note that i is used only if 1==x. */
   if(dbg_hold)R 0;
   f=f?f:"<?>";
   if (1==x){ DH("\343%sBeaming in (%ld) %s\n",dbg_pfx(),i,f);}
-  else{DH("\343%s%s %s\n",dbg_pfx(),x?"Unmapping":"Beaming out",f);}
+  else{DH("\343%s%s %s\n",dbg_pfx(),
+	  (x==3)?"Converting":((x==2)?"Unmapping":"Beaming out"),
+	  f);}
   FFL;
-  if(dbg_cbfunc){
-    dbg_callcb("beam",(1==x)?3:2,(A)gsv(0,f),ge(MS(si(beamsym[x]))),
-	       (1==x)?gi(i):0);
-  }
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("beam",(1==x)?3:2,
+		 (A)gsv(0,f),
+		 ge(MS(si(beamsym[x]))),
+		 (1==x)?gi(i):0);
+    }
+
   R -1;
 }
 
@@ -260,7 +318,14 @@ I packtrc(C *fname,C *cmdstr,I x)
   DH("\343%s%s p.%s on file %s\n",dbg_pfx(),
      x?"Entering":"Exiting",cmdstr,fname);
   FFL;
-  if(dbg_cbfunc){dbg_callcb("pack",2,(A)gsv(0,fname),ge(MS(si(blurb[x?0:1]))),(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("pack",2,
+		 (A)gsv(0,fname),
+		 ge(MS(si(blurb[x?0:1]))),
+		 (A)0);
+    }
+
   if(x)++dbg_depth;
 R 0;
 }
@@ -270,7 +335,13 @@ I cbtrc(V v,I x){
   DH("\343%s%s-callback firing on %s.%s\n",dbg_pfx(),dbgCbNameList[x],
     v->cx->s->n,v->s->n);
   FFL;
-  if(dbg_cbfunc){dbg_callcb(dbgCbSymList[x],1,ge(MS(symjoin(v->cx->s,v->s))),(A)0,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb(dbgCbSymList[x],1,
+		 ge(MS(symjoin(v->cx->s,v->s))),
+		 (A)0,(A)0);
+    }
+
   R -1;
 }
 
@@ -280,8 +351,13 @@ I deptrc(V v,I x){
   DH("\343%sDependency %s.%s evaluation %sed\n",dbg_pfx(),v->cx->s->n,v->s->n,
     blurb[x]);
   FFL;
-  if(dbg_cbfunc){dbg_callcb("dep",2,ge(MS(symjoin(v->cx->s,v->s))),
-			    ge(MS(si(blurb[x?0:1]))),(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("dep",2,
+		 ge(MS(symjoin(v->cx->s,v->s))),
+		 ge(MS(si(blurb[x?0:1]))),(A)0);
+    }
+
   --dbg_depth;
   R -1;
 }
@@ -300,34 +376,62 @@ I invtrc(V v,I x){
     FFL;
     arg2=aplus_nl;
   }
-  if(dbg_cbfunc){dbg_callcb("inv",2,ge(MS(symjoin(v->cx->s,v->s))),arg2,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("inv",2,
+		 ge(MS(symjoin(v->cx->s,v->s))),
+		 arg2,
+		 (A)0);
+    }
+
   R -1;
 }
 
 void dyldtrc(C *f){
   DH("\343%sDynamic load from %s\n",dbg_pfx(),f);FFL;
-  if(dbg_cbfunc){dbg_callcb("dyld",1,(A)gsv(0,f),(A)0,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("dyld",1,
+		 (A)gsv(0,f),
+		 (A)0,(A)0);
+    }
+
 }
 
 void doErrorStacktrc(I q_, A aStack_){
   C *lastLine=(C *)((A)aStack_->p[aStack_->n-1])->p;
   DH("\343%sdoErrorStack:(%ld) %.40s ...\n",dbg_pfx(),q_,lastLine);FFL;
-  if(dbg_cbfunc){dbg_callcb("doErrorStack",1,(A)gvi(Et,2,gi(q_),ic(aStack_)),(A)0,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("doErrorStack",1,
+		 (A)gvi(Et,2,gi(q_),
+			ic(aStack_)),
+		 (A)0,(A)0);
+    }
 }
 
 void watrc(I w){
   DH("\343%sdoErrorStack %ld\n",dbg_pfx(),w);FFL;
-  if(dbg_cbfunc){dbg_callcb("wa",1,(A)gi(w),(A)0,(A)0);}
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("wa",1,
+		 (A)gi(w),
+		 (A)0,(A)0);
+    }
 }
 
 I deftrc(V v,I x){
   if(dbg_hold||nix(v->cx->s))R 0;
   DH("\343%s%s %s.%s defined\n",dbg_pfx(),x?"Dependency":"Function",
     v->cx->s->n,v->s->n);FFL;
-  if(dbg_cbfunc){
-    dbg_callcb("def",2,
-	       ge(MS(symjoin(v->cx->s,v->s))),ge(MS(si(x?"dep":"func"))),(A)0);
-  }
+  if(dbg_cbfunc)
+    {
+      dbg_callcb("def",2,
+		 ge(MS(symjoin(v->cx->s,v->s))),
+		 ge(MS(si(x?"dep":"func"))),
+		 (A)0);
+    }
+
   R -1;
 }
 
@@ -476,7 +580,7 @@ Z void dbg_stat(void){
   }
 }
 
-Z void dbg_all(I c)
+Z void dbg_all(C c)
 {
   I val=('1'==c)?1:0;
   dbg_tf=dbg_tx=dbg_ts=dbg_tl=dbg_tb=dbg_tdep=dbg_tinv=dbg_tscb=
@@ -561,7 +665,7 @@ Z A dbg_getdisplay(A aarg)
   else ERROUT(ERR_DOMAIN);
 }
 
-int dbgproc(C *s, C *x)
+long dbgproc(C *s, C *x)
 {
   I pref, arg, usearg, temp=0;
   if(!*s)R 0;
@@ -603,14 +707,14 @@ int dbgproc(C *s, C *x)
     CS('h',dbg_help());
     CS('i',switch(s[1]){
       CS('n',switch(s[2]){
-	CS('d',dbg_ti=(!*x)?2:('-'==*x)?0:atoi(x);usearg=(*x)?1:0);
+	CS('d',dbg_ti=(!*x)?2:('-'==*x)?0:atol(x);usearg=(*x)?1:0);
 	CNF('v',dbg_tinv);
 	SWDEF(s,2);
       });
       SWDEF(s,1);
     });
     CS('l',switch(s[1]){
-      CS('e',dbg_levels=(!*x)?0:('-'==*x)?0:atoi(x);usearg=(*x)?1:0;);
+      CS('e',dbg_levels=(!*x)?0:('-'==*x)?0:atol(x);usearg=(*x)?1:0;);
       CNF('o',dbg_tl);
       SWDEF(s,1);
     });

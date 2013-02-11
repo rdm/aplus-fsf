@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -16,7 +16,11 @@
 
 #include <MSTypes/MSString.H>
 #include <MSTypes/MSStringTest.H>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 
 /*************************************************************************************/
 // msClassName - default implementation calls class member function: className()

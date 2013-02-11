@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -9,8 +9,16 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 #include <math.h>
 
 #include <MSGUI/MSApplication.H>
@@ -73,6 +81,19 @@ void serverExitFunction(AplusDisplayServer *server_)
 static char *g_mstkVersion(void)
 {
   return (char *)applicationVersionString().string();
+}
+
+static void s_scbTraceHook(A func)
+{
+  AScbTraceHook::function(func);
+  return;
+}
+
+static void s_XSynchronize(AplusDisplayServer *server_, I mode_)
+{
+  if(server_)
+    XSynchronize(server_->display(),mode_?True:False);
+  return;
 }
 
 static void s_exitFunc(AplusDisplayServer *server_,A fc_)
@@ -151,6 +172,12 @@ static A sfmt(A fmt_,A data_) { return (A)OutputObject.sfmt(fmt_,data_); }
 A cdipv(AClientData *ac_,A data_,A index_,A pick_,V v_)
 {
 //   ++AplusEvaluationDepth;   fix in mstk
+
+  if(AScbTraceHook::function()) 
+    {
+      AScbTraceHook::run(ac_->function(),(I)ac_->data(),(I)data_,(I)index_,(I)pick_,v_);
+    }
+
   A r=af4(ac_->function(),(I)ac_->data(),(I)data_,(I)index_,(I)pick_,v_);
 //   --AplusEvaluationDepth;   fix in mstk
   if (r==0) showError(qs);
@@ -293,7 +320,7 @@ static A getVarFunc(AClientData *ac_)
 void setBusyState(MSBoolean);
 
 // Safe Object Assignment function 
-I safeAset(V v_,A d_,A i_,A p_)
+int safeAset(V v_,A d_,A i_,A p_)
 {
   setBusyState(MSTrue);
 //  MSDeleteQueue::allowDelete(MSFalse);
@@ -304,6 +331,7 @@ I safeAset(V v_,A d_,A i_,A p_)
 }
 
 // Safe Object Destruction function 
+extern "C" void aplusDestroy(MSWidgetView *pWidgetView_);
 void aplusdestroy(MSWidgetView *pWidgetView_)
 {
   AVariableData *vd = 0;
@@ -339,7 +367,7 @@ static A StringVectorToNestedArray(const MSStringVector &svec_)
 {
   unsigned const len=svec_.length();
   A z=len?gv(Et,len):aplus_nl;
-  for(unsigned int i=0;i<len;++i) z->p[i]=(I)gsv(0,(char *)svec_(i).string());
+  for(int i=0;i<len;++i) z->p[i]=(I)gsv(0,(char *)svec_(i).string());
   return z;
 }
 
@@ -391,8 +419,10 @@ static void unmapW(MSWidgetView *pWidgetView_) { pWidgetView_->unmap(); }
 static void wRaise(MSWidgetView *pWidgetView_) { pWidgetView_->raise(); }
 static void wLower(MSWidgetView *pWidgetView_) { pWidgetView_->lower(); }
 static void naturalSize(MSWidgetView *pWidgetView_) { pWidgetView_->naturalSize(); }
-static MSBoolean mapped(MSWidgetView *pWidgetView_) { return pWidgetView_->mapped(); }
-static MSBoolean beenMapped(MSWidgetView *pWidgetView_) { return pWidgetView_->firstMap(); }
+static I mapped(MSWidgetView *pWidgetView_) 
+{ return MSTrue==pWidgetView_->mapped() ? 1 : 0; }
+static I beenMapped(MSWidgetView *pWidgetView_) 
+{  return MSTrue==pWidgetView_->firstMap()? 1 : 0 ; }
 static MSWidgetView *parent(MSWidgetView *pWidgetView_) { return (MSWidgetView *)pWidgetView_->owner(); }
 static MSDisplayServer *server(MSWidgetView *pWidgetView_) { return pWidgetView_->server(); }
 static void resize(MSWidgetView *pWidgetView_,int w_,int h_) { pWidgetView_->resize(w_,h_); }
@@ -522,6 +552,12 @@ void ACallback(XCallArg,XClientArg client_)
 {
 //  MSDeleteQueue::allowDelete(MSFalse);
   AClientData *ac=(AClientData *)client_;
+
+  if(AScbTraceHook::function()) 
+    {
+      AScbTraceHook::run(ac->function(),(I)ac->data(),0,0,0,ac->aplusVar());
+    }
+
   A r=af4(ac->function(),(I)ac->data(),0,0,0,ac->aplusVar());
   if (r==0) showError(qs);
   else dc(r);
@@ -850,9 +886,10 @@ static A g_varBg(A a_)
 { A ap=getVarData(a_)->bgA(); 
   return (QA(ap)&&isNull(ap)==MSFalse)?(A)ic(ap):ap;
 }
-static MSBoolean g_varStars(A a_) { return getVarData(a_)->stars(); }
-static I g_varCw(A a_) { return getVarData(a_)->colWidth(); }
-static I g_varEw(A a_) { return getVarData(a_)->editWidth(); }
+static I g_varStars(A a_) 
+{ return MSTrue==getVarData(a_)->stars() ? 1 :0; }
+static I g_varCw(A a_) { return (I) getVarData(a_)->colWidth(); }
+static I g_varEw(A a_) { return (I) getVarData(a_)->editWidth(); }
 static MSWidgetView *g_varWid(A a_) { return getVarData(a_)->pWidgetView(); }
 static A g_varTitle(A a_)
 { A ap=getVarData(a_)->title(); 
@@ -935,12 +972,12 @@ void s_data(MSWidgetView *pWidgetView_,A aobject_)
     }
 }
 
-MSBoolean v_data(MSWidgetView *pWidgetView_,A a_)
+I v_data(MSWidgetView *pWidgetView_,A a_)
 {
   V v=getV(a_);
   if (v==0)
     {
-      return MSFalse;
+      return 0;
     }
 
   AplusVerifyEvent ave(v, (A)gt(v));
@@ -952,18 +989,18 @@ MSBoolean v_data(MSWidgetView *pWidgetView_,A a_)
       // cast the widget-view to MSEventReceiver, since MSView::receiveEvent()
       // is protected
      ((MSEventReceiver *)pWidgetView_)->receiveEvent(ave);
-     return ave.result();
+     return  MSTrue==ave.result() ? 1 : 0;
    }
   else
    {
      if (dbg_tmstk) cout << "No model defined in v_data" << endl;
-     return MSTrue;
+     return 1;
    }
 
 } 
 
-extern "C" I verify(V v_,A a_);
-I verify(V v_,A a_)
+extern "C" int verify(V v_,A a_);
+int verify(V v_,A a_)
 {
   MSBoolean r=MSFalse;
   if (v_->attr!=0)
@@ -985,7 +1022,7 @@ I verify(V v_,A a_)
 	}
     }
   
-  return (int) r;
+  return (int)  MSTrue==r ? 1 : 0;
 }
 
 extern "C" void flush(void);
@@ -994,7 +1031,7 @@ void flush(void) { MSApplication::application()->flush(); }
 static void bFlush(void) { MSApplication::application()->flush(); }
 static void bBeep(MSDisplayServer *server_) { server_->bell(); }
 
-static I bVirtualScreen(AplusDisplayServer *server_) {return server_->virtualScreen();}
+static I bVirtualScreen(AplusDisplayServer *server_) {return (I) server_->virtualScreen();}
 
 static A bVirtualGeometry(AplusDisplayServer *server_)
 {
@@ -1038,18 +1075,18 @@ static void s_primary(MSWidgetView *pWidgetView_, A data_)
    }
 }
 
-static MSBoolean bIsTopLevel(MSTopLevel *);
-static MSBoolean bIsPopup(MSTopLevel *);
+static I bIsTopLevel(MSTopLevel *);
+static I bIsPopup(MSTopLevel *);
 
 
 // Shell 'A' interface functions 
 static void s_virtualScreen(MSTopLevel *top_, A screen_)
 {
-  if (bIsTopLevel(top_)==MSTrue) // if this is a shell
+  if (bIsTopLevel(top_)==1) // if this is a shell
     {
       ((AplusShell *)top_)->virtualScreen(screen_);
     }
-  else if (bIsPopup(top_)==MSTrue) // if this is a popup
+  else if (bIsPopup(top_)==1) // if this is a popup
     {
       ((AplusPopup *)top_)->virtualScreen(screen_);
     }
@@ -1057,11 +1094,11 @@ static void s_virtualScreen(MSTopLevel *top_, A screen_)
 
 static A g_virtualScreen(MSTopLevel *top_)
 {
-  if (bIsTopLevel(top_)==MSTrue) // if this is a shell
+  if (bIsTopLevel(top_)==1) // if this is a shell
     {
       return ((AplusShell *)top_)->virtualScreen();
     }
-  else if (bIsPopup(top_)==MSTrue) // if this is a popup
+  else if (bIsPopup(top_)==1) // if this is a popup
     {
       return ((AplusPopup *)top_)->virtualScreen();
     }
@@ -1087,8 +1124,10 @@ static char *g_shellLeftFooter(MSTopLevel *) {return (char *) DefaultFooter;}
 static char *g_shellRightFooter(MSTopLevel *) {return(char *) DefaultHeader;}
 static void s_shellFooter(MSTopLevel *sh_, MSBoolean b_) { sh_->footer(b_); }
 static void s_shellHeader(MSTopLevel *sh_, MSBoolean b_) { sh_->header(b_); }
-static MSBoolean g_shellFooter(MSShell *sh_) { return sh_->footer(); }
-static MSBoolean g_shellHeader(MSShell *sh_) { return sh_->header(); }
+static I g_shellFooter(MSShell *sh_) 
+{ return MSTrue==sh_->footer() ? 1 : 0; }
+static I g_shellHeader(MSShell *sh_) 
+{ return MSTrue==sh_->header() ? 1 : 0; }
 
 static A g_shellWorkspacePresence(MSTopLevel *sh_) 
 { return StringVectorToNestedArray(sh_->workspacePresence()); }
@@ -1105,7 +1144,10 @@ static void s_shellWorkspacePresence(MSTopLevel *sh_,A names_)
 
 static void s_shellResizeable(MSTopLevel *sh_,MSBoolean b_) {sh_->resizeable((MSBoolean)b_); }
 
-static MSBoolean s_windowGroup(MSShell *tl_,MSShell *gr_){ return tl_->windowGroup(gr_); }
+static I s_windowGroup(MSShell *tl_,MSShell *gr_)
+{ 
+  return MSTrue==tl_->windowGroup(gr_) ? 1 : 0;
+}
 static MSShell *g_windowGroup(MSShell *tl_) {return tl_->windowGroup();}
 
 static A g_followers(MSShell *tl_)
@@ -1122,7 +1164,8 @@ static A g_followers(MSShell *tl_)
 }
    
 static void s_pushPinState(MSPopup *pw_,MSBoolean state_) { (state_==MSTrue)?pw_->pinIn():pw_->pinOut(); }
-static MSBoolean g_pushPinState(MSPopup *pw_) { return (pw_->pushPinState()==MSTrue)?MSTrue:MSFalse; }
+static I g_pushPinState(MSPopup *pw_) 
+{ return (pw_->pushPinState()==MSTrue) ? 1 : 0; }
 
 static MSShell *g_topLevel(MSWidgetView *pWidgetView_)
 {
@@ -1134,20 +1177,20 @@ static MSShell *g_topLevel(MSWidgetView *pWidgetView_)
   return (MSShell *)pWidgetView_;
 }
 
-static MSBoolean bIsTopLevel(MSTopLevel *top_)  /* Should be bIsShell */
+static I bIsTopLevel(MSTopLevel *top_)  /* Should be bIsShell */
 {
   if (top_->widgetType() == AplusShell::symbol())
-    return MSTrue;
+    return 1;
   else
-    return MSFalse;
+    return 0;
 }
 
-static MSBoolean bIsPopup(MSTopLevel *top_)
+static I bIsPopup(MSTopLevel *top_)
 {
   if (top_->widgetType() == AplusPopup::symbol())
-    return MSTrue;
+    return 1;
   else
-    return MSFalse;
+    return 0;
 }
 
 
@@ -1186,20 +1229,20 @@ static I g_busyCount(void) {return BusyCount;}
 
 // Busy Title no longer exists
 static void s_busyTitleState(MSBoolean) {}
-static MSBoolean g_busyTitleState(void)
-{ return MSFalse; }
+static I g_busyTitleState(void)
+{ return 0; }
 
-static void s_busyClockState(MSBoolean state_)
+static void s_busyClockState(I state_)
 {
-  BusyEnable=state_;
+  BusyEnable=state_ ? MSTrue : MSFalse;
   if (BusyEnable == MSFalse)
    {
      delete bp;
    }
 }
 
-static MSBoolean g_busyClockState(void)
-{ return BusyEnable; }
+static I g_busyClockState(void)
+{ return MSTrue==BusyEnable ? 1 : 0; }
 
 static void s_shellIconData(MSShell *sh_,A a_)
 {
@@ -1215,7 +1258,7 @@ static void s_shellIconData(MSShell *sh_,A a_)
         char *bits=new char[p.a[2]->n];
         for (int i=0;i<p.a[2]->n;i++) bits[i]=(char)p.a[2]->p[i];
 
-//         Pixmap bitmap=XCreateBitmapFromData(sh_->display(),sh_->window(),bits,width,height);
+        Pixmap bitmap=XCreateBitmapFromData(sh_->display(),sh_->window(),bits,width,height);
 	sh_->iconPixmap(MSPixmap(sh_->server(), "iconPixelMap", bits, width, height,
 				 sh_->foreground(),sh_->background()));
       }
@@ -1231,7 +1274,7 @@ static A g_tabList(MSShell *sh_)
   A r = aplus_nl;
   const MSWidgetVector &wv = sh_->traversalList();
   r = gv(It, wv.length());
-  for (unsigned int i = 0; i < wv.length(); i++)
+  for (int i = 0; i < wv.length(); i++)
    {
      r->p[i] = (unsigned long) wv(i);
    }
@@ -1333,7 +1376,7 @@ MSBoolean serverNoDelay(MSDisplayServer *server_,MSBoolean) // Bogus Function
 static I serverConnection(MSDisplayServer *server_)
 {
   if (server_==0) server_=MSDisplayServer::defaultDisplayServer();
-  return server_->connection();
+  return (I) server_->connection();
 }  
 
 A xwindowHashStat(MSDisplayServer *server_)
@@ -1381,9 +1424,9 @@ if (server_==0) server_=MSDisplayServer::defaultDisplayServer();
 
 
 static I bServerConnection(MSDisplayServer *server_)
-{ return serverConnection(server_); }
-static MSBoolean bServerNoDelay(MSDisplayServer *server_,MSBoolean b_)
-{ return serverNoDelay(server_,b_); }
+{ return (I) serverConnection(server_); }
+static I bServerNoDelay(MSDisplayServer *server_,MSBoolean b_)
+{ return MSTrue==serverNoDelay(server_,b_) ? 1 : 0; }
 static A bXWindowHashStat(MSDisplayServer *server_)
 { return xwindowHashStat(server_); }
 static A bShadowHashStat(MSDisplayServer *server_)
@@ -1448,8 +1491,8 @@ static unsigned long g_doubleClickInterval(void)
 static void s_menuDefaultMnemonic(MSBoolean b_)
 { MSMenuItem::defaultMnemonic(b_); }
 
-static MSBoolean g_menuDefaultMnemonic(void)
-{ return MSMenuItem::defaultMnemonic(); }
+static I g_menuDefaultMnemonic(void)
+{ return MSTrue==MSMenuItem::defaultMnemonic() ? 1 : 0; }
 
    
 
@@ -1466,7 +1509,7 @@ static A bOut(A a_,A data_)
 }
 
 
-extern "C" MSBoolean g_backingStoreOption(void);
+extern "C" I g_backingStoreOption(void);
 extern "C" void s_backingStoreOption(int o_);
 
 void s_backingStoreOption(int o_)
@@ -1474,9 +1517,9 @@ void s_backingStoreOption(int o_)
  MSApplication::backingStoreOption(0==o_?MSFalse:MSTrue);
 }
 
-MSBoolean g_backingStoreOption(void) 
+I g_backingStoreOption(void) 
 { 
-  return MSApplication::backingStoreOption(); 
+  return MSTrue==MSApplication::backingStoreOption() ? 1 : 0;
 }
 
 A q_shadowStyle(void)
@@ -1493,6 +1536,7 @@ void AGIFInstall(void)
   Cx=cx("s");
 
   install((PFI)g_mstkVersion,"g_mstkVersion",CP,0,0,0,0,0,0,0,0,0);
+  install((PFI)s_scbTraceHook,"s_scbTraceHook",V_,1,A_,0,0,0,0,0,0,0);
   install((PFI)s_varClass,"s_varClass",V_,2,A_,A_,0,0,0,0,0,0);
   install((PFI)s_varBg,"s_varBg",V_,2,A_,A_,0,0,0,0,0,0);
   install((PFI)s_varStars,"s_varStars",V_,2,A_,IV,0,0,0,0,0,0);
@@ -1534,6 +1578,7 @@ void AGIFInstall(void)
   install((PFI)g_varTitleColor,"g_varTitleColor",A_,1,A_,0,0,0,0,0,0,0);
   install((PFI)g_varTitleFont,"g_varTitleFont",A_,1,A_,0,0,0,0,0,0,0);
 
+  install((PFI)s_XSynchronize,"s_XSynchronize",V_,2,IV,IV,0,0,0,0,0,0);
   install((PFI)s_exitFunc,"s_exitFunc",V_,2,IV,A_,0,0,0,0,0,0);
   install((PFI)g_exitFunc,"g_exitFunc",A_,1,IV,0,0,0,0,0,0,0);
 

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -24,7 +24,7 @@ INLINELINKAGE Type & MSObjectVector<Type>::firstElement()
 template <class Type>
 INLINELINKAGE Type & MSObjectVector<Type>::lastElement()
 {
-  return elementAt (_pImpl->length() -1);
+  return elementAt (this->_pImpl->length() -1);
 }
 
 
@@ -38,7 +38,7 @@ INLINELINKAGE const Type & MSObjectVector<Type>::firstElement() const
 template <class Type>
 INLINELINKAGE const Type & MSObjectVector<Type>::lastElement() const
 {
-  return elementAt (_pImpl->length() -1);
+  return elementAt (this->_pImpl->length() -1);
 }
 
 
@@ -60,13 +60,13 @@ template <class Type>
 INLINELINKAGE const Type & MSObjectVector<Type>::elementAt (unsigned int index_) const
 {
 #if !defined(MS_NO_INDEX_ERROR)
-  if (index_ >= _pImpl->length())
+  if (index_ >= this->_pImpl->length())
     {
-      _pImpl->vectorIndexError (index_);
-      return *(const Type *)ops().badData();
+      this->_pImpl->vectorIndexError (index_);
+      return *(const Type *)this->ops().badData();
     }
 #endif  //MSPRODUCTION_BUILD
-  return data()[index_];
+  return this->data()[index_];
 }
 
 
@@ -80,7 +80,7 @@ INLINELINKAGE Type & MSObjectVector<Type>::operator[] (unsigned int index_)
 template <class Type>
 INLINELINKAGE MSObjectVector<Type> MSObjectVector<Type>::operator[] (const MSIndexVector & iVect_) const
 {
-  return select (*this, iVect_);
+  return this->select (*this, iVect_);
 }
 
 
@@ -114,7 +114,7 @@ INLINELINKAGE MSVectorElement<Type>::MSVectorElement (const Type & value_)
 template <class Type>
 INLINELINKAGE void MSVectorElement<Type>::vector (MSObjectVector<Type> *pVect_)
 {
-  _pReceiverList = (MSEventSender::List *)pVect_;
+  this->_pReceiverList = (MSEventSender::List *)pVect_;
 }
 
 

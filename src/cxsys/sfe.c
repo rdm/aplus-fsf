@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -20,11 +20,13 @@
 #include <a/k.h>
 #include <a/fncdcls.h>
 #include <a/x.h>
+#include <errno.h>
+
+
 
 static void handler(fd)
 int fd;
 {
-  extern int errno;
   char buf[256];
 #ifndef HAVE_STRERROR
   extern char *sys_errlist[];

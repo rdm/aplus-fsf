@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -16,6 +16,7 @@
 // is the contents of the message, as a simple (non-nested) A+ object.
 // 
 
+#include <netinet/in.h>
 #if defined(__edgfe) || defined( __sgi) || defined(_AIX) || defined(SOLARIS_CSET)
 #include <errno.h>
 #endif
@@ -44,8 +45,8 @@ A pSimple_Connection::getAobjFromBuffer(MSBuffer *bb)
     s=longAt(hb->get());
     if(0>=s)
     {
-      Warn("\343 IPC warning: zero-length message found.  s=%d [%d]\n",
-	s,handle());
+      static char fmt[]="\343 IPC warning: zero-length message found.  s=%d [%d]\n";
+      Warn(fmt,	s,handle());
       hb->reset();
       turnInReadOff();
       R(A)0;
@@ -79,8 +80,8 @@ A pSimple_Connection::readBurst(void)
   if(-1==slen)R(A)0;
   if(0==slen)
   {
-    Warn("\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n",
-      handle());
+    static char fmt[]="\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n";
+    Warn(fmt,handle());
   }
 
   /* create buff to hold it.  Fill buffer */
@@ -156,8 +157,8 @@ A pSimple_Connection::readOne(void)
     slen=longAt(hb->get());
     if(0>=slen)
     {
-      Warn("\343 IPC warning: zero-length simple message.  slen=%d [%d]\n",
-	slen,handle());
+      static char fmt[]="\343 IPC warning: zero-length simple message.  slen=%d [%d]\n";
+      Warn(fmt,	slen,handle());
       hb->reset();
       turnInReadOff();
       return (A)0;
@@ -188,7 +189,8 @@ int pSimple_Connection::send(const A &msg_)
   long len=AH+Tt(msg_->t,msg_->n)+((Ct==msg_->t)?1:0);
   MSBuffer *sb=new MSBuffer(len+sizeof(long));
   if(NULL==sb) return -1;
-  sb->stuff((char *)(&len),sizeof(long));
+  long msgLen=htonl(len);
+  sb->stuff((char *)(&msgLen),sizeof(long));
   sb->stuff((const char *)msg_, len);
   sendTheBuffer(sb);
   if (MSFalse==isWritePause()) writeChannel()->enable();

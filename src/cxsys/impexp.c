@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -202,7 +202,7 @@ static I sizepasscover(a, hszp, dszp, long_bytes)
      I *hszp, *dszp;
      long long_bytes;
 {
-  int rc=sizepass(a, hszp, dszp, long_bytes);
+  I rc=sizepass(a, hszp, dszp, long_bytes);
   if (ISMEGAHDR(*hszp)) (*hszp) += CDRMEGAHDRLENLEN;
   return(rc);
 }
@@ -828,14 +828,14 @@ ExportAObject(aobj, trp, for_a, plen)
 }
 
 
-int
+I
 ExportAObjectSizePass(aobj, trp, for_a, phsz, pdsz)
   A aobj;
   char *trp;
   I for_a;
   I *phsz, *pdsz;
 {
-  int rc;
+  I rc;
   AbortFlagPtr = &AbortNever; /* set flagptr to static, to not abort */
 
   *phsz=4;
@@ -849,7 +849,7 @@ ExportAObjectSizePass(aobj, trp, for_a, phsz, pdsz)
   return(0);
 }
 
-int
+I
 ExportAObjectFillPass(aobj, trp, for_a, hsz, cvp)
   A aobj;
   char *trp;

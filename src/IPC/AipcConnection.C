@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -19,7 +19,6 @@
 #endif
 
 #include <errno.h>      
-extern int errno;
 
 #if defined(__sgi) || defined(_AIX) || defined(SOLARIS_CSET) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <sys/types.h>
@@ -151,7 +150,12 @@ static I setNoDelayOnFd(I handle_,int wrnlvl_,int fd_,int val_)
   int rc=setsockopt(fd_,ProtoEnt->p_proto,TCP_NODELAY,(char *)(&val_),
 		    sizeof(int));
   if(0<=rc)R 0;
-  Warn("\343 error setting nodelay %s: errno=%d\n",val_?"on":"off",errno);
+  {
+    static char fmt[]="\343 error setting nodelay %s: errno=%d\n";
+    static char on[]="on";
+    static char off[]="off";
+    Warn(fmt,val_?on:off,errno);
+  }
   R -2;
 }
 
@@ -304,7 +308,7 @@ void AipcConnection::resetNotify(MSProtocolConnection<A>::State errstate_)
   else resetNotify("unknownState");
 }
 
-void AipcConnection::resetNotify(C *errmsg_)
+void AipcConnection::resetNotify(const C *errmsg_)
 {
   A adata=gsym(errmsg_);
   ACallback("closed",adata);
@@ -368,4 +372,82 @@ A AipcConnection::readQueueStatus(void)
   ipcWarn(wrnlvl(),"%t AipcConnection::readQueueStatus\n");
   I len=readFileLength();
   R (-1==len)?aplus_nl:gvi(It,2,len,isInRead()?1:0);
+}
+
+/// Re-implementation of the async open to a synchronous version
+int AipcConnection::openSync(int timeout_)
+{
+  // Cannot retry with sync connect
+  turnRetryOff();
+  
+  if (fd()<0)
+    {
+      int cfd;
+      initRetryTimer();
+	  
+      if ((cfd=socket(domain(),type(),MSConnection::protocol()))<0)
+	{
+	  MSMessageLog::warningMessage("MSConnection::open(%s) : error: socket()\n",name().string()); 
+	  close();
+	  return -1;
+	}
+      _openTod=todsec();
+      _openCount++;
+	  
+      MSChannel::fdsfresh(fd());
+      _fd=cfd;
+      setBlockingMode(_fd);
+	  
+      if (setup()==MSFalse)                     { close(); return -1; }
+      if (remoteName()==(struct sockaddr *)(0)) { close(); return -1; }
+	  
+      if (connect(fd(),remoteName(),remoteNamelen())<0)
+	{
+#if defined(MS_WINSOCK)
+	  int err=WSAGetLastError();
+	  if(err==WSAEWOULDBLOCK)
+#else
+	    if (errno==EINPROGRESS)
+#endif
+	      {
+		// Now to ensure we really get connected, roughly in time
+		// select the socket for write access
+		timeval tvp;
+		tvp.tv_sec = timeout_;
+		tvp.tv_usec = 0;
+		int rc = MSChannel::select(fd(), MSChannel::Write, &tvp);
+		if (rc < 0) {
+		  close();
+		  return syncError(-1, "syncConnect", "select() returned %d, errno %d\n", rc, errno);
+		};
+		if (rc == 0) {
+		  // Genuine timeout
+		  close();
+		  return -1;
+		};
+			  
+	      }
+#if defined(MS_WINSOCK)
+	    else if (err != WSAEISCONN)
+#else
+	    else if (errno!=EISCONN) 
+#endif
+	      {
+		MSMessageLog::warningMessage("MSConnection::open(%s): error: Connect(%d)\n",name().string(),fd());
+		close();
+		return -1;
+	      }
+	  // we treat EISCONN as though the connection succeeded 
+	}
+      _connectTod=todsec();
+      _connectCount++;
+      if (establish()==MSTrue) {
+	acknowledge();
+      } else {
+	// This happens when connection actively fails (e.g. nothing on that port)
+	close();
+	return -1;
+      }
+    }
+  return 0;
 }

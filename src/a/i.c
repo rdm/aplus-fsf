@@ -1,10 +1,12 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+
 #include <string.h>
 #include <stdio.h>
 #include <a/ik.h>
@@ -132,7 +134,7 @@ Z void fsd(I *r,F *w,I n){
   DO(n,for(h=(HH)p[i];h;h=h->__h)*r++=h->i);
 }
 GV1(I,isu){
-  unsigned int j,k=n*3,m=0;
+  unsigned long j,k=n*3,m=0;
   I *p=tp;*p=0;
   DO(n,
      if(m<(j=w[i])){
@@ -147,7 +149,7 @@ GV1(I,isu){
   DO(n,r[p[w[i]]++]=i);
 }
 GV1(I,isd){
-  unsigned int j,k=n*3,m=0;
+  unsigned long j,k=n*3,m=0;
   I *p=tp;*p=0;
   DO(n,
      if(m<(j=n-w[i])){
@@ -168,11 +170,18 @@ H1(dng){A z;I n,t;ND1 n=a->n,t=a->t;v=1;if(!n||a->r!=1||t>Ft)R srt(a,1);
 /* H1(dng){ND1 R srt(a,1);} */
      
 Z I i_f0(I n,I k){register I m=n;do k^=k>>m;while(32>(m+=m));R k;}
+/* !!! NOTEIT: shift 4 in ch() and ih() looks suspect !!! */
 Z I ch(C *p,I n){I r=0;DO(n,r^=*p++<<4*(i&7))R r;}
 Z I ih(I *p,I n){register I r=0,x;DO(n,r<<=4;x=*p++;r^=(0<=x)?x:x^0xAAAAAAAA)
 		 R r;}
 
-#if defined(__i386) || defined(__alpha) || defined(__ia64)
+#if defined(__i386) || defined(__alpha) || defined(__ia64) || defined(__x86_64)
+/* Z I ffh(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=*xp; */
+/* 		  R(z[1]&0x7FFFFFFF)^(z[0]&0xFFFFF000);} */
+/* Z I fct1h(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=CT1**xp; */
+/* 		   R(z[1]&0x7FFFFFFF)^(z[0]&0xFFFFF000);} */
+/* Z I fct2h(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=CT2**xp; */
+/* 		   R(z[1]&0x7FFFFFFF)^(z[0]&0xFFFFF000);} */
 Z I ffh(F *xp,I n) {
   union {
     int z[2];
@@ -211,8 +220,14 @@ Z I fct2h(F *xp,I n) {
   u.f=CT2**xp;
   R(u.z[1]&0x7FFFFFFF)^(u.z[0]&0xFFFFF000);
 }
-
 #else
+/* Z I ffh(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=*xp; */
+/* 		  R(z[0]&0x7FFFFFFF)^(z[1]&0xFFFFF000);} */
+/* Z I fct1h(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=CT1**xp; */
+/* 		   R(z[0]&0x7FFFFFFF)^(z[1]&0xFFFFF000);} */
+/* Z I fct2h(F *xp,I n){F f;int *z=(int*)&f;while(--n&&!*xp)++xp;f=CT2**xp; */
+/* 		   R(z[0]&0x7FFFFFFF)^(z[1]&0xFFFFF000);} */
+
 Z I ffh(F *xp,I n) {
   union {
     int z[2];
@@ -246,6 +261,7 @@ Z I fct2h(F *xp,I n) {
   }
   u.f=CT2**xp;
   R(u.z[0]&0x7FFFFFFF)^(u.z[1]&0xFFFFF000);}
+
 #endif
 
 Z I eh(A *x,I n){
@@ -459,25 +475,48 @@ static I index_of1(I *r,A aa,A ww,I n)
  *  index_of() is called from ep_index_of() in index.c
  */
 H2(index_of){ 
-A z,aa=a,ww=w;
-struct a ta,tw;
-a=(A)a->p[0],w=(A)w->p[0];
-memcpy(&ta,a,AH);
-memcpy(&tw,w,AH);
-ta.r++,ta.d[1]=1; tw.r++,tw.d[1]=1; /*make appear as a nx1 (tw&ta are copies)*/
-{
-  I ar=ta.r,*ad=ta.d;I wt=tw.t,wr=tw.r,*wd=tw.d;
-  u=ar?(--ar,*ad++):1;
-  v=tr(ar,ad);
-  wr-=ar;
-  W(ga(It,wr,tr(wr,wd),wd));
-  if(!u||!v) R zr(z);
-  t=wt;
-  a=aa,w=ww;
-  *--Y=(I)z,tp=k_tm(u*4),++Y;
-  index_of1(z->p,a,w,z->n);
-}
-R (I)z;
+  A z,aa=a,ww=w;
+  struct a ta,tw;
+  a=(A)a->p[0],w=(A)w->p[0];
+  memcpy(&ta,a,AH);
+  memcpy(&tw,w,AH);
+
+  /*make appear as a nx1 (tw&ta are copies)*/
+  if(ta.r==0)
+    {
+      ta.d[0]=1;
+      ta.d[1]=1;
+    }
+  else
+    {
+      ta.d[1]=1;
+    }
+  ta.r++;
+
+  if(tw.r==0)
+    {
+      tw.d[0]=1;
+      tw.d[1]=1;
+    }
+  else
+    {
+      tw.d[1]=1;
+    }
+  tw.r++;
+
+ {
+   I ar=ta.r,*ad=ta.d;I wt=tw.t,wr=tw.r,*wd=tw.d;
+   u=ar?(--ar,*ad++):1;
+   v=tr(ar,ad);
+   wr-=ar;
+   W(ga(It,wr,tr(wr,wd),wd));
+   if(!u||!v) R zr(z);
+   t=wt;
+   a=aa,w=ww;
+   *--Y=(I)z,tp=k_tm(u*4),++Y;
+   index_of1(z->p,a,w,z->n);
+ }
+ R (I)z;
 }
 
 H2(mem){A z;ND2 X2 if(!(z=(A)fnd(w,a)))R 0;g=0;

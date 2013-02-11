@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -427,7 +427,8 @@ Z C *SysVarList[] = { "dyme", "vers", "pp", "mode", "stop", "Df", "Gf",
 		      "phaseOfRelease", "majorRelease", "minorRelease",
 		      "releaseCode", "language", "Ef", "si", "segvexit",
 		      "busexit", "loadfile", "Xfpef", "maplim",
-		      "doErrorStack","CCID",
+		      "doErrorStack","CCID","autoBeamConvert",
+                      "beamMSyncMode",
 		      (char *)0 };
 
 Z C *ModeList[] = { "ascii", "apl", "uni", (char *)0 };
@@ -491,7 +492,7 @@ A ep_gsv(A aname)
   switch(lu(name,SysVarList)) {
     CSR(1, R (A)gi(dymeVal));
     CSR(2, R versGet());
-    CSR(3, R (A)gi(atoi(Fs+3))); /* pp */
+    CSR(3, R (A)gi(atol(Fs+3))); /* pp */
     CSR(4, R gsym(APLpick("apl","ascii","uni"))); /* mode */
     CSR(5, R (A)gi(sq)); /* stop */
     CSR(6, R (A)gi(Df));
@@ -517,6 +518,8 @@ A ep_gsv(A aname)
     CSR(26, R (A)gi(MFALimitGet())); /* maplim */
     CSR(27, R (A)gi(doErrorStack));
     CSR(28, R CCID ? gsym(CCID):aplus_nl);
+    CSR(29, R (A)gi(getAutoBeamConvert()));
+    CSR(30, R getBeamMSyncMode());              /* beamMSyncMode */
   default: ERROUT(ERR_DOMAIN);
   }
 }
@@ -579,7 +582,7 @@ A ep_ssv(A aname, A aval)
            srand(ival);
       );
 #else
-    CS(12, ItCHK(aval); srandom(ival););
+    CS(12, ItCHK(aval); srandom((unsigned int)ival););
 #endif
     CS(13, RtCHK(aval, 1); stdinFlagSet(ival););
     CS(14, InfItCHK(aval); coreLimSet(corelim););
@@ -596,6 +599,9 @@ A ep_ssv(A aname, A aval)
     CS(25, RtCHK(aval, 1); xfpeFlag=ival;);
     CS(26, ItCHK(aval);MFALimitSet(ival););
     CS(27, RtCHK(aval, 1); doErrorStack=ival;);
+    CSR(28, ERROUT(ERR_DOMAIN));               /* CCID */
+    CS(29,  ItCHK(aval);setAutoBeamConvert (ival););
+    CS(30, setBeamMSyncMode(aval));            /* beamMSyncMode */
   default: ERROUT(ERR_DOMAIN);
   }
   R 0;
@@ -603,7 +609,7 @@ A ep_ssv(A aname, A aval)
 
 #define FLG(v,def)  (((def)==(v))?' ':'*')
 void dbg_flg(void){
-  A a=versGet();I pp=atoi(Fs+3);
+  A a=versGet();I pp=atol(Fs+3);
   H("%s    Version:[%s]  Context:[%s]\n",CC,(char *)a->p,(Rx==Cx)?".":Cx->s->n);
   dc(a);
   H("%s   %cpp:[%-2ld]  %cmode:[%s  %cstop:[%ld]  %cstdin:[%ld]\n",CC,
@@ -906,7 +912,7 @@ ENTRYPOINT
 I ep_excxt(A a){I err;NDC1(a);R excxt(ct(a,&err));}
 
 ENTRYPOINT /* exitpoint? :^) */
-void ep_exit(I rc){exit(rc);}
+void ep_exit(I rc){exit((int)rc);}	/* I -> int */
 
 ENTRYPOINT
 void ep_abortload(void){

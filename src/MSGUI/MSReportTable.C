@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -1259,7 +1259,7 @@ int MSReportTable::computePrintSize(MSReport *report_,int,int y_,int w_,int,int 
 
         if (height>remainingHeight) height-=lastRowLeading;
         if (height+bottomPixel()<remainingHeight) height+=bottomPixel();
-        pageHeight(height);
+        pageHeight((int)(height));
         if (pageAlignment()&MSCenter||pageAlignment()&MSBottom)
 	 {
 	  _pageCount++;
@@ -1517,7 +1517,7 @@ void MSReportTable::computeRowColumnPartitions()
      double total=rowPageBreak().length()-2*stackPageBreak().length()-1;
      if (!(outputStyle()&Stacked)) total*=columnPageCount;
      int tablePageTotal=(int)ceil(total/newspaperColumns());
-     totalSegments(total);
+     totalSegments((int)(total));
      pageCountTotal(tablePageTotal);
      newPageTotal=startingPageCount+tablePageTotal-1;
      if (newPageTotal>report()->pageCountTotal()) report()->pageCountTotal(newPageTotal);
@@ -1875,7 +1875,7 @@ void MSReportTable::computeTableHeaderSize(int pageCount_)
      if (report()->printOnPage(*header(i),pageCount_,pageCountTotal())==MSTrue)
       {
         if (header(i)->printFont().length()==0) header(i)->printFont(report()->defaultFont());
-        double h=header(i)->computePrintSize(report(),0,top,pageWidth()/scale,0,0,4);
+        double h=header(i)->computePrintSize(report(),0,top,(int)(pageWidth()/scale),0,0,4);
         if (top-height-h<bottom)
          {
            removeHeader(header(i));
@@ -1902,7 +1902,7 @@ void MSReportTable::computeTableFooterSize(int pageCount_)
         // just in case this method is called before the headers method
         int hh=pageCount_<headerHeights().length()?headerHeights()(pageCount_-1):0;
         if (footer(i)->printFont().length()==0) footer(i)->printFont(report()->defaultFont());
-        double h=footer(i)->computePrintSize(report(),0,top,pageWidth()/scale,0,0,4);
+        double h=footer(i)->computePrintSize(report(),0,top,(int)(pageWidth()/scale),0,0,4);
         if (top-hh-height-h<bottom)
          {
            removeFooter(footer(i));
@@ -1997,8 +1997,8 @@ void MSReportTable::printTableHeaders(int x_,int y_)
      if (report()->printOnPage(*header(i),_printPage,pageCountTotal())==MSTrue)
       {
         int bottom=report()->pageEnd();
-        report()->pageEnd(bottom-report()->bodyTopBase()/y_printScale());
-        header(i)->computePrintSize(report(),0,top,pageWidth()/scale,0,0,4);
+        report()->pageEnd((int)(bottom-report()->bodyTopBase()/y_printScale()));
+        header(i)->computePrintSize(report(),0,top,(int)(pageWidth()/scale),0,0,4);
         y_-=header(i)->print(report(),x_,y_,0,0,0,0);
         report()->pageEnd(bottom);
       }
@@ -2015,8 +2015,8 @@ void MSReportTable::printTableFooters(int x_,int y_)
      if (report()->printOnPage(*footer(i),_printPage,pageCountTotal())==MSTrue)
       {
         int bottom=report()->pageEnd();
-        report()->pageEnd(bottom-report()->bodyTopBase()/y_printScale());
-        footer(i)->computePrintSize(report(),0,top,pageWidth()/scale,0,0,4);
+        report()->pageEnd((int)(bottom-report()->bodyTopBase()/y_printScale()));
+        footer(i)->computePrintSize(report(),0,top,(int)(pageWidth()/scale),0,0,4);
         y_-=footer(i)->print(report(),x_,y_,0,0,0,0);
         report()->pageEnd(bottom);
       }
@@ -2086,8 +2086,10 @@ int MSReportTable::printTableSegment(int x_,int y_)
         printTableHeadings(columnPageBreak()(ci),columnPageBreak()(ci+1));
         printTableRows(rowPageBreak()(ri),columnPageBreak()(ci),
                        rowPageBreak()(ri+1),columnPageBreak()(ci+1));
-        printTableFrame(tableLeft(),tableTopPosition(report()->pageCount())-tableHeaderHeight(),
-                        _pageWidth,height-(tableHeaderHeight()+tableFooterHeight())*scale);
+        printTableFrame(tableLeft(),
+			tableTopPosition(report()->pageCount())-tableHeaderHeight(),
+                        _pageWidth,
+			(int)(height-(tableHeaderHeight()+tableFooterHeight())*scale));
         _segment++;
       }
      report()->pout<<"gr "<<endl;
@@ -2316,7 +2318,7 @@ void MSReportTable::printBreakText(MSParagraph& breakText_,int y_)
   if (report()->printOnPage(breakText_,_printPage,pageCountTotal())==MSTrue)
    {
      int bottom=report()->pageEnd();
-     report()->pageEnd(bottom-report()->bodyTopBase()/y_printScale());
+     report()->pageEnd((int)(bottom-report()->bodyTopBase()/y_printScale()));
      breakText_.print(report(),x,y_,w-x+tableLeft(),0,0,offset);
      breakText_.computePrintSize(report(),0,0,w-x+tableLeft(),0,0,offset);
      report()->pageEnd(bottom);
@@ -2487,7 +2489,7 @@ void MSReportTable::computeGroupHeadingSize(void)
             }
          }
       }
-     groupHeadingHeight(groupHeadingHeights().sum());
+     groupHeadingHeight((int)(groupHeadingHeights().sum()));
    }
 }
 

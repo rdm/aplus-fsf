@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -210,13 +210,13 @@ MSTrace *MSGraph::findSelectableTrace(const XEvent *event_)
 	    }
 	   else if (sa!=0&&sb!=0&&x<=right&&x>=left&&y>=top&&y<=bot)
 	    {
-	      double csq=sqrt(sa*sa+sb*sb);
+	      double csq=sqrt(double(sa*sa+sb*sb));
 	      int asq=x-x1;
 	      int bsq=y-y1;
-	      double Csq=sqrt(asq*asq+bsq*bsq);
+	      double Csq=sqrt(double(asq*asq+bsq*bsq));
 	      asq=x-x2;
 	      bsq=y-y2;
-	      Csq+=sqrt(asq*asq+bsq*bsq);
+	      Csq+=sqrt(double(asq*asq+bsq*bsq));
 //	      cout<<"csq "<<csq<<" Csq "<<Csq<<" dif "<<Csq-csq<<endl;
 	      if ((Csq-csq)<range) return trace;
 	    }
@@ -246,13 +246,13 @@ MSBoolean MSGraph::findLineSegment(int x_,int y_)
 	else if (nt(i)->sa(j)!=0&&nt(i)->sb(j)!=0&&x_<=nt(i)->right(j)&&
 		 x_>=nt(i)->left(j)&&y_>=nt(i)->top(j)&&y_<=nt(i)->bot(j))
 	 {
-	   double csq=sqrt(nt(i)->sa(j)*nt(i)->sa(j)+nt(i)->sb(j)*nt(i)->sb(j));
+	   double csq=sqrt(double(nt(i)->sa(j)*nt(i)->sa(j)+nt(i)->sb(j)*nt(i)->sb(j)));
 	   int asq=x_-nt(i)->points(j)->x;
 	   int bsq=y_-nt(i)->points(j)->y;
-	   double Csq=sqrt(asq*asq+bsq*bsq);
+	   double Csq=sqrt(double(asq*asq+bsq*bsq));
 	   asq=x_-nt(i)->points(j+1)->x;
 	   bsq=y_-nt(i)->points(j+1)->y;
-	   Csq+=sqrt(asq*asq+bsq*bsq);
+	   Csq+=sqrt(double(asq*asq+bsq*bsq));
 	   if ((Csq-csq)<range)
 	    {
 	      selectPoint(j);

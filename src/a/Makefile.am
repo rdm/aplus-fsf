@@ -38,6 +38,7 @@ liba_la_SOURCES = \
 	y.c \
 	arthur.h\
 	b.h\
+	beam.h\
 	development.h\
 	f.h\
 	fir.h\
@@ -55,14 +56,19 @@ INCLUDES = -I..
 
 fsftestdir = $(libdir)
 apterdir = $(libdir)
+tdir = $(libdir)
+diodir = $(libdir)
 
 fsftest_DATA = fsftest.+
 apter_DATA = apter.+
+t_DATA = t.+
+dio_DATA = dio.+
 
-EXTRA_DIST = fsftest.+ apter.+
+EXTRA_DIST = fsftest.+ apter.+ t.+ dio.+
 
 a_includedir = $(prefix)/include/a
 a_include_DATA = \
+	beam.h \
 	fir.h \
 	fncdcls.h \
-	k.h
+	k.h 

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -12,7 +12,11 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <X11/Xlib.h>
+#if HAVE_FSTREAM
+#include <fstream>
+#else
 #include <fstream.h>
+#endif
 #include <MSTypes/MSStringVector.H>
 #include <MSGUI/MSP.H>
 #include <MSGUI/MSPrintFont.H>

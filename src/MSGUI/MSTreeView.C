@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -57,7 +57,7 @@ MSTreeView<Element>::NodeAttribute::~NodeAttribute(void)
 {}
 
 template<class Element>
-MSTreeView<Element>::NodeAttribute &MSTreeView<Element>::NodeAttribute::operator=(const NodeAttribute &nodeAttr_)
+typename MSTreeView<Element>::NodeAttribute &MSTreeView<Element>::NodeAttribute::operator=(const NodeAttribute &nodeAttr_)
 {
   if (&nodeAttr_!=this)
    {
@@ -1727,7 +1727,7 @@ void MSTreeView<Element>::selectedNode(const TreeModelCursor &modelCursor_)
 
 
 template<class Element>
-MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::selectedNode(void) const
+typename MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::selectedNode(void) const
 {
   if (selectedCursor().isValid()) return elementTree().elementAt(selectedCursor()).cursor();
   else return TreeModelCursor(TreeModel());
@@ -2151,7 +2151,7 @@ void MSTreeView<Element>::focusOut(void)
 }
 
 template <class Element>
-MSTreeView<Element>::ElementTreeCursor 
+typename MSTreeView<Element>::ElementTreeCursor 
 MSTreeView<Element>::positionToCursor(int x_,int y_)
 {
   ElementTreeCursor elementCursor(elementTree());
@@ -2275,7 +2275,7 @@ MSBoolean MSTreeView<Element>::locateTreeCursor(ElementTreeCursor locateCursor_,
 }
 
 template <class Element>
-MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::activatedNode(void) const
+typename MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::activatedNode(void) const
 {
   if (hasModel()==MSTrue)
    {
@@ -2363,15 +2363,15 @@ MSBoolean MSTreeView<Element>::isExpanded(const TreeNode *treeNode_)
 }
 
 template <class Element>
-const MSTreeView<Element>::PixmapList &MSTreeView<Element>::pixmap(const TreeNode *treeNode_) 
+const typename MSTreeView<Element>::PixmapList &MSTreeView<Element>::pixmap(const TreeNode *treeNode_) 
 { return treeNode_->pixmap(); }
 
 template <class Element>
-const MSTreeView<Element>::PixmapList &MSTreeView<Element>::selectedPixmap(const TreeNode *treeNode_)
+const typename MSTreeView<Element>::PixmapList &MSTreeView<Element>::selectedPixmap(const TreeNode *treeNode_)
 { return treeNode_->selectedPixmap(); }
 
 template <class Element>
-const MSTreeView<Element>::PixmapList &MSTreeView<Element>::insensitivePixmap(const TreeNode *treeNode_)
+const typename MSTreeView<Element>::PixmapList &MSTreeView<Element>::insensitivePixmap(const TreeNode *treeNode_)
 { return treeNode_->insensitivePixmap(); }
 
 template <class Element>
@@ -2627,18 +2627,18 @@ template <class Element>
 class MSTreeViewDefaultIterator : public MSTreeView<Element>::Iterator
 {
 protected:
-  MSTreeView<Element>::TreeModel &_treeModel;
+  typename MSTreeView<Element>::TreeModel &_treeModel;
 public:
-  MSTreeViewDefaultIterator(MSTreeView<Element>::TreeModel &treeModel_)
+  MSTreeViewDefaultIterator(typename MSTreeView<Element>::TreeModel &treeModel_)
   :_treeModel(treeModel_)
   {}
-  virtual void nodeAttribute(const MSTreeView<Element>::TreeModelCursor&,
-                             MSTreeView<Element>::NodeAttribute &);
+  virtual void nodeAttribute(const typename MSTreeView<Element>::TreeModelCursor&,
+                             typename MSTreeView<Element>::NodeAttribute &);
 };
 
 template<class Element>
-void MSTreeViewDefaultIterator<Element>::nodeAttribute(const MSTreeView<Element>::TreeModelCursor &cursor_,
-                                                       MSTreeView<Element>::NodeAttribute &nodeAttr_)
+void MSTreeViewDefaultIterator<Element>::nodeAttribute(const typename MSTreeView<Element>::TreeModelCursor &cursor_,
+                                                       typename MSTreeView<Element>::NodeAttribute &nodeAttr_)
 {
   if (_treeModel.isLeaf(cursor_))
    {
@@ -2668,7 +2668,7 @@ MSBoolean MSTreeView<Element>::isNodeProtected(const TreeNode *)
 { return isProtected();}
 
 template<class Element>
-MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::startNode(void) const
+typename MSTreeView<Element>::TreeModelCursor MSTreeView<Element>::startNode(void) const
 {
   if (startCursor().isValid()) return elementTree().elementAt(startCursor()).cursor();
   else return TreeModelCursor(TreeModel());
@@ -2725,7 +2725,7 @@ void MSTreeView<Element>::edit(void)
 
 
 template<class Element>
-MSTreeView<Element>::ElementTreeCursor MSTreeView<Element>::findElementCursor(const TreeModelCursor& modelCursor_) const
+typename MSTreeView<Element>::ElementTreeCursor MSTreeView<Element>::findElementCursor(const TreeModelCursor& modelCursor_) const
 {
   ElementTreeCursor elementCursor(elementTree());
   for (elementTree().setToFirst(elementCursor,MSPreorder);
@@ -2738,11 +2738,11 @@ MSTreeView<Element>::ElementTreeCursor MSTreeView<Element>::findElementCursor(co
 }
 
 template<class Element>
-MSTreeView<Element>::TreeModel& MSTreeView<Element>::modelTree(void)
+typename MSTreeView<Element>::TreeModel& MSTreeView<Element>::modelTree(void)
 { return *(TreeModel *)_model; }  
 
 template<class Element>
-const MSTreeView<Element>::TreeModel& MSTreeView<Element>::modelTree(void) const
+const typename MSTreeView<Element>::TreeModel& MSTreeView<Element>::modelTree(void) const
 { return *(TreeModel *)_model; }  
 
 

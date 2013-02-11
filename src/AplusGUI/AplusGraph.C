@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -371,7 +371,7 @@ void AplusGraph::x_labelFormat(::A sym_,int axis_, int precision_)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-::A AplusGraph::enumSymbols(char *str_)  
+::A AplusGraph::enumSymbols(const char *str_)  
 { 
   ::A		r=aplus_nl;
   GraphEnum	k;

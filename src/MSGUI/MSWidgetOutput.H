@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -17,11 +17,15 @@
 #include <MSGUI/MSGC.H>
 
 class MSDisplayPrint;
-#if (__GNUC__ < 3)
-class ofstream;
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
+#else
+#include <iostream.h>
+#endif
+#if HAVE_FSTREAM
 #include <fstream>
+#else
+class ofstream;
 #endif
 class MSPixmap;
 

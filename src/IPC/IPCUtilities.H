@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -14,7 +14,7 @@
 #include <stdarg.h>
 #endif
 
-extern void ipcWarn(int warnLevel_, C *fmt_, ...);
+extern void ipcWarn(int warnLevel_, const C *fmt_, ...);
 extern I longAt(C *c);
 extern I shortAt(C *c);
 extern struct timeval *atotv(A aobj, struct timeval *tvp);
@@ -29,6 +29,8 @@ extern A getAbsoluteTimeout(A aobj_);
 
 #define BoolCHK(aval) RtCHK(aval,1);
 
+#define CS(n,x) case n:x;break;
+#define CSR(n,x) case n:x;
 #define CSBOOL(n,aval,ifT,ifF) CS(n,BoolCHK(aval);if(ival)ifT();else ifF())
 
 #endif

@@ -3,14 +3,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 #include <MSTypes/MSString.H>
 #include <MSTypes/MSMergeSort.H>
 #include <MSTypes/MSStandardOps.H>
@@ -634,7 +638,7 @@ void MSBaseVector<Type,Allocator>::permute (const MSIndexVector & iVect_)
 
 
 template <class Type, class Allocator>
-MSBaseVector<Type,Allocator>::Operations& MSBaseVector<Type,Allocator>::ops(void)
+typename MSBaseVector<Type,Allocator>::Operations& MSBaseVector<Type,Allocator>::ops(void)
 {
   MS_SAFE_STATIC_INIT(Operations,_operationsMutex);
 }
@@ -930,7 +934,7 @@ void MSBaseVectorOps<Type,Allocator>::setFromMSString(void *pData_, unsigned int
 
 
 template <class Type, class Allocator>
-MSBaseVectorOps<Type,Allocator>::Data& MSBaseVectorOps<Type,Allocator>::nullData(void)
+typename MSBaseVectorOps<Type,Allocator>::Data& MSBaseVectorOps<Type,Allocator>::nullData(void)
 {
   MS_SAFE_STATIC_INIT(Data,_nullDataMutex);
 }

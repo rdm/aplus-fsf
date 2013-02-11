@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -18,6 +18,8 @@
 #if defined(MS_HAS_SYSTEMINFO)
 #include <sys/systeminfo.h>
 #elif defined(MS_UNISTD_HAS_GETHOSTNAME)
+#include <unistd.h>
+#elif defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #else
 extern "C" int gethostname(char *,int);

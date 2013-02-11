@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -70,7 +70,7 @@ aplus_signal(int signo, Sigfunc *func)
 /* ----------------------------------------------------  */
 
 I ep_all(void);
-Z I mkt(C *);
+Z int mkt(C *);
 I map(int,int);
 void aplus_nan(void);
 
@@ -107,9 +107,9 @@ I log_EWouldBlock(I i,I rc,I nern,C *path,C *fcn)
   R nern;			/* Return error so errno can be restored */
 }
 
-Z I loaccess(C *path,I mode)
+Z int loaccess(C *path, int mode)
 {
-  I i=0,st=1,rc=0;
+  int i=0,st=1,rc=0;
   static C fcn[] = "access";
   if(!path) R -1;
   while(i<10&&-1==(rc=access(path,mode))&&EWOULDBLOCK==errno)
@@ -118,9 +118,9 @@ Z I loaccess(C *path,I mode)
   R rc;
 }
 
-Z I lostat(C *path,struct stat *buf)
+Z int lostat(C *path,struct stat *buf)
 {
-  I i=0,st=1,rc=0;
+  int i=0,st=1,rc=0;
   static C fcn[] = "stat";
   if(!path) R -1;
   while(i<10&&-1==(rc=stat(path,buf))&&EWOULDBLOCK==errno)
@@ -129,9 +129,9 @@ Z I lostat(C *path,struct stat *buf)
   R rc;
 }
 
-Z I lofstat(I fd,struct stat *buf)
+Z int lofstat(int fd,struct stat *buf)
 {
-  I i=0,st=1,rc=0;
+  int i=0,st=1,rc=0;
   static C fcn[] = "fstat";
   while(i<10&&-1==(rc=fstat(fd,buf))&&EWOULDBLOCK==errno)
   {sleep(st);if(8>st)st*=2;++i;}
@@ -139,7 +139,7 @@ Z I lofstat(I fd,struct stat *buf)
   R rc;
 }
 
-Z I lofchmod(I fd, I mode)
+Z int lofchmod(int fd, mode_t mode)
 {
   I i=0,st=1,rc=0;
   static C fcn[] = "fchmod";
@@ -176,7 +176,7 @@ void gwd(C *s)
   strcpy(s,r);
 }
 
-I setStickyBit(I f,int x)
+I setStickyBit(int f,int x)
 {
   lofstat(f,&b);
   R lofchmod(f,(x?S_ISVTX:0x00)|b.st_mode);
@@ -212,20 +212,20 @@ Z sigFullDump(int signo)
   s.sa_flags = SA_FULLDUMP;
   sigaction(signo,&s,(struct sigaction *) NULL);
 }
-void setSigv(int flag){sigvFlag=(0==flag)?0:(2==flag)?2:1;
+void setSigv(I flag){sigvFlag=(0==flag)?0:(2==flag)?2:1;
   switch(sigvFlag){CS(0,aplus_signal(SIGSEGV,sigv))CS(1,aplus_signal(SIGSEGV,SIG_DFL))
 		     CS(2,sigFullDump(SIGSEGV))}}
-void setSigb(int flag){sigbFlag=(0==flag)?0:(2==flag)?2:1;
+void setSigb(I flag){sigbFlag=(0==flag)?0:(2==flag)?2:1;
   switch(sigbFlag){CS(0,aplus_signal(SIGBUS,sigv))CS(1,aplus_signal(SIGBUS,SIG_DFL))
 		     CS(2,sigFullDump(SIGBUS))}}
 #else
-void setSigv(int flag){sigvFlag=(0==flag)?0:(2==flag)?2:1;
+void setSigv(I flag){sigvFlag=(0==flag)?0:(2==flag)?2:1;
   if(sigvFlag)aplus_signal(SIGSEGV,SIG_DFL);else aplus_signal(SIGSEGV,sigv);}
-void setSigb(int flag){sigbFlag=(0==flag)?0:(2==flag)?2:1;
+void setSigb(I flag){sigbFlag=(0==flag)?0:(2==flag)?2:1;
   if(sigbFlag)aplus_signal(SIGBUS ,SIG_DFL);else aplus_signal(SIGBUS ,sigv);}
 #endif
 
-Z I f[9],j=0,k=0;
+Z int f[9]; Z I j=0,k=0;
 Z C z[]="/var/atmp/0/aXXXXXX",c[]="/var/atmp/0";
 
 I suppressFpeDomain=0;
@@ -374,18 +374,18 @@ Z I wsm(I m)
 }
 
 #if defined(HAVE_SVR4) || defined(__VISUAL_C_2_0__)
-Z I mkt(C *b)
+Z int mkt(C *b)
 {
-  I f=open((mktemp(b),b),O_RDWR | O_CREAT,0600);
+  int f=open((mktemp(b),b),O_RDWR | O_CREAT,0600);
   setStickyBit(f,1);
   unlink(b);
   strcpy(b+strlen(b)-6,"XXXXXX");
   R fcntl(f,F_SETFD,1|fcntl(f,F_GETFD,0)),f;
 }
 #else
-Z I mkt(C *b)
+Z int mkt(C *b)
 {
-  I f=mkstemp(b);
+  int f=mkstemp(b);
   setStickyBit(f,1);
   unlink(b);
   strcpy(b+strlen(b)-6,"XXXXXX");

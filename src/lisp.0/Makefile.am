@@ -8,9 +8,9 @@
 ##                                                                           ##
 ###############################################################################
 
-lispdir = $(prefix)/lisp
+lisp0dir = $(prefix)/lisp.0
 
-lisp_DATA = \
+lisp0_DATA = \
 	.emacs \
 	a.el \
 	aplus.el \

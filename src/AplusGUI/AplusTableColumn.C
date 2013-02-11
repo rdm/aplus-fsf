@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -201,11 +201,12 @@ A AplusTableColumn::defaultInFunc(V v_,const char *string_)
 
 const char *AplusTableColumn::formatOutput(MSString& str_, unsigned row_)
 {
+  static const char blank[]={" "};
   V v                       = (model()!=0)?((AplusModel*)model())->aplusVar():0;
   ACharStrFunction *outFunc = AplusModel::getOutFunc(v);
   AVariableData    *vd      = ::pAVarDataFromV(v);
   invokeFunction(outFunc, row_);
-  str_ = (char *)_outStr->p;
+  str_ = (Ct==_outStr->t) ? (char *)_outStr->p : blank;
   dc(_outStr);
   _outStr=aplus_nl;
   return str_;
@@ -213,7 +214,6 @@ const char *AplusTableColumn::formatOutput(MSString& str_, unsigned row_)
 
 void AplusTableColumn::invokeFunction(AOutFunction *outFunc_, unsigned row_)
 { invokeFunction(outFunc_,row_,-1); }
-
 
 void AplusTableColumn::invokeFunction(AOutFunction *outFunc_, unsigned row_, unsigned col_)
 {

@@ -1,4 +1,4 @@
-ãã Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+ãã Copyright (c) 1990-2008 Morgan Stanley Dean Witter & Co. All rights reserved.
 ãã See .../src/LICENSE for terms of distribution.
 
 ãã **** knowable of menu, image classes set to 0 until implemented.
@@ -13,6 +13,11 @@
 ãã **** implement `rows for hmenu, vmenu, choice
 ãã **** or (nuc):  `majororder;(`row/`col;n)  (default = () ûý (`col;1)
 ãã **** `auto-x:  1 or 0
+
+if (`null¨_nc{`s;`SERVER}) {
+  Õ'ã S already $loaded';
+  _abortload{};
+};
 
 $cx s
 
@@ -33,7 +38,7 @@ is{s;c}:	is_object{s;c}
 free{s}:	free_from_use@0{q_n{free_instance{s;}}}
 
 show{s}:	Ý show_id{new_widget{new_symbol{s;;1}}}
-hide{s}:	Ý if (0<widûwidget{s}) hide_id{wid}
+hide{s}:	Ý if (0¨widûwidget{s}) hide_id{wid}
 
 of{r;s}:	of_result{get{cx;var;id;cls;r;1};rnk;shp;dep} Ý (cx;var;id;cls;r;rnk;shp;dep)ûof_arguments{r;s}
 has{s;o}:	cxÖvar Ý set{cx;var;id;cls;r;v;1} Ý (cx;var;id;cls;r;v)ûhas_arguments{s;o}
@@ -154,7 +159,7 @@ of_arguments{r;s}:
 	if (~(<Òs)Å(É0;,1;,2)) print_abort{;;'right argument to has{} must be `var, `cx.var, or `cx `var'};
 	(cx;var)ûc_c{s};
 	idûwidget{cx,var};
-	clsûif (0<id) g_varClass{cx,var} else `variable;
+	clsûif (0¨id) g_varClass{cx,var} else `variable;
 	if (`null¨_nc{cx;var}) eval{cx;var};
 	(cx;var;id;cls;,r;#Òr;Òr;½r)
 	}
@@ -168,7 +173,7 @@ has_arguments{s;o}:
 		print_error{cx;var;'attempt to set a widget attribute on a free variable -- binding to default class ...'};
 		idûwidget{bind{cx,var}};
 		};
-	clsûif (0<id) g_varClass{cx,var} else `variable;
+	clsûif (0¨id) g_varClass{cx,var} else `variable;
 	if (`null¨_nc{cx;var}) eval{cx;var};
 	(cx;var;id;cls;,r;,v)
 	}
@@ -470,14 +475,14 @@ attributes{c}:		if ((#CLASSES)>iûCLASSESÉc) sym_sort{iØATTRIBUTES}
 properties{x}:		sym_sort{editable_attributes{class_of_symbol{x;0}}}
 objects{}:		sym_sort{q_n{(~SYMBOLSÅreference_objects{})/SYMBOLS}}
 beep{s}:		if (`null¨_nc{`s;`SERVER}) if (0<SERVER) bBeep{SERVER}
-symbol{wid}:		if (0<wid) g_data{wid}
+symbol{wid}:		if (0¨wid) g_data{wid}
 widget{sym}:		if (`sym¨©sym) 0 else if (0<#sym) g_varWid{c_c{sym}} else 0
 reset{}:		Øfree¡{shells{}}
 Reset{}:		(<0<>#¡1Øz)/¡z Ý (1Øz)ûØ1Øz Ý zû_alsf{ØresetDefaults¡{classes{}}}
 which{sf}:		(of¡{(<,r);obs}Å<v)/obs Ý obsûobjects{} Ý (r;v)û_alsf{sf}
 desktop{}:		if (0½z Ý zûbVirtualGeometry{SERVER}) ¢1 ¢1 else z
 here{}:			if (0½z Ý zûbVirtualScreen{SERVER}) ¢1 ¢1 else bVirtualGeometry{SERVER}Î¢1+z
-this{}:			if (0<zûg_focusWindow{}) cÖv Ý (c;v)ûg_data{z}
+this{}:			if (0¨zûg_focusWindow{}) cÖv Ý (c;v)ûg_data{z}
 beHere{s}:		has{s;(`atsector;here{};`raise;1)}
 there{x}:		1+bVirtualGeometry{SERVER}Âz
 goThere{x}:		bSetVirtualScreen{there{x}}
@@ -533,7 +538,7 @@ free_if{cx;var;vars}:
 	else
 		{
 		symsûmatrify{c_v{cx;_flat{vars}}};
-		if (~1Åbû0<widget@1{syms}) 0 2Ò() else Øfree_instance¡{<@1b/syms;<cx,var}
+		if (~1Åbû0¨widget@1{syms}) 0 2Ò() else Øfree_instance¡{<@1b/syms;<cx,var}
 		}
 	}
 
@@ -564,7 +569,7 @@ free_instance{s;t}:
 		};
 
 	widsûwidget@1{exst};
-	(exst;wids)û(<wids>0)/¡(exst;wids);
+	(exst;wids)û(<wids¨0)/¡(exst;wids);
 	if (0<#wids)
 		{
 		clssûclass_of_id¡{wids};
@@ -602,7 +607,7 @@ normalize_container{sym;cls;syms;flag}:
 
 ãã *** 	Generate symbols
 
-new_widget{s}:if (0<idûwidget{s}) id else widget{bind{s}}
+new_widget{s}:if (0¨idûwidget{s}) id else widget{bind{s}}
 
 new_symbol{s;cls;flag}:
 	{
@@ -672,7 +677,7 @@ class_of_symbol{sym;flag}:
 	{
 	(cx;var)ûc_c{sym};
 	if (~is_variable{cx;var}) û();
-	if (0<g_varWid{cx,var}) g_varClass{cx,var}
+	if (0¨g_varWid{cx,var}) g_varClass{cx,var}
 	else
 		{
 		if (~flag) s.QUIETû¢1 Ý qqûQUIET;
@@ -769,7 +774,7 @@ re_parent{cx;var;id;wid}:
 			destroy_workspace{};
 			};
 		reset_null_title{cx;var};
-		if (0<pid) if (0<g_parent{pid})
+		if (0¨pid) if (0¨g_parent{pid})
 			{
 			symûsymbol{pid};
 			dflagûclass_of_id{id}ÅrealClasses{};
@@ -778,8 +783,8 @@ re_parent{cx;var;id;wid}:
 			if (0=idûwidget{cx,var}) idûbe_of_class{cx;var;class_of_symbol{cx,var;0};SHELL};
 			pidûg_parent{id};
 			};
-		if (flagû0¦g_parent{pid}) tidûpid;
-		if (zpflagûwid¤0) create_new_top{cx;var;id;wid} else s_parent{id;wid};
+		if (flagû0=g_parent{pid}) tidûpid;
+		if (zpflagû©/wid=0 ¢1) create_new_top{cx;var;id;wid} else s_parent{id;wid};
 		set_null_title{cx;var};
 		msgûif (~zpflag) Îq_n{g_data{wid}} else if (wid½0) 'top level window' else 'popup window';
 		print_alert{cx;var;'variable reparented to ',msg};
@@ -949,7 +954,7 @@ gather_followers{cx;var;pid;flrs}:
 	if (0=#obsû(~is_a@0{obs;OBJECT_CLASS})/obs) û();
 	if (0=#obsû(~is_one_of@0 1{obs;REPORT_CLASSES})/obs) û();
 	if (0=#pidsû(pid¨pids)/pidsûg_parent@0{g_varWid@0{obs}}) û();
-	if (0=#pidsû(0¦g_parent@0{pids})/pids) û();
+	if (0=#pidsû(0=g_parent@0{pids})/pids) û();
 	S_windowGroup@0{pids;pid};
 	}
 
@@ -1054,7 +1059,7 @@ be_vgrid{cx;var;cls;nar;wid}:		be_grid_parent{cx;var;nar;wid;0}
 be_hgrid{cx;var;cls;nar;wid}:		be_grid_parent{cx;var;nar;wid;1}
 be_layout{cx;var;cls;nar;wid}:		be_layout_parent{cx;var;nar;wid;1}
 be_pane{cx;var;cls;nar;wid}:		be_layout_parent{cx;var;nar;wid;0}
-ãbe_collapsible{cx;var;cls;nar;wid}:	be_layout_parent{cx;var;nar;wid;0}
+be_collapsible{cx;var;cls;nar;wid}:	be_layout_parent{cx;var;nar;wid;0}
 be_notebook{cx;var;cls;nar;wid}:	be_notebook_parent{cx;var;nar;wid}
 be_window{cx;var;cls;nar;wid}:		be_window_parent{cx;var;nar;wid}
 be_table{cx;var;cls;vars;wid}:		be_v_container{cx;var;vars;wid;0#contains_of{cls}}
@@ -1468,7 +1473,7 @@ set_window{s;d;i;p;c;v}:
 
 remove_v_children{cx;syms}:
 	{
-	if (1Åbû0<wids Ý widsûwidget@1{syms})
+	if (1Åbû0¨wids Ý widsûwidget@1{syms})
 		{
 		pidsûg_parent@0{b/wids};
 		clssûclass_of_id@0{pids};
@@ -1486,7 +1491,7 @@ remove_v_children{cx;syms}:
 map{id}:		bMap{id}
 unmap{id}:		bunMap{id}
 
-showable{id}:		if (id¤0) 0 else if (`sym¨©dûg_data{id}) 0 else if (`sym¨©cûg_varClass{d}) 0 else ~cÅNON_WIDGETS
+showable{id}:		if (id=0) 0 else if (`sym¨©dûg_data{id}) 0 else if (`sym¨©cûg_varClass{d}) 0 else ~cÅNON_WIDGETS
 
 hide_id{id}:		if (showable{id}) sub_hide_id{id}
 sub_hide_id{id}:	unmap{1Ùzero_self{id}}
@@ -1511,8 +1516,8 @@ syncshow_id_recursively{id;flag}:
 
 ãã ***  Funny stuff
 
-zero_self{id}:	if (0<id) if (0¦pidûg_parent{id}) id else if (0¦g_parent{pid}) pid,id else id
-zero_parent{id}:if (0¦id) 0 else g_parent{id}=g_topLevel{id}
+zero_self{id}:	if (0¨id) if (0=pidûg_parent{id}) id else if (0=g_parent{pid}) pid,id else id
+zero_parent{id}:if (0=id) 0 else g_parent{id}=g_topLevel{id}
 
 ãã ***	Widget create/destroy
 
@@ -1604,7 +1609,7 @@ set_attributes{cx;var;id;cls;rr;vv;zf}:
 		if (0=#fun) print_error{cx;var;'not defined: ',(ÎcxÖvar),' has (`',(Îr),';...)'}
 		else
 			{
-			if (~(0<id)^0<iflag) apply{fun;(cx,var;cnv¡{v};cls)}
+			if (~(0¨id)^0<iflag) apply{fun;(cx,var;cnv¡{v};cls)}
 			else if (0<#widûaccess_id{cx;var;id;r;iflag;1;zf}) fun¡{wid;cnv¡{v}};
 			if (hflag) print_alert{;;'`',(Îr),';',box{v},';'};
 			}
@@ -1693,7 +1698,7 @@ define_object{cx;var;cls;wid;rcflag}:
 	if (flagû~(cx,var)ÅSYMBOLS) s.SYMBOLSûSYMBOLS,cx,var;
 	s_varClass{cx,var;cls};
 	if (0=#wid) widûg_varWid{cx,var};
-	if (wflagû0<wid) link_variable_to_widget{cx;var;wid};
+	if (wflagû0¨wid) link_variable_to_widget{cx;var;wid};
 	if (~clsÅNON_WIDGETS) set_null_title{cx;var};
 	drsûif (flag) set_class_defaults{cx;var;wid;cls};
 	if (~rcflag) set_global_defaults{cx;var;wid;cls;drs};
@@ -1727,7 +1732,7 @@ set_global_defaults{cx;var;wid;cls;srs}:
 	(b/gfs)û(bû0=>#¡gfs)/gft;
 	wbû«win;
 	jjûÉ#trs;
-	argsûif (0<wid) wb#(cx,var;wid) else if (0Åwb) (#jj)Ò<cx,var Ý jjû(~wb)/jj;
+	argsûif (0¨wid) wb#(cx,var;wid) else if (0Åwb) (#jj)Ò<cx,var Ý jjû(~wb)/jj;
 	if (0<#jj)
 		{
 		(trs;dfs;tys;gfs;win;cgs)û(<jj)#¡(trs;dfs;tys;gfs;win;cgs);
@@ -1759,7 +1764,7 @@ link_variable_to_widget{cx;var;wid}:
 	{
 	s_varWid{cx,var;wid};
 	s_data{wid;cx,var};
-	if (0<pidûg_parent{wid}) if (0¦g_parent{pid}) s_data{pid;cx,var};
+	if (0¨pidûg_parent{wid}) if (0=g_parent{pid}) s_data{pid;cx,var};
 	}
 
 ãF reset_null_title sets the title to null if the title is set to Îvar or ÎcxÖvar.
@@ -1913,7 +1918,7 @@ class_of_id{x}:
 		if (0=#x) 		`real
 	else 	if (0=x) 		`real
 	else 	if (0=#sûg_data{x}) 	`real
-	else	if (0¦g_parent{x})	`real
+	else	if (0=g_parent{x})	`real
 	else 	if (0=#cûg_varClass{s}) `real
 	else				c
 	}
@@ -2004,7 +2009,7 @@ default_of{x}:if (`sym=©x) if (`null¨_nc{c;v} Ý (c;v)ûc_c{x}) c%v
 ãF just Îvar is returned.
 variable_name{cx;var}:
 	{
-	if (0<widûg_varWid{cx,var}) if (~zero_parent{wid}) if (cx½0Ø1Ùg_data{g_parent{wid}}) cxû` else if (cx½`) cxû`.;
+	if (0¨widûg_varWid{cx,var}) if (~zero_parent{wid}) if (cx½0Ø1Ùg_data{g_parent{wid}}) cxû` else if (cx½`) cxû`.;
 	(if (`¨cx),(Îcx),if (`.¨cx) '.'),Îvar
 	}
 
@@ -2222,7 +2227,7 @@ G_varPFgFunc{var}:			G_parentAtt{var;G_varFgFunc;G_varFgFunc}
 G_varPBgFunc{var}:			G_parentAtt{var;G_varBgFunc;G_varBgFunc}
 G_varPFontFunc{var}:			G_parentAtt{var;G_varFontFunc;G_varFontFunc}
 
-G_parentAtt{var;g;G}:			if (~()½z Ý zûg{var}) z else if (0<idûg_varWid{var}) G{G_Parent{id}}
+G_parentAtt{var;g;G}:			if (~()½z Ý zûg{var}) z else if (0¨idûg_varWid{var}) G{G_Parent{id}}
 
 S_varPBg{var;x}:			s_varBg{var;x}
 S_varPTitleColor{var;x}:		s_varTitleColor{var;x}
@@ -2304,7 +2309,6 @@ S_tableReportTotalLeading{wid;x}:	S_Null{wid;x;s_tableReportTotalLeading;`report
 
 S_treeVerticalSpace{wid;x}:		S_Null{wid;x;s_treeVerticalSpace;`verticalspace}
 S_treeHorizontalSpace{wid;x}:		S_Null{wid;x;s_treeHorizontalSpace;`horizontalspace}
-
 
 G_Null{wid;x;r}:if (~()½x) x else G_Null_ref{wid;g_varClass{g_data{wid}};r}
 G_Null_ref{wid;c;r}:(jØkØGETS)¡{reference_widget{c}} Ý jû(kØATTRIBUTES)Ér Ý kûCLASSESÉc
@@ -2655,14 +2659,14 @@ S_class{var;x}:		if (0=#x) free{var} else is_object{var;x}
 G_def{var}:		(1+zÉ':')Õzû_def{var}
 S_def{var;x}:		if (`char=©x) â(Îcx),'.',(Îvar),':',x Ý (cx;var)ûvar
 
-G_bound{var}:		g_varWid{var}>0
+G_bound{var}:		g_varWid{var}¨0
 
 S_focus{wid;x}:		bTraverseFocus{wid}
 
 G_focus{wid}:
 	{
 	tidûg_topLevel{wid};
-	zûif (0<zûg_focus{tid}) if (g_parent{wid}=tid) z else if (zÅG_descendents{wid}) z;
+	zûif (0¨zûg_focus{tid}) if (g_parent{wid}=tid) z else if (zÅG_descendents{wid}) z;
 	if (0<#z) q_n{g_data{z}}
 	}
 
@@ -2959,10 +2963,10 @@ G_shellWSPresence{wid}:{g_shellWorkspacePresence{wid}}
 G_tabFrom{wid}:		if (widÅxûg_tabList{g_topLevel{wid}}) q_n{g_data{((xÉwid)#¢1÷É#x)#x}}
 S_tabFrom{wid;x}:	if (~()½x) s_metaTab{g_varWid{c_v{0#g_data{wid};x}};wid}
 
-G_tabTo{wid}:		if (0<#xûg_metaTab{wid}) if (0<#xû(x>0)/x) q_n{g_data{x}}
+G_tabTo{wid}:		if (0<#xûg_metaTab{wid}) if (0<#xû(x¨0)/x) q_n{g_data{x}}
 S_tabTo{wid;x}:		if (~()½x) s_metaTab{wid;g_varWid{c_v{0#g_data{wid};x}}}
 
-G_tabList{tid}:		if (0<#xûg_tabList{tid}) if (0<#xû(x>0)/x) q_n{g_data@0{x}}
+G_tabList{tid}:		if (0<#xûg_tabList{tid}) if (0<#xû(x¨0)/x) q_n{g_data@0{x}}
 
 S_tabList{tid;x}:
 	{
@@ -2970,7 +2974,7 @@ S_tabList{tid;x}:
 	else
 		{
 		if (x½`) xûnatural_tab_order{tid};
-		s_tabList{tid;(z>0)/zûg_varWid@1{c_v{0#g_data{tid};x}}};
+		s_tabList{tid;(z¨0)/zûg_varWid@1{c_v{0#g_data{tid};x}}};
 		};
 	}
 
@@ -3031,7 +3035,7 @@ natural_arrow_order{tid}:
 
 ãã ***	Leader/follower controls
 
-G_leader{wid}:		if (0<#zûg_windowGroup{wid}) if (0<z) if (wid¨z) q_n{g_data{z}}
+G_leader{wid}:		if (0<#zûg_windowGroup{wid}) if (0¨z) if (wid¨z) q_n{g_data{z}}
 
 S_leader{wid;x}:
 	{
@@ -3862,7 +3866,7 @@ S_varTitle{var;x}:
 	if (0=#Òx) xû,x;
 	clsûS_cons{cx,var;`title;x};
 	if (is_subclass_of{cls;`tableField `array}) adjust_width{cx;var;cls};
-	if (flag) if (0<widûg_varWid{cx,var}) S_shellTitle{g_parent{wid};x};
+	if (flag) if (0¨widûg_varWid{cx,var}) S_shellTitle{g_parent{wid};x};
 	}
 
 S_indexed_func{var;r;x;clss;fns;aflag;nflag;sflag;mflag}:
@@ -3949,7 +3953,7 @@ S_varEw{var;x}:			s_varEw{var;if (0½x) g_varCw{var} else EDITSPACE} Ý if (0=#x) 
 
 adjust_width{cx;var;cls}:	if (0¤cwûg_varCw{cx,var}Ócompute_width{cx;var;cls}) S_varCw{cx,var;cw}
 compute_width{cx;var;cls}:	if (0=#cls) ¢1 else if (0=#fnûspace_of_class{cls}) ¢1 else 1Ófn¡{cx;var}
-adjust_matrix_width{cx;var}:	if (0<widûg_varWid{cx,var}) if (¢1½G_matrixColSpaceFunc{wid}) S_matrixColSpaceFunc{wid;¢1}
+adjust_matrix_width{cx;var}:	if (0¨widûg_varWid{cx,var}) if (¢1½G_matrixColSpaceFunc{wid}) S_matrixColSpaceFunc{wid;¢1}
 
 slot_width{cx;var}:
 	{
@@ -4198,11 +4202,11 @@ s.REPORT_FONT_NAMES:report_font_names{}
 
 ãã ***	Color conversion
 
-color_information{fl}: {
-  if ((#fl) > iû(Ø©/¡sys.astat ¡ fl)É1) {
-    kûsys.readmat{iØfl};
-    kû(~k[;0]='!')/k;
-        zû13Õ@1 k;
+color_information{f0;f1}:
+	{
+	kûsys.readmat{f0};
+	if (()½k) kûsys.readmat{f1};
+	zû13Õ@1 k;
 	zûszÒz Ý ((z=TAB)/z)û' ' Ý zû,z Ý szûÒz;
 	zû((z=' ')É@1Û0)÷@0 1 z;
 	zûb/z Ý bû~©/@1 zÅ1ØALPHA_NUM;
@@ -4210,11 +4214,7 @@ color_information{fl}: {
 	zûd/z Ý dû~z[;É4]½@1 'gray';
 	yûd/c/b/3!â,12Ù@1 k;
 	(<çy)#¡(Âz;y)
-  } else {
-    Õ'ã X11 rgb.txt file location unknown';
-    (`;0 0 0)
-  }
-}
+	}
 
 hc3{h}:		if (()½h) ¢1 ¢1 ¢1 else 16Â@1Û3 2Ò'0123456789ABCDEF'É`char©h-32«(h>96)^123>hû`int©1Õh
 c3h{c3}:	if (¢1Åc3) () else '#',(,ô16 16Î`int©c3)#'0123456789ABCDEF'
@@ -4739,7 +4739,7 @@ state_has_rec{cx;var}:state_has{cx;var;1}
 state_has{cx;var;rec}:
 	{
 	(cx;var)ûc_v{cx;var};
-	if (0<idûwidget{cx,var})
+	if (0¨idûwidget{cx,var})
 		{
 		if (0<#clûclass_of_symbol{cx,var;1})
 			{
@@ -5958,12 +5958,10 @@ initialize_globals{}: {
 	`sâ'DEFAULT_COLOR:bDefaultPixelValue{}';
 	`sâ'DEFAULT_FONT:bDefaultFontValue{}';
 
-	s.COLOR_FILESû('/usr/X11R6/lib/X11/lib/rgb.txt';
-                      '/usr/X11R6/lib/X11/rgb.txt';
-	              '/usr/lib/X11/rgb.txt';
-                      '/usr/openwin/lib/X11/rgb.txt');
+	s.COLOR_FILEû'/usr/local/X11/lib/rgb.txt';
+	s.COLOR_FILE1û'/usr/local/X11R5/lib/rgb.txt';
 	
-	`sâ'COLOR_INFORMATION:color_information{COLOR_FILES}';
+	`sâ'COLOR_INFORMATION:color_information{COLOR_FILE;COLOR_FILE1}';
 	`sâ'COLOR_NAMES:0ØCOLOR_INFORMATION';
 	`sâ'COLOR_NUMBERS:1ØCOLOR_INFORMATION';
 
@@ -6020,7 +6018,7 @@ initialize_globals{}: {
 		`graphymode;		q_graphYmode;
 		`reportfont;		Q_reportFont;
 		`reportstyle;		q_reportStyle;
-		`class;			Q_classes;
+		`class;			Q_classes
 		)
 		};
 
@@ -6257,29 +6255,29 @@ initialize_def{}:{
 		`cols;		g_choiceNumCols; 	s_choiceNumCols;	11;1;1;0;;;	;;
 		);
 ãã --------------------------------------------------------------------------------------------------------------
-ã	`class;		`collapsible;
-ã	`super;		`atContainer;
-ã	`contains;	;	
-ã	`create;	c_AXCollapsibleW;
-ã	`be;		be_collapsible;
-ã	`set;		;
-ã	`preset;	;
-ã	`verify;	;
-ã	`space;		;
-ã	`at;		1;
-ã	`constraints;	;
-ã	`container;	1;
-ã	`reference;	`COLLAPSIBLE;
-ã	`knowable;	1;
-ã	`ontology;	1;
-ã	`null;		;	
-ã	`attributes;
-ã                 (
-ã		`handlebg;      	g_handleBg;		s_handleBg;		17;1;1;0;;;	`color0;;
-ã		`handlesize;		g_handleSize;		s_handleSize;		14;0;1;0;;;;;
-ã		`open;			g_open;			s_open;			0;0;1;0;;;;;
-ã		`tooltip;		g_toolTip;		s_toolTip;		0;0;1;0;;;;;
-ã                 );
+	`class;		`collapsible;
+	`super;		`atContainer;
+	`contains;	;	
+	`create;	c_AXCollapsibleW;
+	`be;		be_collapsible;
+	`set;		;
+	`preset;	;
+	`verify;	;
+	`space;		;
+	`at;		1;
+	`constraints;	;
+	`container;	1;
+	`reference;	`COLLAPSIBLE;
+	`knowable;	1;
+	`ontology;	1;
+	`null;		;	
+	`attributes;
+                 (
+		`handlebg;      	g_handleBg;		s_handleBg;		17;1;1;0;;;	`color0;;
+		`handlesize;		g_handleSize;		s_handleSize;		14;0;1;0;;;;;
+		`open;			g_open;			s_open;			0;0;1;0;;;;;
+		`tooltip;		g_toolTip;		s_toolTip;		0;0;1;0;;;;;
+                 );
 ãã --------------------------------------------------------------------------------------------------------------
 ãã	`class;		`color;
 ãã	`super;		`label;
@@ -8412,7 +8410,6 @@ initialize_def{}:{
 ã	`scrollfg;	G_windowSbFg;			S_windowSbFg;			17;0;1;0;;;	`color1;;
 	`scrollbg;	G_windowSbBg;			S_windowSbBg;			17;0;1;0;;;	`color1;;
 	);
-
 ãã --------------------------------------------------------------------------------------------------------------
 	)
 }
@@ -8523,7 +8520,7 @@ initialize{}:
 	s.VGRIDû		();
 	s.HGRIDû		();
 	s.NOTEBOOKû             ();
-ã	s.COLLAPSIBLEû		();
+	s.COLLAPSIBLEû		();
 	s.VPANEû		();
 	s.HPANEû		();
 	s.VIEWû			0 0Ò'';
@@ -8779,7 +8776,7 @@ documentation_variables{}:
 		`hmenu;		"horizontal nested (recursive) slotfiller of cascading actions";
 		`window;	"scrolled container of one child";
 		`layout;	"container of many, organized in virtual rows and columns with span";
-ã		`collapsible;   "layout of with a bar to collapse its contents";
+		`collapsible;   "layout of with a bar to collapse its contents";
 		`vpane;		"layout of vertically stacked children with horizontal panes";
 		`hpane;		"layout of horizontally stacked children with vertical panes";
 		`array;		"rank 1 or 2 array with input on cells";

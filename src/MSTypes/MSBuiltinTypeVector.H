@@ -3,17 +3,19 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#if (__GNUC__ < 3)
-#include <strstream.h>
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
+#endif
+#if HAVE_SSTREAM
 #include <sstream>
 #include <string>
+#else
+#include <strstream.h>
 #endif
 #include <MSTypes/MSBaseTypeVector.H>
 #include <MSTypes/MSBuiltinVectorImpl.H>
@@ -62,16 +64,16 @@ public:
   virtual void   setToNumber (void *, unsigned int, double) const;
   virtual double getAsNumber (const void *, unsigned int) const;
 
-#if (__GNUC__ < 3)
-  virtual void readFromStream (void *, unsigned int, istrstream &) const;
-  virtual void writeToStream  (const void *, unsigned int, ostrstream &) const;
-
-  virtual void whitespace (istrstream &) const;
-#else
+#if HAVE_SSTREAM
   virtual void readFromStream (void *, unsigned int, istringstream &) const;
   virtual void writeToStream  (const void *, unsigned int, ostringstream &) const;
 
   virtual void whitespace (istringstream &) const;
+#else
+  virtual void readFromStream (void *, unsigned int, istrstream &) const;
+  virtual void writeToStream  (const void *, unsigned int, ostrstream &) const;
+
+  virtual void whitespace (istrstream &) const;
 #endif
   virtual unsigned int stringLen (const char *) const;
 
@@ -199,7 +201,11 @@ protected:
   static MSBuiltinVectorImpl* doMath(const Type&, const MSBuiltinVector<Type>&, MathOp);
 }; 
 
+#if HAVE_SSTREAM
+template <class Type> void whitespace (const Type &, istringstream &);
+#else
 template <class Type> void whitespace (const Type &, istrstream &);
+#endif
 template <class Type> INLINELINKAGE unsigned int stringLen (const Type &, const char *);
 
 #ifndef  MS_NO_INLINES

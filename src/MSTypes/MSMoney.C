@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -17,7 +17,11 @@
 #include <MSTypes/MSHashTable.H>
 #include <MSTypes/MSTypes_MSF.H>
 #include <MSTypes/MSMessageLog.H>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

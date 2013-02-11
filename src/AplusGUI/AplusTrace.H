@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -85,20 +85,20 @@ public:
      else if (value_!=0) {val=(A)ic(value_);}
      return callFunc(v_,val,row_,col_,pick_);} 
 
-  A enumInvoke(V v_,A value_,int row_,int col_,A pick_=aplus_nl)
+  long enumInvoke(V v_,A value_,int row_,int col_,A pick_=aplus_nl)
    {
-     A r=0;
+     long r=0;
      A ar=invoke(v_,value_,row_,col_,pick_);
      AObject ao(ar);
      if (ao.type()==It &&ao.isScalar())
       {	P p; p.i=ao.data();
-	r=(A)p.i[0];}
-     dc(r);
+	r=p.i[0];}
+     dc((A)r);
      return r;}
 
-  int intInvoke(V v_,A value_,int row_,int col_,A pick_=aplus_nl)
+  long intInvoke(V v_,A value_,int row_,int col_,A pick_=aplus_nl)
   {
-    int r=1;
+    long r=1;
     A ar=invoke(v_,value_,row_,col_,pick_);
 
     if (isNull(ar)==MSTrue)
@@ -110,7 +110,7 @@ public:
      {
        P p; p.i=ar->p; 
        if (ar->t==Ft) r=(int)p.f[0]; 
-       else r=(int)p.i[0]; 
+       else r=(long)p.i[0]; 
     }
     if (!QS(ar)&&ar!=0) dc((A)ar);
     return r;
@@ -234,7 +234,7 @@ public:
   MSHashTable *styleEnumHashTable(void)        { return &_styleEnumHashTable; }
   MSHashTable *symbolEnumHashTable(void)       { return &_symbolEnumHashTable; }
 
-  A enumSymbols(char *);
+  A enumSymbols(const char *);
 
   // Functional attributes
 

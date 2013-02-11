@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -26,7 +26,7 @@ class MSTreeView : public MSScrollableWidget, public MSDoubleClick
 {
 public:
   typedef MSObservableTree<Element> TreeModel;
-  typedef MSObservableTree<Element>::Cursor TreeModelCursor;
+  typedef typename MSObservableTree<Element>::Cursor TreeModelCursor;
 #ifdef MS_CLASS_ENUM_OVERLOADING_BUG
   enum Orientation2 {Vertical=0,Horizontal=1};
   typedef int Orientation;
@@ -426,7 +426,7 @@ friend class TreeNode;
   };
 protected:
   typedef MSTabularTree<TreeNode> ElementTree;
-  typedef ElementTree::Cursor ElementTreeCursor;
+  typedef typename ElementTree::Cursor ElementTreeCursor;
   typedef MSObservableTreeEvent<Element> TreeEvent;
 
   ElementTree                 _elementTree;

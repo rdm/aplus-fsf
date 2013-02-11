@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -71,8 +71,8 @@ void TimrConnection::goOff(void)
   A data=_aEventData?getEventData():getExpiry();
   ACallback(_eventSymbol->n,data);
   dc(data);
-  if(this!=AipcService::lookup(myhandle,TimrConnection::ServiceType))R;
-  if(Destroy==_onExpire){delete this;R;}
+  if(this!=AipcService::lookup(myhandle,TimrConnection::ServiceType))return;
+  if(Destroy==_onExpire){delete this;return;}
   else if(Restart==_onExpire){open();}
 }
 
@@ -101,32 +101,32 @@ MSBoolean TimrConnection::setExpiry(A aeobj_)
     }
     break;
   default:
-    R MSFalse;
+    return MSFalse;
   }
   if(_aExpiry!=0)dc(_aExpiry);
   _aExpiry=(A)ic(aeobj_);
   if(isAbsolute()&&(Restart==_onExpire||Interval==_onExpire))_onExpire=Hold;
-  R MSTrue;
+  return MSTrue;
 }
 
 MSBoolean TimrConnection::setOnExpire(A aOnExpire)
 {
   ipcWarn(wrnlvl(),"%t TimrConnection::setOnExpire\n");
-  if(1!=aOnExpire->n||!sym(aOnExpire))R MSFalse;
+  if(1!=aOnExpire->n||!sym(aOnExpire))return MSFalse;
   S oesym=XS(aOnExpire->p[0]);
 
   if(OnExpireSymbols[0]==oesym) _onExpire=Destroy;
   else if(OnExpireSymbols[1]==oesym)
   {
-    if (isAbsolute()) R MSFalse;else  _onExpire=Restart;
+    if (isAbsolute()) return MSFalse;else  _onExpire=Restart;
   }
   else if(OnExpireSymbols[2]==oesym) _onExpire=Hold;
   else if(OnExpireSymbols[3]==oesym)
   {
-    if (isAbsolute()) R MSFalse;else  _onExpire=Interval;
+    if (isAbsolute()) return MSFalse;else  _onExpire=Interval;
   }
-  else R MSFalse;
-  R MSTrue;
+  else return MSFalse;
+  return MSTrue;
 }
 
 A TimrConnection::getOnExpire(void)
@@ -134,25 +134,25 @@ A TimrConnection::getOnExpire(void)
   ipcWarn(wrnlvl(),"%t TimrConnection::getOnExpire\n");
   A z=gs(Et);
   z->p[0]=MS(OnExpireSymbols[_onExpire]);
-  R z;
+  return z;
 }
 
 MSBoolean TimrConnection::setEventSymbol(A newEventSymbol_)
 {
   ipcWarn(wrnlvl(),"%t TimrConnection::setEventSymbol\n");
-  if(1!=newEventSymbol_->n||!sym(newEventSymbol_))R MSFalse;
+  if(1!=newEventSymbol_->n||!sym(newEventSymbol_))return MSFalse;
   _eventSymbol=XS(newEventSymbol_->p[0]);
-  R MSTrue;
+  return MSTrue;
 }
 
-A TimrConnection::getEventSymbol(void){A z=gs(Et);*z->p=MS(_eventSymbol);R z;}
+A TimrConnection::getEventSymbol(void){A z=gs(Et);*z->p=MS(_eventSymbol);return z;}
 
 MSBoolean TimrConnection::setEventData(A newEventData_)
 {
   ipcWarn(wrnlvl(),"%t TimrConnection::setEventData\n");
   if(_aEventData!=0)dc(_aEventData);
   _aEventData=(A)ic(newEventData_);
-  R MSTrue;
+  return MSTrue;
 }
 
 
@@ -165,7 +165,7 @@ void TimrConnection::close(void)
 void TimrConnection::open(void)
 {
   ipcWarn(wrnlvl(),"%t TimrConnection::open\n");
-  if(isPending()) R;
+  if(isPending()) return;
   if(isAbsolute())_timer=new MSAbsoluteTimer(_secs,_usecs,
     new MSMethodCallback<TimrConnection>(this,&TimrConnection::goOff));
   else _timer=new MSRegularTimer(_secs,_usecs,
@@ -208,7 +208,7 @@ A TimrConnection::getableAttrlist(void)
   A z=gv(Et,sattrs->n+nsattrs->n);
   for (i=0;i<sattrs->n;++i)z->p[idx++]=sattrs->p[i];
   for (i=0;i<nsattrs->n;++i)z->p[idx++]=nsattrs->p[i];
-  R z;
+  return z;
 }
 
 MSBoolean TimrConnection::setAttr(C *attr_,A aval_)
@@ -218,13 +218,13 @@ MSBoolean TimrConnection::setAttr(C *attr_,A aval_)
   I ival;
   switch(idx) {
     CSBOOL(0,aval_,turnDebugOn,turnDebugOff);
-    CSR(1,R setOnExpire(aval_));
-    CSR(2,R setExpiry(aval_));
-    CSR(3,R setEventSymbol(aval_));
-    CSR(4,R setEventData(aval_));
-  default: R MSFalse;
+    CSR(1,return setOnExpire(aval_));
+    CSR(2,return setExpiry(aval_));
+    CSR(3,return setEventSymbol(aval_));
+    CSR(4,return setEventData(aval_));
+  default: return MSFalse;
   }
-  R MSTrue;
+  return MSTrue;
 }
 
 A TimrConnection::getAttr(C *attr_)
@@ -234,23 +234,23 @@ A TimrConnection::getAttr(C *attr_)
   if(-1!=idx)
   {
     switch(idx) {
-      CSR(0,R gi(isDebug()?1:0));
-      CSR(1,R getOnExpire());
-      CSR(2,R getExpiry());
-      CSR(3,R getEventSymbol());
-      CSR(4,R getEventData());
-    default: R aplus_nl;
+      CSR(0,return gi(isDebug()?1:0));
+      CSR(1,return getOnExpire());
+      CSR(2,return getExpiry());
+      CSR(3,return getEventSymbol());
+      CSR(4,return getEventData());
+    default: return aplus_nl;
     }
   } else {
     int idx=timrNonsetAttrIndex(attr_);
     if(-1!=idx)
     {
       switch(idx) {
-	CSR(0,R gi(isPending()?1:0));
-      default: R aplus_nl;
+	CSR(0,return gi(isPending()?1:0));
+      default: return aplus_nl;
       }
     }
-    else R aplus_nl; /* subclasses call parent class here */
+    else return aplus_nl; /* subclasses call parent class here */
   }
 }
 

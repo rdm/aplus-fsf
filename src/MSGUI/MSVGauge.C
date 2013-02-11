@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -70,7 +70,7 @@ void MSVGauge::updateSliderSize(double value_)
      drawSliderArea();
      drawGauge();
    }
-  else updateGauge(value_);
+  else updateGauge((int)(value_));
   MSString buffer;
   valueWin()->updateValue(formatValue(buffer,value_));
 }

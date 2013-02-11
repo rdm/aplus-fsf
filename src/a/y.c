@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -100,7 +100,9 @@ Z C *findAplusFileName(C *name)
 
 C *findMapped64FileName(C *name,I mode)
 {
-  C *t=findFileName(name,"m64"),j=R_OK|(mode?W_OK:0),*r=pfind("MPATH",".",t,j);
+  C *t=findFileName(name,"m64");
+  I j=R_OK|(mode?W_OK:0);
+  C *r=pfind("MPATH",".",t,j);
   if(!r)r=pfind("MPATH",".",name,j);
   if(!r)
   {
@@ -114,7 +116,9 @@ C *findMapped64FileName(C *name,I mode)
 
 C *findMapped32FileName(C *name,I mode)
 {
-  C *t=findFileName(name,"m"),j=R_OK|(mode?W_OK:0),*r=pfind("MPATH",".",t,j);
+  C *t=findFileName(name,"m");
+  I j=R_OK|(mode?W_OK:0);
+  C *r=pfind("MPATH",".",t,j);
   if(!r)r=pfind("MPATH",".",name,j);
   if(!r)
   {
@@ -129,7 +133,7 @@ C *findMapped32FileName(C *name,I mode)
 C *doloadafile(C *s,int u)	/* silent version of loadafile */
 {
   C r[MAXPATHLEN],*t=findAplusFileName(s),*fn;
-  CX x=Cx; I m=APL,c; FILE *f;
+  CX x=Cx; I m=APL; int c; FILE *f;
   A oldLoadFile=currLoadFile;
   if(!t){if(dbg_tl&&!u)loadtrc(s,2);R (C *)0;}
   fn=strdup(t);
@@ -218,7 +222,7 @@ Z void pipeOps(C *ss)
         fdStdOut=dup(1);       /* copy stdout */
  
         fd=dup2(fileno(h),1);  /* 1 closed by dup2 */
-        paf((A)gt(v),0,0);
+        paf(gt(v),0,0);
         NL;
  
         fflush(stdout);
@@ -231,10 +235,10 @@ Z void pipeOps(C *ss)
   case '<':
     if(h=popen(cmdstr,"r"))
     {
-      I nblocks=0, n;
+      int nblocks=0, n;
       struct buff *bufp=buffalloc();
       g=*stdin,*stdin=*h;
-      while(0<(n=buffread(bufp, (int)fileno(h), PIPEOP_BUFCHUNKSIZE)))
+      while(0<(n=buffread(bufp, fileno(h), PIPEOP_BUFCHUNKSIZE)))
 	if(0==n){
 	  if(PIPEOP_BLOCKS>=++nblocks){
 	    H("%s error: pipe operation blocked",CC);break;}
@@ -243,8 +247,10 @@ Z void pipeOps(C *ss)
       buffputc(bufp,'\0');
       *h=*stdin,pclose(h),*stdin=g;
       dc((A)v->a);
-      n=(bufp->put-bufp->min)-1;
-      v->a=(I)gc(Ct,1,n,&n,(I *)bufp->min);
+      {
+        I n=(bufp->put-bufp->min)-1;
+        v->a=(I)gc(Ct,1,n,&n,(I *)bufp->min);
+      }
       bufffree(bufp);
     }
     break;	
@@ -333,14 +339,14 @@ void sys(C *s)
     CS(3,listGlobals(2,s);listGlobals(3,s);listGlobals(4,s)); /* ops */
     CS(4,listGlobals(5,s)); /* xfs */
     CS(5,--K;sik();NL;++K); /* si */
-    CS(6,wa(!*s?-1:*s=='-'?-2:atoi(s))); /* wa */
+    CS(6,wa(!*s?-1:*s=='-'?-2:atol(s))); /* wa */
     CS(7,if(*s)Cx=cx(s);else H("%s\n",Cx==Rx?".":Cx->s->n));
 #if defined(__VISUAL_C_2_0__)
     CS(8,srand(atoi(s)));
 #else
     CS(8,srandom(atoi(s)));
 #endif
-    CS(10,if((I)(chdir(*s?s:getenv("HOME")))==-1){perr(s);break;}setPWD());
+    CS(10,if((chdir(*s?s:getenv("HOME")))==-1){perr(s);break;}setPWD());
     CS(12,if(*s){APL=(s[1]=='p')?APMODE_APL:('n'==s[1])?APMODE_UNI:
 		   APMODE_ASCII;break;}
        H(APLpick("apl\n","ascii\n","uni\n")));
@@ -579,6 +585,7 @@ void libaInstall(void){
   nsfInstall();
   attInstall();
   dbgInstall();
+  memStatsInstall();
 }
 
 I ai(I n)

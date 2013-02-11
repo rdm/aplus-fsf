@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -63,8 +63,8 @@ class AipcService
   static A roster(void);
 
   // M:Other methods
-  virtual void ACallback(C *event_,A data_=aplus_nl);
-  virtual void serviceErrorNotify(C *msg_);
+  virtual void ACallback(const C *event_,A data_=aplus_nl);
+  virtual void serviceErrorNotify(const C *msg_);
   virtual const C *protocol(void){ return "unknown";}
 };
 

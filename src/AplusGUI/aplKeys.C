@@ -1,17 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 #include <MSGUI/MSKeyPress.H>
 
 typedef struct 
 {
-  char *_pTranslationString;
-  char *_pAPLString;
+  const char *_pTranslationString;
+  const char *_pAPLString;
 } APLKeyTranslationStruct;
 
 static APLKeyTranslationStruct APLKeyTranslations[] = 

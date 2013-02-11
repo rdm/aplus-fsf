@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -239,6 +239,12 @@ void AplusMenu::activate(void)
 	A res;
 	if(dbg_tscb)cbtrc(v,0);
 	v->z=2;
+
+	if(AScbTraceHook::function()) 
+	  {
+	    AScbTraceHook::run((A)v->f,v->c,(I)val,0,(I)pick,v);
+	  }
+
 	res=af4((A)v->f,v->c,(I)val,0,(I)pick,v);
 	v->z=1;
         if(0==res)showError(qs); 

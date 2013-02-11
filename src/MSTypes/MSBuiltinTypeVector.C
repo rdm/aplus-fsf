@@ -3,20 +3,23 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#if (__GNUC__ < 3)
-#include <strstream.h>
-#include <iostream.h>
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
+#else
+#include <iostream.h>
+#endif
+#if HAVE_SSTREAM
 #include <sstream>
 #include <string>
+#else
+#include <strstream.h>
 #endif
 #include <MSTypes/MSRandom.H>
 #include <MSTypes/MSBuiltinTypeVector.H>
@@ -34,14 +37,14 @@ template <class Type> MSMutex MSBuiltinVector<Type>::_operationsMutex;
 template <class Type>
 MSBuiltinVector<Type>::MSBuiltinVector() : MSBaseVector<Type,MSAllocator<Type> > ((MSVectorImpl *)0)
 {
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops());
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops());
 }
 
 
 template <class Type>
 MSBuiltinVector<Type>::MSBuiltinVector (unsigned int length_) : MSBaseVector<Type,MSAllocator<Type> > ((MSVectorImpl *)0)
 {
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),length_);
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),length_);
 }
 
 
@@ -49,7 +52,7 @@ template <class Type>
 MSBuiltinVector<Type>::MSBuiltinVector (unsigned int length_, const Type & filler_)
   : MSBaseVector<Type,MSAllocator<Type> > ((MSVectorImpl *)0)
 {
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),length_,(void *)&filler_);
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),length_,(void *)&filler_);
 }
 
 
@@ -76,8 +79,8 @@ MSBuiltinVector<Type>::MSBuiltinVector (MSBuiltinVectorImpl *pImpl_) : MSBaseVec
 template <class Type>
 MSBuiltinVector<Type>::MSBuiltinVector (const char * pString_) : MSBaseVector<Type,MSAllocator<Type> > ((MSVectorImpl *)0)
 {
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops());
-  _pImpl->setFromString (pString_);
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops());
+  this->_pImpl->setFromString (pString_);
 }
 
 
@@ -85,7 +88,7 @@ template <class Type>
 MSBuiltinVector<Type>::MSBuiltinVector (MSTypeData<Type,MSAllocator<Type> > *pData_, unsigned int len_)
   : MSBaseVector<Type,MSAllocator<Type> > ((MSVectorImpl *)0)
 {
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),pData_,len_);
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),pData_,len_);
 }
 
 
@@ -96,7 +99,7 @@ MSBuiltinVector<Type>::MSBuiltinVector (const Type *pElements_, unsigned int len
   MSTypeData<Type,MSAllocator<Type> > *pData = MSTypeData<Type,MSAllocator<Type> >::allocateWithLength (len_);
   MSTypeData<Type,MSAllocator<Type> >::copy (pElements_, pData->elements(), len_);
 
-  _pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),pData,len_);
+  this->_pImpl = new MSBuiltinVectorImpl(&ops(),&ops(),pData,len_);
 }
 
 
@@ -130,22 +133,22 @@ MSBuiltinVector<Type> & MSBuiltinVector<Type>::operator= (const Type & value_)
 template <class Type>
 MSBuiltinVector<Type> & MSBuiltinVector<Type>::random (unsigned long limit_)
 {
-  unsigned int len=_pImpl->length();
+  unsigned int len=this->_pImpl->length();
   if (len>0)
     {
-      _pImpl->prepareToChangeWithoutCopy();
+      this->_pImpl->prepareToChangeWithoutCopy();
       
       if (limit_==0)  limit_=len;
 
       MSRandom rand;
-      Type *pData=data();
+      Type *pData=this->data();
 
       while (len--)
 	{
 	  *pData++ = (Type)rand(limit_);
 	}
   
-      changed();
+      this->changed();
     }
 
   return *this;
@@ -155,16 +158,16 @@ MSBuiltinVector<Type> & MSBuiltinVector<Type>::random (unsigned long limit_)
 template <class Type>
 MSBuiltinVector<Type> & MSBuiltinVector<Type>::series (unsigned int length_, Type offset_)
 {
-  _pImpl->reallocateInPlace(length_);
+  this->_pImpl->reallocateInPlace(length_);
 
-  Type *pData=data();
+  Type *pData=this->data();
 
   while (length_--)
     {
       *pData++ = offset_++;
     }
   
-  changed();
+  this->changed();
   return *this;
 }
 
@@ -172,11 +175,11 @@ MSBuiltinVector<Type> & MSBuiltinVector<Type>::series (unsigned int length_, Typ
 template <class Type>
 Type MSBuiltinVector<Type>::min() const
 {
-  unsigned int len=_pImpl->length();
+  unsigned int len=this->_pImpl->length();
 
   if (len==0)  return 0;
 
-  Type *pData=data();
+  Type *pData=this->data();
   Type min=pData[0];
 
   for (unsigned int i=1; i<len; i++)
@@ -194,11 +197,11 @@ Type MSBuiltinVector<Type>::min() const
 template <class Type>
 Type MSBuiltinVector<Type>::max() const
 {
-  unsigned int len=_pImpl->length();
+  unsigned int len=this->_pImpl->length();
 
   if (len==0)  return 0;
 
-  Type *pData=data();
+  Type *pData=this->data();
   Type max=pData[0];
 
   for (unsigned int i=1; i<len; i++)
@@ -217,8 +220,8 @@ template <class Type>
 double MSBuiltinVector<Type>::sum() const
 {
   double sum=0.0;
-  unsigned int len=_pImpl->length();
-  Type *pData=data();
+  unsigned int len=this->_pImpl->length();
+  Type *pData=this->data();
 
   while (len--)
     {
@@ -233,12 +236,12 @@ double MSBuiltinVector<Type>::sum() const
 template <class Type>
 void MSBuiltinVector<Type>::doMath(const Type& value_, MathOp op_)
 {
-  unsigned int len=_pImpl->length();
+  unsigned int len=this->_pImpl->length();
   if (len>0)
    {
-     Type *pData=data();
-     _pImpl->prepareToChangeWithoutCopy();
-     if (pData==data())	// no reallocation was necessary
+     Type *pData=this->data();
+     this->_pImpl->prepareToChangeWithoutCopy();
+     if (pData==this->data())	// no reallocation was necessary
       {
         switch(op_)
          {
@@ -254,7 +257,7 @@ void MSBuiltinVector<Type>::doMath(const Type& value_, MathOp op_)
      else	// if we had to reallocate
       {
         // ASSERTION:  pData is still valid
-        Type *pNewData=data();
+        Type *pNewData=this->data();
         switch(op_)
          {
          case Plus:   while (len--) *pNewData++ = *pData++ + value_;break;
@@ -266,20 +269,20 @@ void MSBuiltinVector<Type>::doMath(const Type& value_, MathOp op_)
          default:                                                   break;
          }
       }
-     changed();
+     this->changed();
    }
 }
 
 template <class Type>
 void MSBuiltinVector<Type>::doMath(const MSBuiltinVector<Type>& vect_, MathOp op_)
 {
-  unsigned int len=_pImpl->length();
+  unsigned int len=this->_pImpl->length();
   assert(len=vect_._pImpl->length());
   if (len>0)
    {
-     Type *pData=data(), *pVectData=vect_.data();
-     _pImpl->prepareToChangeWithoutCopy();
-     if (pData==data())	// no reallocation was necessary
+     Type *pData=this->data(), *pVectData=vect_.data();
+     this->_pImpl->prepareToChangeWithoutCopy();
+     if (pData==this->data())	// no reallocation was necessary
       {
         switch(op_)
          {
@@ -293,7 +296,7 @@ void MSBuiltinVector<Type>::doMath(const MSBuiltinVector<Type>& vect_, MathOp op
      else // if we had to reallocate
       {
          // ASSERTION:  pData is still valid
-        Type *pNewData=data();
+        Type *pNewData=this->data();
          switch(op_)
           {
           case Plus:   while (len--) *pNewData++ = *pData++ + *pVectData++; break;
@@ -303,7 +306,7 @@ void MSBuiltinVector<Type>::doMath(const MSBuiltinVector<Type>& vect_, MathOp op
           default:                                                          break;
           }
       }
-     changed();
+     this->changed();
    }
 }
 
@@ -366,7 +369,11 @@ MSBuiltinVectorImpl* MSBuiltinVector<Type>::doMath(const Type& value_,
 
 
 template <class Type>
+#if __GNUC__ < 3
 MSBuiltinVector<Type>::Operations& MSBuiltinVector<Type>::ops(void)
+#else
+typename MSBuiltinVector<Type>::Operations& MSBuiltinVector<Type>::ops(void)
+#endif
 {
   MS_SAFE_STATIC_INIT(Operations,_operationsMutex);
 }
@@ -415,10 +422,10 @@ double MSBuiltinVectorOps<Type>::getAsNumber (const void *pElements_, unsigned i
 }
 
 template <class Type>
-#if (__GNUC__ < 3)
-void MSBuiltinVectorOps<Type>::readFromStream (void *pData_, unsigned int index_, istrstream & ist) const
-#else
+#if HAVE_SSTREAM
 void MSBuiltinVectorOps<Type>::readFromStream (void *pData_, unsigned int index_, istringstream & ist) const
+#else
+void MSBuiltinVectorOps<Type>::readFromStream (void *pData_, unsigned int index_, istrstream & ist) const
 #endif
 {
   ist >> ((MSTypeData<Type,MSAllocator<Type> > *)pData_)->elements()[index_];
@@ -426,10 +433,10 @@ void MSBuiltinVectorOps<Type>::readFromStream (void *pData_, unsigned int index_
 
 
 template <class Type>
-#if (__GNUC__ < 3)
-void MSBuiltinVectorOps<Type>::writeToStream (const void *pData_, unsigned int index_, ostrstream & ost) const
-#else
+#if HAVE_SSTREAM
 void MSBuiltinVectorOps<Type>::writeToStream (const void *pData_, unsigned int index_, ostringstream & ost) const
+#else
+void MSBuiltinVectorOps<Type>::writeToStream (const void *pData_, unsigned int index_, ostrstream & ost) const
 #endif
 {
   ost << ((MSTypeData<Type,MSAllocator<Type> > *)pData_)->elements()[index_];
@@ -437,10 +444,10 @@ void MSBuiltinVectorOps<Type>::writeToStream (const void *pData_, unsigned int i
 
 
 template <class Type>
-#if (__GNUC__ < 3)
-void MSBuiltinVectorOps<Type>::whitespace (istrstream & ist) const
-#else
+#if HAVE_SSTREAM
 void MSBuiltinVectorOps<Type>::whitespace (istringstream & ist) const
+#else
+void MSBuiltinVectorOps<Type>::whitespace (istrstream & ist) const
 #endif
 {
   static Type t;
@@ -472,10 +479,10 @@ void * MSBuiltinVectorOps<Type>::defaultFiller() const
 
 
 template <class Type>
-#if (__GNUC__ < 3)
-void whitespace (const Type &, istrstream &)
-#else
+#if HAVE_SSTREAM
 void whitespace (const Type &, istringstream &)
+#else
+void whitespace (const Type &, istrstream &)
 #endif
 {
 }

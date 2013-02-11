@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -8,8 +8,16 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 #include <math.h>
 #include <MSTypes/MSTime.H>
 #include <AplusGUI/AGIFmstk.H>
@@ -291,7 +299,7 @@ static void s_printDisclaimerFile(A file_)
 static A g_printDisclaimerFile(void) { return (A)gsv(0,(char*)MSWidgetOutput::displayPrint()->disclaimer().fileName().string()); }
 
 static void s_printDisRuleWidth(int value_) { MSWidgetOutput::displayPrint()->disclaimer().lineWidth(value_); }
-static I g_printDisRuleWidth(void) { return (int)MSWidgetOutput::displayPrint()->disclaimer().lineWidth(); }
+static I g_printDisRuleWidth(void) { return (I)MSWidgetOutput::displayPrint()->disclaimer().lineWidth(); }
 
 static void bprint(MSWidget *xwin_) { xwin_->print(); }
 
@@ -604,7 +612,7 @@ static void s_reportDisclaimerFile(AplusPrintTool *pTool_, A value_)
 static A g_reportDisclaimerFile(AplusPrintTool *pTool_) { return (A)gsv(0,(char*)pTool_->disclaimer().fileName().string()); }
 
 static void s_reportDisclaimerRuleWidth(AplusPrintTool *pTool_, int value_) { pTool_->disclaimer().lineWidth(value_); }
-static I g_reportDisclaimerRuleWidth(AplusPrintTool *pTool_) { return (int)pTool_->disclaimer().lineWidth(); }
+static I g_reportDisclaimerRuleWidth(AplusPrintTool *pTool_) { return (I) pTool_->disclaimer().lineWidth(); }
 
 //
 // Assume that we get a an A which contains the value and an a vector of PrintText *
@@ -627,13 +635,13 @@ static A g_reportBanner(AplusPrintTool *pt_)  { return (A)ic(pt_->banner()); }
 static void s_reportCancel(AplusPrintTool *pTool_) { pTool_->cancelReport(); }
 
 static void s_reportFooterOffset(AplusPrintTool *pTool_, int value_) { pTool_->footerOffset(value_); }
-static I g_reportFooterOffset(AplusPrintTool *pTool_) { return pTool_->footerOffset(); }
+static I g_reportFooterOffset(AplusPrintTool *pTool_) { return (I) pTool_->footerOffset(); }
 
 static void s_reportPageFrameLineWidth(AplusPrintTool *pTool_, int value_) { pTool_->pageFrameLineWidth(value_); }
-static I g_reportPageFrameLineWidth(AplusPrintTool *pTool_) { return pTool_->pageFrameLineWidth(); }
+static I g_reportPageFrameLineWidth(AplusPrintTool *pTool_) { return (I) pTool_->pageFrameLineWidth(); }
 
 static void s_reportPageFrameOffset(AplusPrintTool *pTool_, int value_) { pTool_->pageFrameOffset(value_); }
-static I g_reportPageFrameOffset(AplusPrintTool *pTool_) { return pTool_->pageFrameOffset(); }
+static I g_reportPageFrameOffset(AplusPrintTool *pTool_) { return (I) pTool_->pageFrameOffset(); }
 
 static void s_reportPageFrameStyle(AplusPrintTool *pTool_, A value_)
 {
@@ -652,17 +660,18 @@ static A g_reportPageFrameStyle(AplusPrintTool *pTool_)
 }
 
 static void s_reportHeaderOffset(AplusPrintTool *pTool_, int value_) { pTool_->headerOffset(value_); }
-static I g_reportHeaderOffset(AplusPrintTool *pTool_) { return pTool_->headerOffset();}
+static I g_reportHeaderOffset(AplusPrintTool *pTool_) { return (I) pTool_->headerOffset();}
 
-static I g_reportPageCount(AplusPrintTool *pTool_) { return pTool_->pageCount(); }
-static I g_reportPageCountTotal(AplusPrintTool *pTool_) { return pTool_->pageCountTotal(); }
+static I g_reportPageCount(AplusPrintTool *pTool_) { return (I) pTool_->pageCount(); }
+static I g_reportPageCountTotal(AplusPrintTool *pTool_) { return (I) pTool_->pageCountTotal(); }
 
 static void s_reportPageNumbers(AplusPrintTool *pTool_, A value_)
 { pTool_->pageNumbers(AplusConvert::asMSUnsignedVector(value_)); }
 static A g_reportPageNumbers(AplusPrintTool *pTool_) { return AplusConvert::asA(pTool_->pageNumbers()); }
 
 static void s_reportPageNumbering(AplusPrintTool *pTool_, MSBoolean value_) { pTool_->pageNumbering(value_); }
-static MSBoolean g_reportPageNumbering(AplusPrintTool *pTool_) { return pTool_->pageNumbering(); }
+static I g_reportPageNumbering(AplusPrintTool *pTool_) 
+{ return MSTrue==pTool_->pageNumbering() ? 1 : 0; }
 
 static void s_reportPageNumberText(AplusPrintTool *pTool_, A value_)
 { pTool_->pageNumberText() = AplusConvert::asMSStringVector(value_); }
@@ -672,7 +681,8 @@ static void s_reportPageNumber(AplusPrintTool *pTool_, A value_) { pTool_->pageN
 static A g_reportPageNumber(AplusPrintTool *pTool_) { return (A)ic(pTool_->pageNumber()); }
   
 static void s_reportUniformScaling(AplusPrintTool *pTool_, MSBoolean value_) { pTool_->uniformScaling(value_); }
-static MSBoolean g_reportUniformScaling(AplusPrintTool *pTool_) { return pTool_->uniformScaling();}
+static I g_reportUniformScaling(AplusPrintTool *pTool_) 
+{  return MSTrue==pTool_->uniformScaling() ? 1 : 0; }
 
 static void addReportCB(AplusPrintTool *pTool_, A cbname_, A fc_)   // NEED RTTI
 {
@@ -737,9 +747,9 @@ static void s_reportPrint(AplusPrintTool *pt_)
 
 
 static void s_reportPageNumberOffset(AplusPrintTool *pTool_, int value_) { pTool_->pageNumberOffset(value_); }
-static I g_reportPageNumberOffset(AplusPrintTool *pTool_) { return pTool_->pageNumberOffset(); }
+static I g_reportPageNumberOffset(AplusPrintTool *pTool_) { return (I) pTool_->pageNumberOffset(); }
 
-static I  g_reportFontSize(AplusPrintTool *pTool_) { return pTool_->fontSize(); }
+static I  g_reportFontSize(AplusPrintTool *pTool_) { return (I) pTool_->fontSize(); }
 
 static void s_reportPrintMode(AplusPrintTool *pTool_, A value_)
 {
@@ -829,16 +839,16 @@ void s_printtextMode(MSPrintText *printText_, A sym_) { printText_->occurrence(A
 A g_printtextMode(MSPrintText *printText_) { return AplusPrintText::convertMode(printText_->occurrence()); }
 
 void s_printtextFontSize(MSPrintText *printText_, unsigned x_) { printText_->fontSize(x_); }
-unsigned long g_printtextFontSize(MSPrintText *printText_) { return printText_->fontSize(); }
+unsigned g_printtextFontSize(MSPrintText *printText_) { return printText_->fontSize(); }
 
 void s_printtextLeading(MSPrintText *printText_, unsigned x_) { printText_->leading(x_); }
-unsigned long g_printtextLeading(MSPrintText *printText_) { return printText_->leading(); }
+unsigned g_printtextLeading(MSPrintText *printText_) { return printText_->leading(); }
 
 void s_printtextTopPixel(MSPrintText *printText_, unsigned x_) { printText_->topPixel(x_); }
 unsigned long g_printtextTopPixel(MSPrintText *printText_) { return printText_->topPixel(); }
 
 void s_printtextBottomPixel(MSPrintText *printText_, unsigned x_) { printText_->bottomPixel(x_); }
-unsigned long g_printtextBottomPixel(MSPrintText *printText_) { return printText_->bottomPixel(); }
+unsigned g_printtextBottomPixel(MSPrintText *printText_) { return printText_->bottomPixel(); }
 
 void s_printtextFontScale(MSPrintText *printText_, A value_)
 {
@@ -871,16 +881,16 @@ void s_printtextBgGrayScale(MSPrintText *printText_, A value_)
 A g_printtextBgGrayScale(MSPrintText *printText_) { return (A) gf(printText_->bgGrayScale()); }
 
 void s_printtextLineWidth(MSPrintText *printText_, unsigned x_) { printText_->lineWidth(x_); }
-unsigned long g_printtextLineWidth(MSPrintText *printText_) { return printText_->lineWidth(); }
+unsigned g_printtextLineWidth(MSPrintText *printText_) { return printText_->lineWidth(); }
 
 void s_printtextRow(MSPrintText *printText_, unsigned x_) { printText_->row(x_); }
-unsigned long g_printtextRow(MSPrintText *printText_) { return printText_->row(); }
+unsigned g_printtextRow(MSPrintText *printText_) { return printText_->row(); }
 
 void s_printtextColumn(MSPrintText *printText_, unsigned x_) { printText_->column(x_); }
-unsigned long g_printtextColumn(MSPrintText *printText_) { return printText_->column(); }
+unsigned g_printtextColumn(MSPrintText *printText_) { return printText_->column(); }
 
 void s_printtextFirstColumn(MSPrintText *printText_, unsigned x_) { printText_->column(x_); }
-unsigned long g_printtextFirstColumn(MSPrintText *printText_) { return printText_->column(); }
+unsigned g_printtextFirstColumn(MSPrintText *printText_) { return printText_->column(); }
 
 void s_printtextxOrigin(MSPrintText *printText_, A value_)
 {
@@ -936,7 +946,7 @@ static void s_reportParagraphLeftMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->leftMargin((double)*(int*)value_->p);
+	  paragraph->leftMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -962,7 +972,7 @@ static void s_reportParagraphRightMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->rightMargin((double)*(int*)value_->p);
+	  paragraph->rightMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -988,7 +998,7 @@ static void s_reportParagraphTopOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->topOffset((double)*(int*)value_->p);
+	  paragraph->topOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1013,7 +1023,7 @@ static void s_reportParagraphBottomOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->bottomOffset((double)*(int*)value_->p);
+	  paragraph->bottomOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1103,7 +1113,7 @@ static void s_reportParagraphFirstLineIndent(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->firstLineIndent((double)*(int*)value_->p);
+	  paragraph->firstLineIndent((double)*(I*)value_->p);
 	}
     }
 }
@@ -1113,11 +1123,11 @@ static A g_reportParagraphFirstLineIndent(MSWidgetView *pWidget_)
 
 static void s_reportParagraphLeading(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusParagraph *)pWidget_)->leading(value_); }
-static unsigned long g_reportParagraphLeading(MSWidgetView *pWidget_) { return ((AplusParagraph *)pWidget_)->leading(); }
+static unsigned g_reportParagraphLeading(MSWidgetView *pWidget_) { return ((AplusParagraph *)pWidget_)->leading(); }
 
 static void s_reportParagraphLineWidth(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusParagraph *)pWidget_)->lineWidth(value_); }
-static unsigned long g_reportParagraphLineWidth(MSWidgetView *pWidget_) { return ((AplusParagraph *)pWidget_)->lineWidth(); }
+static unsigned g_reportParagraphLineWidth(MSWidgetView *pWidget_) { return ((AplusParagraph *)pWidget_)->lineWidth(); }
 
 static void s_reportParagraphFgGrayScale(MSWidgetView *pWidget_, A value_)
 {
@@ -1130,7 +1140,7 @@ static void s_reportParagraphFgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->fgGrayScale((double)*(int*)value_->p);
+	  paragraph->fgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -1148,7 +1158,7 @@ static void s_reportParagraphBgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  paragraph->bgGrayScale((double)*(int*)value_->p);
+	  paragraph->bgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -1157,12 +1167,12 @@ static A g_reportParagraphBgGrayScale(MSWidgetView *pWidget_) { return gf(((Aplu
 
 static void s_reportParagraphOrphanRows(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusParagraph *)pWidget_)->orphanRows(value_); }
-static unsigned long g_reportParagraphOrphanRows(MSWidgetView *pWidget_)
+static unsigned g_reportParagraphOrphanRows(MSWidgetView *pWidget_)
 { return ((AplusParagraph *)pWidget_)->orphanRows(); }
 
 static void s_reportParagraphWidowRows(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusParagraph *)pWidget_)->widowRows(value_); }
-static unsigned long g_reportParagraphWidowRows(MSWidgetView *pWidget_)
+static unsigned g_reportParagraphWidowRows(MSWidgetView *pWidget_)
 { return ((AplusParagraph *)pWidget_)->widowRows(); }
 
 static void s_reportParagraphStyle(MSWidgetView *pWidget_, A value_)
@@ -1194,7 +1204,7 @@ static void s_reportParagraphColumn(MSWidgetView *pWidget_, A value_)
 }
 static I g_reportParagraphColumn(MSWidgetView *pWidget_) 
 { 
-  return ((AplusParagraph *)pWidget_)->column();
+  return (I) ((AplusParagraph *)pWidget_)->column();
 }
 
 static void s_reportParagraphColumnSpan(MSWidgetView *pWidget_, A value_)
@@ -1210,7 +1220,7 @@ static void s_reportParagraphColumnSpan(MSWidgetView *pWidget_, A value_)
 }
 static I g_reportParagraphColumnSpan(MSWidgetView *pWidget_)
 { 
-  return ((AplusParagraph *)pWidget_)->columnSpan();
+  return (I) ((AplusParagraph *)pWidget_)->columnSpan();
 }
 
 
@@ -1228,7 +1238,7 @@ static void s_reportColumnLeftMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pColumn->leftMargin((double)*(int*)value_->p);
+	  pColumn->leftMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1254,7 +1264,7 @@ static void s_reportColumnRightMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pColumn->rightMargin((double)*(int*)value_->p);
+	  pColumn->rightMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1280,7 +1290,7 @@ static void s_reportColumnTopOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pColumn->topOffset((double)*(int*)value_->p);
+	  pColumn->topOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1305,7 +1315,7 @@ static void s_reportColumnBottomOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pColumn->bottomOffset((double)*(int*)value_->p);
+	  pColumn->bottomOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1325,12 +1335,12 @@ static A g_reportColumnReportFont(MSWidgetView *pWidget_)
 { return AplusConvert::asA(((AplusPrintColumn *)pWidget_)->printFont()); }
 
 static void s_reportColumnPrintRow(MSWidgetView *pWidget_, int value_) { ((AplusPrintColumn *)pWidget_)->printRow(value_); }
-static I  g_reportColumnPrintRow(MSWidgetView *pWidget_) { return ((AplusPrintColumn *)pWidget_)->printRow(); }
+static I  g_reportColumnPrintRow(MSWidgetView *pWidget_) { return (I) ((AplusPrintColumn *)pWidget_)->printRow(); }
 
 static void s_reportColumnPrintColumn(MSWidgetView *pWidget_, int value_)
 { ((AplusPrintColumn *)pWidget_)->printColumn(value_); }
 static I  g_reportColumnPrintColumn(MSWidgetView *pWidget_)
-{ return ((AplusPrintColumn *)pWidget_)->printColumn(); }
+{ return (I) ((AplusPrintColumn *)pWidget_)->printColumn(); }
 
 static void s_reportColumnJustify(MSWidgetView *pWidget_, A value_)
 {
@@ -1389,7 +1399,7 @@ static void s_reportColumnColumnWidths(MSWidgetView *pWidget_, A value_)
       AplusPrintColumn *pColumn = (AplusPrintColumn *)pWidget_;
       if (value_->r==0)	// if it's a scalar (as opposed to a one-element vector)
 	{
-	  double width = (value_->t==Ft) ? *(double*)value_->p : *(int*)value_->p;
+	  double width = (value_->t==Ft) ? *(double*)value_->p : *(I*)value_->p;
 	  pColumn->columnWidths(MSFloatVector(1,width));
 	}
       else
@@ -1410,7 +1420,7 @@ static A g_reportColumnColumnWidths(MSWidgetView *pWidget_)
 
 static void s_reportColumnNumColumns(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusPrintColumn *)pWidget_)->numColumns(value_); }
-static unsigned long g_reportColumnNumColumns(MSWidgetView *pWidget_)
+static unsigned g_reportColumnNumColumns(MSWidgetView *pWidget_)
 { return ((AplusPrintColumn *)pWidget_)->numColumns(); }
 
 static void s_reportColumnStyle(MSWidgetView *pWidget_, A value_)
@@ -1443,7 +1453,7 @@ static void s_reportRuleLeftMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pRule->leftMargin((double)*(int*)value_->p);
+	  pRule->leftMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1469,7 +1479,7 @@ static void s_reportRuleRightMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pRule->rightMargin((double)*(int*)value_->p);
+	  pRule->rightMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1495,7 +1505,7 @@ static void s_reportRuleTopOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pRule->topOffset((double)*(int*)value_->p);
+	  pRule->topOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1520,7 +1530,7 @@ static void s_reportRuleBottomOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pRule->bottomOffset((double)*(int*)value_->p);
+	  pRule->bottomOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1545,7 +1555,7 @@ static void s_reportRuleFgGrayScale(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pRule->fgGrayScale((double)*(int*)value_->p);
+	  pRule->fgGrayScale((double)*(I*)value_->p);
 	}
     }
 }
@@ -1554,7 +1564,7 @@ static A g_reportRuleFgGrayScale(MSWidgetView *pWidget_) { return gf(((AplusRule
 
 static void s_reportRuleRuleWidth(MSWidgetView *pWidget_, unsigned value_)
 { ((AplusRulePrintItem *)pWidget_)->ruleWidth(value_); }
-static unsigned long g_reportRuleRuleWidth(MSWidgetView *pWidget_)
+static unsigned g_reportRuleRuleWidth(MSWidgetView *pWidget_)
 { return ((AplusRulePrintItem *)pWidget_)->ruleWidth(); }
 
 

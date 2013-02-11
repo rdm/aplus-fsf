@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -450,7 +450,7 @@ MSBoolean MSScale::assignValue(double x_)
    {
      double value=x_>valueMax()?valueMax():x_<valueMin()?valueMin():x_;
      if (modelType()==MSFloat::symbol()) *((MSFloat *)MSView::model())=value;
-     else if (modelType()==MSInt::symbol()) *((MSInt *)MSView::model())=value;
+     else if (modelType()==MSInt::symbol()) *((MSInt *)MSView::model())=(int)(value);
      return MSTrue;
    }
   return MSFalse;
@@ -1249,7 +1249,7 @@ const char *MSScale::formatValue(MSString &buffer_,double data_)
    }
   else 
    {
-     MSInt aInt(data_);
+     MSInt aInt((int)(data_));
      return aInt.format(buffer_,format());
    }
 }
@@ -1262,10 +1262,10 @@ MSInt MSScale::asInt(void) const
   if (currentValue()>INT_MAX||currentValue()<-INT_MAX)
    {
      MSString message("Warning: value exceeds INT_MAX, unable to assign value ");
-     message<<currentValue();
+     message += MSString(currentValue());
      MSMessageLog::warningMessage(message.string());
    }
-  return MSInt(currentValue());
+  return MSInt((int)(currentValue()));
 }
 
 unsigned long MSScale::addEditorKeyCallback( const char* pString_,MSKeyCallback* keyCallback_)

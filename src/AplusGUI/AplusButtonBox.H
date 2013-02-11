@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -16,22 +16,6 @@
 #include <AplusGUI/AplusEvent.H>
 #include <AplusGUI/AplusModel.H>
 #include <AplusGUI/AplusCommon.H>
-
-class AplusActionButton : public MSActionButton
-{
-friend class AplusButtonBox;
-
-public:
-  AplusActionButton(MSWidget *, const char *);
-  ~AplusActionButton(void);
-
-protected:
-  const AplusButtonBox *buttonBox(void) const { return (AplusButtonBox *) _owner; }
-  AplusButtonBox *buttonBox(void) { return (AplusButtonBox *) _owner; }
-  virtual void focusIn(void);
-  virtual MSBoolean isProtected(void) const;
-};
-
 
 class AplusButtonBox : public MSActionBox
 {
@@ -98,6 +82,23 @@ private:
 
   STANDARD_WIDGET_METHODS_H
 };
+
+class AplusActionButton : public MSActionButton
+{
+friend class AplusButtonBox;
+
+public:
+  AplusActionButton(MSWidget *, const char *);
+  ~AplusActionButton(void);
+
+protected:
+  const AplusButtonBox *buttonBox(void) const { return (AplusButtonBox *) _owner; }
+  AplusButtonBox *buttonBox(void) { return (AplusButtonBox *) _owner; }
+  virtual void focusIn(void);
+  virtual MSBoolean isProtected(void) const;
+};
+
+
 
 inline MSBoolean AplusButtonBox::freezeIfUnfrozen(void) { MSBoolean rc=frozen(); return freeze(),rc; }
 inline void AplusButtonBox::unfreezeIfUnfrozen(MSBoolean bool_) { if (bool_==MSFalse) unfreeze(); }

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -79,7 +79,7 @@ typedef double (*ElementWiseFunction)(double, void *);
 #if !defined(MS_MSFloatVector_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSTypeVector<double> : public BuiltinVectorDouble
 #else
-class MSTypesExport MSTypeVector<double> : public BuiltinVectorDouble
+template <> class MSTypesExport MSTypeVector<double> : public BuiltinVectorDouble
 #endif
 {
 protected:

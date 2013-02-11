@@ -1,12 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if HAVE_FSTREAM
+#include <fstream>
+#else
 #include <fstream.h>
+#endif
 
 #include <MSGUI/MSTextEditor.H>
 #include <MSGUI/MSKeyClassCallback.H>
@@ -207,7 +211,7 @@ void ccf_Close(
 **  generated code will be independent of the characterset
 **  the C compiler is using.
 **
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 **  Technical Research Centre of Finland
 */

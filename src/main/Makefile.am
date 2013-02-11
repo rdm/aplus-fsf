@@ -23,7 +23,7 @@ aplus_SOURCES = \
 
 CFLAGS = @CFLAGS@ -DBSTUB
 
-INCLUDES = -I..
+INCLUDES = -I.. $(X_INCLUDES)
 
 aplus_LDADD = \
 	$(top_srcdir)/src/IPC/libIPC.la \
@@ -52,10 +52,7 @@ aplus_LDFLAGS = \
 	-L$(top_srcdir)/src/MSGUI \
 	-L$(top_srcdir)/src/MSIPC \
 	-L$(top_srcdir)/src/MSTypes \
-	-L/usr/local/lib \
-	-L/usr/X11R6/lib \
-	-rpath $(DESTDIR)$(libdir)@EXTRA_RPATH@ \
-	@LIBS@
+	$(X_LIBS) $(LIBS)
 
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/aplus $(DESTDIR)$(bindir)/a+
@@ -69,6 +66,6 @@ version.h: FORCE
 	rm -f $@;\
 	cat version.h.template | sed -e s/%RCVAL%/$(VERSION)/ \
 		-e s/%FNVAL%/$(OWNER_FULLNAME)/ \
-		-e s@%IMDIRVAL%@$(DESTDIR)$(prefix)@ >$@;
+		-e s@%IMDIRVAL%@$(prefix)@ >$@;
 
 FORCE:

@@ -7,7 +7,7 @@ All the tutorials are contained in:
 By default the Install_Directory is /usr/local/aplus-fsf-x.xx 
 (where x.xx is version.release)
 
-i.e. /usr/local/aplus-fsf-4.18/doc/tutorials/GettingStarted
+i.e. /usr/local/aplus-fsf-4.22/doc/tutorials/GettingStarted
 
 This set of tutorials deals primarily with the A+ language. However,
 the first one, GettingStarted, is designed to do just what its name

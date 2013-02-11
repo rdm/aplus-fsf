@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -11,7 +11,7 @@
 #include <AplusGUI/AplusGraph.H>
 
 AplusLabelOut::AplusLabelOut(void) : MSLabelOut(), _outFunc(0), _v(0), 
-    _precision(1), _format(AplusFormatter::BadFormat), _a(0),
+    _precision(-1), _format(AplusFormatter::BadFormat), _a(0),
     _tick(0), _grid(0), _value(0)
 {}
 

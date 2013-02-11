@@ -101,8 +101,10 @@ With regard to database maintenance and manipulation, t is the manipulation comp
  though there is not an exact fit between t functions and relational operations, they are
  comparable.  See "<A HREF="#30">The Relational Set Operations: Union, Intersection, and
  Difference</A>" for examples of defining relational operations in terms of t.<P>
+<!----
 See "<A HREF="APlusRefV2_2.html#3">Other Sources of A+ Information</A>" regarding aids to
  using SYBASE and SQL through A+.
+//---->
 </blockquote>
 <A NAME=HEADING865>
 <H2><FONT color="#20B2AA">&nbsp;&nbsp;&nbsp;t-Tables: <A NAME=5>Base Tables and
@@ -153,7 +155,7 @@ It is generally assumed throughout this chapter, unless something is said to the
 <blockquote>
 The <A NAME=7>tables and A+ expressions for creating the examples can be found online. The
  mapped files for these tables are created by the A+ script<font face=Courier>
- tutorials/t.tutorial/files.+ </font>and the t tables
+ /usr/local/aplus-fsf-4.18/doc/tutorials/t.tutorial/files.+ </font>and the t tables
  are loaded by the A+ script<font face=Courier> model.+ </font>in the same directory. To
  create your own copies of the mapped files and experiment with variations of the t tables,
  make copies of these scripts and change their directory variables. There is also a script
@@ -164,7 +166,7 @@ Only the tables named <font face=Kapl>employees</font> and <font face=Kapl>depar
  t function <font face=Kapl>t.open</font>, as follows:
 </blockquote>
 <pre><font face=Kapl>   $load t
-   directoryû"tutorials/t.tutorial/files/"
+   directoryû"/usr/local/aplus-fsf-4.18/doc/tutorials/t.tutorial/files/"
    (`departments;directory) t.open (
                             `dept_no;"0àdept.dept_no";
                             `dept_name;"¢1àdept.dept_name";
@@ -199,7 +201,7 @@ The right argument <font face=Kapl>()</font> to <font face=Kapl>t.only</font> in
 Row and column selection can be combined.  For example, a view of the <font face=Kapl>emp_no</font>, <font face=Kapl>emp_name</font>, and <font face=Kapl>salary</font> columns for all employees in departments D11, D21, and D31 is:
 <pre><font face=Kapl>   `employees `rp_view t.only 'dept_noÅ3 3Ò"D11D21D31"'
    `employees `rp_view t.send `emp_no `emp_name `salary</font></pre>
-There is a utility function in t named <font face=Kapl>t.in</font> that allows a more Englishlike specification of a set of values in a selection, in this case<BR ><font face=Kapl>"D11,D21,D31"</font> in place of <BR ><font face=Kapl>3 3Ò"D11D21D31"</font>.  See "<A HREF="#37">Selectors</A>" for more on this topic.<P>
+There is a utility function in t named <font face=Kapl>t.in</font> that allows a more English like specification of a set of values in a selection, in this case<BR ><font face=Kapl>"D11,D21,D31"</font> in place of <BR ><font face=Kapl>3 3Ò"D11D21D31"</font>.  See "<A HREF="#37">Selectors</A>" for more on this topic.<P>
 There are several other points to be made about row selection.  First of all, it is not necessary to do the row selection all at once.  For example, after making the department selections above, department E01 can be added to the selection as follows:
 <pre><font face=Kapl>   `employees `rp_view t.also 'dept_noÅ1 3Ò"E01"'</font></pre>
 When both the source and target are specified in the left argument to <font face=Kapl>t.also</font>, the selection is evaluated on the source table.  However, if only the target is specified in that left argument, the selection is evaluated on the complement of the target (those rows that are not currently selected), and the result is appended to the target.  In the latter case, any columns named in the selection must have been sent to the target before the selection is made.<P>
@@ -578,7 +580,7 @@ The function to be applied to partitions when generating the <font face=Kapl>com
 <A NAME=HEADING889>
 <H2><FONT color="#20B2AA">&nbsp;&nbsp;&nbsp;<A NAME=37>Selectors</FONT></H2>
 <blockquote>
-In every example above of <font face=Kapl>t.only</font> and <font face=Kapl>t.also</font>, the right argument defining the selection, when not the Null, is a character vector containing a valid A+ expression.  One example in "<A HREF="#9">Row and Column Selection</A>", suggests the use of <font face=Kapl>t.in</font> to permit special syntax, namely a right argument of the form <font face=Kapl>"a,b,c"</font> in place of the typical right argument to Member of (<font face=Kapl>Å</font>) of the form<font face=Kapl> 3&nbsp;1Ò"abc"</font>.&nbsp; It is possible to extend this technique with application-specific functions that play the same role as <font face=Kapl>t.in</font>.  It is also possible to permit more Englishlike selections on specific columns by connecting application-supplied selection evaluation functions to the t selection functions.  These selection evaluation functions are called <i>selectors</i>.<P>
+In every example above of <font face=Kapl>t.only</font> and <font face=Kapl>t.also</font>, the right argument defining the selection, when not the Null, is a character vector containing a valid A+ expression.  One example in "<A HREF="#9">Row and Column Selection</A>", suggests the use of <font face=Kapl>t.in</font> to permit special syntax, namely a right argument of the form <font face=Kapl>"a,b,c"</font> in place of the typical right argument to Member of (<font face=Kapl>Å</font>) of the form<font face=Kapl> 3&nbsp;1Ò"abc"</font>.&nbsp; It is possible to extend this technique with application-specific functions that play the same role as <font face=Kapl>t.in</font>.  It is also possible to permit more English like selections on specific columns by connecting application-supplied selection evaluation functions to the t selection functions.  These selection evaluation functions are called <i>selectors</i>.<P>
 For example, it is possible to permit selections on date fields of the form <font face=Kapl>'1/1/93&nbsp;to&nbsp;10/1/93'</font> if there is an application-supplied selector function that can parse this expression and apply it to table columns.  A selector function must satisfy the following conditions:<P>
 <UL>
 <LI>the syntax of a selector function is the same as callback functions, namely:<BR><font face=Kapl>selector{s;d;i;p;c;v}<BR></font>(the index argument <font face=Kapl>i</font> holds the selection criteria, such as <font face=Kapl>'1/1/93&nbsp;to&nbsp;10/1/93'</font>, the context argument <font face=Kapl>c</font> holds the table name, the variable argument <font face=Kapl>v</font> holds the column name, and the data argument <font face=Kapl>d</font> holds the value of the column variable);<P>
@@ -667,7 +669,7 @@ where both beginning date and ending date are of the form mm/dd/yyyy.  The resul
 </font>where <font face=Kapl>year</font> is a four-digit integer, as in 1993, and
  <font face=Kapl>month</font> and <font face=Kapl>day</font> are at most two-digit
  integers.<P>
-Note that<font face=Courier> /common/a/dio.+ </font>must be loaded before this function is
+Note that the script<font face=Courier> dio.+ </font>must be loaded before this function is
  used.<P>
 </BLOCKQUOTE><A NAME=HEADING893>
 <H2><FONT color="#20B2AA">Calendar Indices  <A NAME=47><font face=Kapl>t.series{w;x}</font></FONT></H2>
@@ -960,9 +962,9 @@ This function is a utility function in t.  The right argument holds a list of ch
 This function can be used to form selections in the right argument of selection functions such as <font face=Kapl>t.only</font>.</BLOCKQUOTE>
 <b>&nbsp;&nbsp;&nbsp;Example</b><BLOCKQUOTE>
 The selection <font face=Kapl>'dept_noÅ3&nbsp;3Ò"D11D21D31"'</font> in "<A HREF="#9">Row
- and Column Selection</A>" can be phrased in the more Englishlike
+ and Column Selection</A>" can be phrased in the more English like
  <font face=Kapl>'dept_no&nbsp;in&nbsp;"D11,D21,D31"'</font>. See
- "<A HREF="#37">Selectors</A>" for more on Englishlike selections.<P>
+ "<A HREF="#37">Selectors</A>" for more on English like selections.<P>
 </BLOCKQUOTE><A NAME=HEADING906>
 <H2><FONT color="#20B2AA">Fix a <A NAME=92>View  <font face=Kapl>t.fix{d;b}</font></FONT></H2>
 <b>&nbsp;&nbsp;&nbsp;Arguments and Result</b><BLOCKQUOTE>
@@ -1387,6 +1389,6 @@ Note that the name of this mapping is specific to these two tables, so any table
  <font face=Kapl>_V</font> or <font face=Kapl>_V_</font>.</td></tr>
 </table><P>
 <HR>
-<ADDRESS><table width="100%"><tr><td><font size=2><i><a href="mailto:doc@aplusdev.org">doc@aplusdev.org</a></i></font></td><td align=right><font size=2><i>&#169; Copyright 1995&#150;2001 Morgan Stanley Dean Witter &amp; Co.  All rights reserved.</i></font></td></tr></table></ADDRESS>
+<ADDRESS><table width="100%"><tr><td><font size=2><i><a href="mailto:doc@aplusdev.org">doc@aplusdev.org</a></i></font></td><td align=right><font size=2><i>&#169; Copyright 1995&#150;2008 Morgan Stanley Dean Witter &amp; Co.  All rights reserved.</i></font></td></tr></table></ADDRESS>
 </BODY>
 </HTML>

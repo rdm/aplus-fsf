@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -43,7 +43,9 @@ int nan_bits=0;
 int fp_checkerr(s)C *s;
 {
   H("%s:",s);
+#if !defined(__arm__)
   H("FE_INEXACT:%d ",fpe_bits&FE_INEXACT ? 1:0);     /* inexact result      */
+#endif
   H("FE_DIVBYZERO:%d ",fpe_bits&FE_DIVBYZERO ? 1:0); /* division by zero    */
   H("FE_UNDERFLOW:%d ",fpe_bits&FE_UNDERFLOW ? 1:0); /* underflow exception */
   H("FE_OVERFLOW:%d ",fpe_bits&FE_OVERFLOW ? 1:0);   /* overflow exception  */
@@ -200,7 +202,7 @@ I n;
   CHECKXCP; /* NOTEIT: add  NAN_CHECK and CHECKXCP */
 }
 #else
-NANDD(s_pi,F,F,pif((int)*a,*w))
+NANDD(s_pi,F,F,pif((I)*a,*w))
 #endif
 
 DD(i6,I,I,rm(*w,*a))
@@ -869,7 +871,7 @@ H2(dea){
 #endif
   DO(j--,t[i]=-1);
    {
-    int i, _i;
+    long i, _i;
  
     _i = m;
  

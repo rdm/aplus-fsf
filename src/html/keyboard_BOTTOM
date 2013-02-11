@@ -1,5 +1,6 @@
 
 <!-- ========================================================================== -->
+</Map>
 
 <image src="KeyboardInt.gif" usemap="#Kmap" border=0><br><table border=1 width=990 cellspacing=0 cellpadding=10>
 <tr>
@@ -22,8 +23,7 @@ Contact &#147;doc@aplusdev.org&#148;.
 
 <! p>
 <!-- TIMESTAMP: -->
-<font face=arial,geneva,helvetica size=1>LAST UPDATED: 01 JUNE 1999',<br>
-</Map>
+<font face=arial,geneva,helvetica size=1><! Last updated Wed 06 Feb 2002></font><br>
 
 <!-- ============================================================================== -->
 

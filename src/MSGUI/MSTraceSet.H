@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -173,8 +173,8 @@ public:
   virtual void lineWidth(const MSUnsignedVector&);
   virtual void lineStyle(const MSUnsignedLongVector&);
   virtual void lineWeight(const MSUnsignedVector&);
-  virtual void xAxis(const MSUnsignedLongVector&);
-  virtual void yAxis(const MSUnsignedLongVector&);
+  virtual void xAxis(const MSUnsignedLongVector&, MSExplicitInit);
+  virtual void yAxis(const MSUnsignedLongVector&, MSExplicitInit);
   virtual void style(const MSUnsignedLongVector&);
   virtual void symbol(const MSUnsignedLongVector&);
   virtual void symbolSize(const MSUnsignedVector&);

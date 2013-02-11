@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -55,7 +55,7 @@ for(v=*bp;v;v=v->v)if(s==v->s)R v;R 0;}
 /* vlu() is like vi() except if v-structure doesn't exist, it returns 0
    instead of creating a new one. */
 
-CX cx(C *s){R *s!='.'?cxi(si(s)):Rx;}
+CX cx(const C *s){R *s!='.'?cxi(si(s)):Rx;}
 
 I gz(void){R(I)aplus_nl;}
 I qz(A aobj){R ((aobj==aplus_nl)||(QA(aobj)&&aobj->t==Et&&!aobj->n&&aobj->r>0));}

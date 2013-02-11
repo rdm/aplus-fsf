@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -8,8 +8,16 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 #include <math.h>
 #include <AplusGUI/AGIFGraph.H>
 #include <AplusGUI/AplusConvert.H>
@@ -166,7 +174,7 @@ static void s_tracePieOffsets(AplusTraceSet *pTraceSet_, A value_)
     {
       if (value_->r==0)	// if it's a scalar (as opposed to a one-element vector)
 	{
-	  double offset = (value_->t==Ft) ? *(double*)value_->p : *(int*)value_->p;
+	  double offset = (value_->t==Ft) ? *(double*)value_->p : *(I*)value_->p;
 	  pTraceSet_->pieOffsets(MSFloatVector(1,offset));
 	}
       else
@@ -208,7 +216,7 @@ static void s_tracePieProfiles(AplusTraceSet *pTraceSet_, A value_)
     {
       if (value_->r==0)	// if it's a scalar (as opposed to a one-element vector)
 	{
-	  double profile = (value_->t==Ft) ? *(double*)value_->p : *(int*)value_->p;
+	  double profile = (value_->t==Ft) ? *(double*)value_->p : *(I*)value_->p;
 	  pTraceSet_->pieProfiles(MSFloatVector(1,profile));
 	}
       else
@@ -259,7 +267,7 @@ static A g_tracePiePercentAlign(AplusTraceSet *pTraceSet_)
 }
 
 static void s_tracePrimarySlice(AplusTraceSet *pTraceSet_, int slice_) { pTraceSet_->primarySlice(slice_); }
-static I g_tracePrimarySlice(AplusTraceSet *pTraceSet_) { return pTraceSet_->primarySlice(); }
+static I g_tracePrimarySlice(AplusTraceSet *pTraceSet_) { return (I) pTraceSet_->primarySlice(); }
 
 static void s_tracePrimarySliceAlign(AplusTraceSet *pTraceSet_, A align_)
 {
@@ -276,7 +284,8 @@ static A g_traceConstraint(AplusTraceSet *tp_) { return tp_->constraintSym(); }
 
 static void s_traceSelectable(AplusTraceSet *tp_,MSBoolean value_) 
 { tp_->selectable(value_); }
-static MSBoolean g_traceSelectable(AplusTraceSet *tp_) { return tp_->selectable(); }
+static I g_traceSelectable(AplusTraceSet *tp_) 
+{ return MSTrue==tp_->selectable() ? 1 : 0; }
 
 static char *g_traceText(AplusTraceSet *tp_) { return (char *) tp_->graph()->editorString(); }
 static void s_traceSelected(AplusTraceSet *tp_,A value_) { tp_->selected(value_); }
@@ -517,7 +526,7 @@ static A g_graphYYlabelHeight(AplusGraph *gr_) 	      { return gr_->yLabelHeight
 
 void bGraphDebug(MSBoolean flag_) { MSGraph::debug(flag_==MSTrue?MSFalse:MSTrue); }
 
-static I g_graphTraceCount(AplusGraph *gr_) { return (int) gr_->traceCount(); }
+static I g_graphTraceCount(AplusGraph *gr_) { return (I) gr_->traceCount(); }
 
 static void s_graphXYcoordinate(AplusGraph *gr_,A value_) 
 { if (!QS(value_)&&(value_->t==It || value_->t==Ft)&&value_->n==2)
@@ -789,12 +798,12 @@ static A g_graphYYbottomMargin(AplusGraph *gr_)
 static void s_graphLegendHlThickness(AplusGraph *gr_,int width_) 
 { gr_->legendHighlightThickness(width_); }
 static I g_graphLegendHlThickness(AplusGraph *gr_) 
-{ return (int) gr_->legendHighlightThickness(); }
+{ return (I) gr_->legendHighlightThickness(); }
 
 static void s_graphLegendShadowThickness(AplusGraph *gr_,int width_) 
 { gr_->legendShadowThickness(width_); }
 static I g_graphLegendShadowThickness(AplusGraph *gr_) 
-{ return (int) gr_->legendShadowThickness(); }
+{ return (I) gr_->legendShadowThickness(); }
 
 static void s_graphLegendBg(AplusGraph *gr_,unsigned long color_) 
 { gr_->legendBackground(color_); }
@@ -990,16 +999,16 @@ static Font g_graphYYlabelFont(AplusGraph *gr_) {return(Font)gr_->axisLabelFont(
 
 
 static void s_graphRuleWidth(AplusGraph *gr_,int value_) {gr_->axisRuleWidth(value_); }
-static I g_graphRuleWidth(AplusGraph *gr_) { return (int) gr_->axisRuleWidth(); }
+static I g_graphRuleWidth(AplusGraph *gr_) { return (I) gr_->axisRuleWidth(); }
 
 static void s_graphGridWidth(AplusGraph *gr_,int value_) {gr_->gridWidth(value_); }
-static I g_graphGridWidth(AplusGraph *gr_) { return (int) gr_->gridWidth(); }
+static I g_graphGridWidth(AplusGraph *gr_) { return (I) gr_->gridWidth(); }
 
 static void s_graphGridColor(AplusGraph *gr_,unsigned long color_) { gr_->gridForeground(color_); }
 static unsigned long g_graphGridColor(AplusGraph *gr_) { return (unsigned long) gr_->gridForeground(); }
 
 static void s_graphZeroWidth(AplusGraph *gr_,int value_) {gr_->zeroAxisWidth(value_);}
-static I g_graphZeroWidth(AplusGraph *gr_) { return (int) gr_->zeroAxisWidth(); }
+static I g_graphZeroWidth(AplusGraph *gr_) { return (I) gr_->zeroAxisWidth(); }
 
 static void s_graphZeroColor(AplusGraph *gr_,unsigned long color_) { gr_->zeroAxisForeground(color_); }
 static unsigned long g_graphZeroColor(AplusGraph *gr_) { return (unsigned long) gr_->zeroAxisForeground(); }
@@ -1021,46 +1030,46 @@ static A g_graphYYtickStyle(AplusGraph *gr_) { return (A) gr_->tickStyleA(MSRigh
 
 
 static void s_graphXminorTicks(AplusGraph *gr_,int value_) { gr_->minorTicks(value_,MSBottom); }
-static I g_graphXminorTicks(AplusGraph *gr_) { return (int) gr_->minorTicks(MSBottom);}
+static I g_graphXminorTicks(AplusGraph *gr_) { return (I) gr_->minorTicks(MSBottom);}
 
 static void s_graphXXminorTicks(AplusGraph *gr_,int value_) { gr_->minorTicks(value_,MSTop); }
-static I g_graphXXminorTicks(AplusGraph *gr_) { return(int)gr_->minorTicks(MSTop);}
+static I g_graphXXminorTicks(AplusGraph *gr_) { return(I)gr_->minorTicks(MSTop);}
 
 static void s_graphYminorTicks(AplusGraph *gr_,int value_) { gr_->minorTicks(value_,MSLeft); }
-static I g_graphYminorTicks(AplusGraph *gr_) { return (int) gr_->minorTicks(MSLeft);}
+static I g_graphYminorTicks(AplusGraph *gr_) { return (I) gr_->minorTicks(MSLeft);}
 
 static void s_graphYYminorTicks(AplusGraph *gr_,int value_) { gr_->minorTicks(value_,MSRight); }
-static I g_graphYYminorTicks(AplusGraph *gr_) { return(int)gr_->minorTicks(MSRight);}
+static I g_graphYYminorTicks(AplusGraph *gr_) { return(I)gr_->minorTicks(MSRight);}
 
 static void s_graphXmajorTickSize(AplusGraph *gr_,int val_) { gr_->majorTickSize(val_,MSBottom); }
-static I g_graphXmajorTickSize(AplusGraph *gr_) { return(int)gr_->majorTickSize(MSBottom); }
+static I g_graphXmajorTickSize(AplusGraph *gr_) { return(I)gr_->majorTickSize(MSBottom); }
 
 static void s_graphXXmajorTickSize(AplusGraph *gr_,int val_) { gr_->majorTickSize(val_,MSTop); }
-static I g_graphXXmajorTickSize(AplusGraph *gr_) { return (int) gr_->majorTickSize(MSTop); }
+static I g_graphXXmajorTickSize(AplusGraph *gr_) { return (I) gr_->majorTickSize(MSTop); }
 
 static void s_graphYmajorTickSize(AplusGraph *gr_,int val_) { gr_->majorTickSize(val_,MSLeft); }
-static I g_graphYmajorTickSize(AplusGraph *gr_) { return (int) gr_->majorTickSize(MSLeft); }
+static I g_graphYmajorTickSize(AplusGraph *gr_) { return (I) gr_->majorTickSize(MSLeft); }
 
 static void s_graphYYmajorTickSize(AplusGraph *gr_,int val_) { gr_->majorTickSize(val_,MSRight); }
-static I g_graphYYmajorTickSize(AplusGraph *gr_) { return (int) gr_->majorTickSize(MSRight); }
+static I g_graphYYmajorTickSize(AplusGraph *gr_) { return (I) gr_->majorTickSize(MSRight); }
 
 static void s_graphXminorTickSize(AplusGraph *gr_,int val_) { gr_->minorTickSize(val_,MSBottom); }
-static I g_graphXminorTickSize(AplusGraph *gr_) { return (int) gr_->minorTickSize(MSBottom); }
+static I g_graphXminorTickSize(AplusGraph *gr_) { return (I) gr_->minorTickSize(MSBottom); }
 
 static void s_graphXXminorTickSize(AplusGraph *gr_,int val_) { gr_->minorTickSize(val_,MSTop); }
-static I g_graphXXminorTickSize(AplusGraph *gr_) { return (int) gr_->minorTickSize(MSTop); }
+static I g_graphXXminorTickSize(AplusGraph *gr_) { return (I) gr_->minorTickSize(MSTop); }
 
 static void s_graphYminorTickSize(AplusGraph *gr_,int val_) { gr_->minorTickSize(val_,MSLeft); }
-static I g_graphYminorTickSize(AplusGraph *gr_) { return (int) gr_->minorTickSize(MSLeft); }
+static I g_graphYminorTickSize(AplusGraph *gr_) { return (I) gr_->minorTickSize(MSLeft); }
 
 static void s_graphYYminorTickSize(AplusGraph *gr_,int val_) { gr_->minorTickSize(val_,MSRight); }
-static I g_graphYYminorTickSize(AplusGraph *gr_) { return (int) gr_->minorTickSize(MSRight); }
+static I g_graphYYminorTickSize(AplusGraph *gr_) { return (I) gr_->minorTickSize(MSRight); }
 
 static void s_graphBarWidth(AplusGraph *gr_,int value_) {gr_->maxBarWidth(value_);}
-static I g_graphBarWidth(AplusGraph *gr_) { return (int) gr_->maxBarWidth(); }
+static I g_graphBarWidth(AplusGraph *gr_) { return (I) gr_->maxBarWidth(); }
 
 static void s_graphDepth(AplusGraph *gr_,int value_) { gr_->graphDepth(value_); }
-static I g_graphDepth(AplusGraph *gr_) { return (int) gr_->graphDepth(); }
+static I g_graphDepth(AplusGraph *gr_) { return (I) gr_->graphDepth(); }
 
 static void s_longPressTime(AplusGraph *gr_,int value_) { gr_->longPressTime(value_); }
 static long g_longPressTime(AplusGraph *gr_) { return gr_->longPressTime(); }
@@ -1089,7 +1098,7 @@ static void s_graphPieOffsetMargin(AplusGraph *pGraph_, A value_)
 	}
       else if (value_->t==It)
 	{
-	  pGraph_->pieOffsetMargin((double)*(int*)value_->p);
+	  pGraph_->pieOffsetMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1109,7 +1118,7 @@ static void s_graphLeftMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pGraph->leftMargin((double)*(int*)value_->p);
+	  pGraph->leftMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1135,7 +1144,7 @@ static void s_graphRightMargin(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pGraph->rightMargin((double)*(int*)value_->p);
+	  pGraph->rightMargin((double)*(I*)value_->p);
 	}
     }
 }
@@ -1161,7 +1170,7 @@ static void s_graphTopOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pGraph->topOffset((double)*(int*)value_->p);
+	  pGraph->topOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1186,7 +1195,7 @@ static void s_graphBottomOffset(MSWidgetView *pWidget_, A value_)
 	}
       else if (value_->t==It)  // it's an integer
 	{
-	  pGraph->bottomOffset((double)*(int*)value_->p);
+	  pGraph->bottomOffset((double)*(I*)value_->p);
 	}
     }
 }
@@ -1201,10 +1210,10 @@ static A g_graphBottomOffset(MSWidgetView *pWidget_)
 }
 
 static void s_graphPrintRow(MSWidgetView *pWidget_, int value_) { ((AplusGraph *)pWidget_)->printRow(value_); }
-static I  g_graphPrintRow(MSWidgetView *pWidget_) { return ((AplusGraph *)pWidget_)->printRow(); }
+static I  g_graphPrintRow(MSWidgetView *pWidget_) { return (I) ((AplusGraph *)pWidget_)->printRow(); }
 
 static void s_graphPrintColumn(MSWidgetView *pWidget_, int value_) { ((AplusGraph *)pWidget_)->printColumn(value_); }
-static I  g_graphPrintColumn(MSWidgetView *pWidget_) { return ((AplusGraph *)pWidget_)->printColumn(); }
+static I  g_graphPrintColumn(MSWidgetView *pWidget_) { return (I) ((AplusGraph *)pWidget_)->printColumn(); }
 
 static void s_graphJustify(MSWidgetView *pWidget_, A value_)
 {

@@ -1,6 +1,7 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -27,7 +28,7 @@ Z I gpu_fillivec(I *ivec, A aobj)
   
   for (i=0;i<aobj->n;++i) {
     if (fvec[i]!=(f=rint(fvec[i]))) R 1;
-    ivec[i]=(int)f;
+    ivec[i]=(I)f;
   }
   R 0;
 }
@@ -43,9 +44,9 @@ Z I gpi_num(A apick, A aobj)
     ip=ivec;
   } else ip=apick->p;
 
-  if (aobj->d[0]<=(unsigned)(idx=ip[0])) ERROUT(ERR_INDEX);
+  if (aobj->d[0]<=(I)(idx=ip[0])) ERROUT(ERR_INDEX);
   for(i=1;i<apick->n;++i) {
-    if (aobj->d[i]<=(unsigned)(ip[i])) ERROUT(ERR_INDEX);
+    if (aobj->d[i]<=(I)(ip[i])) ERROUT(ERR_INDEX);
     idx*=aobj->d[i]; idx+=ip[i];
   }
   R idx;
@@ -74,7 +75,7 @@ Z A *gpp_scalar(I idx, A *paobj)
 /*  H(" check: gpp_scalar idx:%d  aobj->n:%d\n", idx, aobj->n); */
   
   if (1 != aobj->r) ERROUT(ERR_RANK);
-  if ((unsigned)idx>=aobj->n) ERROUT(ERR_INDEX);
+  if ((I)idx>=aobj->n) ERROUT(ERR_INDEX);
   if (QS(aobj)) ERROUT(ERR_DOMAIN);
   switch (aobj->t) {
   case It:
@@ -212,7 +213,7 @@ Z A gp_num(A apick, A aobj)
   for (i=0;(0==q)&&i<apick->n;++i) {
     if ( (!QA(ares)) || Et != ares->t) {bfree((C *)ivec);ERROUT(ERR_DOMAIN);}
     if ( 2 <= ares->r) {bfree((C *)ivec);ERROUT(ERR_RANK);}
-    if ((unsigned)(ip[i])>=ares->n) {bfree((C *)ivec);ERROUT(ERR_INDEX);}
+    if ((I)(ip[i])>=ares->n) {bfree((C *)ivec);ERROUT(ERR_INDEX);}
     ares=(A)ares->p[ip[i]];
   }
   bfree((C *)ivec);
@@ -236,7 +237,7 @@ Z A *gpp_num(A apick, A *paobj)
     else{bfree((C *)ivec);ERROUT(ERR_DOMAIN);}
     if ( (!QA(aobj)) || Et != aobj->t) {bfree((C *)ivec); ERROUT(ERR_DOMAIN);}
     if ( 2 <= aobj->r) {bfree((C *)ivec); ERROUT(ERR_RANK);}
-    if ((unsigned)(ip[i])>=aobj->n) {bfree((C *)ivec);ERROUT(ERR_INDEX);}
+    if ((I)(ip[i])>=aobj->n) {bfree((C *)ivec);ERROUT(ERR_INDEX);}
     pares=(A *)(aobj->p+ip[i]);
   }
   bfree((C *)ivec);
@@ -302,7 +303,7 @@ A gpix(A apick, A aobj)
 }
 
 /* pcki checks for index error, pck does not */
-Z I pcki(I i,A a){I z;I t=a->t;Q(!a->r,7)Q((unsigned)i>=a->d[0],10);
+Z I pcki(I i,A a){I z;I t=a->t;Q(!a->r,7)Q((I)i>=a->d[0],10);
  R t==Et&&(z=a->p[i],!QF(z))?ic((A)z):
    (I)gc(t,0,1,0,(I*)((C*)(a->p)+Tt(t,i)));}
 I pck(I i,A a){I z;I t=a->t;

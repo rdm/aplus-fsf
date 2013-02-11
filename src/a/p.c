@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -361,8 +361,8 @@ Z I mfmt(C *b,C *s,F x)
   I i=inf(x);
   R i?strlen(strcpy(b,(DEV_STRARG)iin[i])):SH(x);
 }
-Z int MaxBufLength=128;
-Z char buf[128];
+#define MaxBufLength 128
+Z char buf[MaxBufLength];
 Z I dfmt(C *b,C *s,I m,I n,F x)
 {
   I k,l,j=inf(x);
@@ -401,6 +401,13 @@ H1(mth)
     if(at==Ct)R ic(a);
     if(at==Et&&!sym(a))
     {
+      if(qz(a)) {		/* Handle null format as ` */
+	z=(A)gv(Ct,2);
+        d=(C*)z->p;
+        d[0]=' ';
+        d[1]='`';
+	R(I)z;
+      }
       Q(ar,7);
       Q((a=(A)*a->p,!QF(a)),6);
       R (I)gsv(0,!QA(a)?pp((I)a):a->t==Xt?"*derived*":(C*)a->p[a->n+1]);
@@ -416,7 +423,7 @@ H1(mth)
 	 2+strlen(XS(p.i[i])->n));
 */
        {
-       int i=0,_i=an;
+       long i=0,_i=an;
  
        for(;i<_i;++i){
          {if(q==1)R 0;}
@@ -445,7 +452,7 @@ H1(mth)
 	{
 	  C *symName;
 	  I symLen;
-	  int _i;
+	  long _i;
 	  for(_i=0; _i<an; _i++)
 	    {
 	      *d++=' ';
@@ -480,7 +487,7 @@ H1(mth)
       else
 	{
 	  C *symName;
-	  int _i;
+	  long _i;
 	  for(_i=0; _i<an; _i++)
 	    {
 	      d[0]=' ';

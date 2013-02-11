@@ -1,49 +1,24 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
-/* This file contains routines that identify and convert the different
+
+/* This file contains routines that identify and convertthe different
  * formats of mmap'd files used by A+
  */
 
+#include <a/fncdcls.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <k.h>
+#include <a/beam.h>
 
-/* These need to be set correctly: */
-
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
-#define HAS_64BIT_TYPE   1
-typedef int		 INT32;
-typedef long		 INT64; 
-#elif (_MIPS_SZLONG == 32)
-#define HAS_64BIT_TYPE   1
-typedef int		 INT32;
-typedef long long	 INT64;
-#else
-typedef int		 INT32;
-typedef long             INT64;	/* Need to FIX !!! */
-#endif
-
-typedef struct
-{
-  INT32 c, t, r, n, d[9], i, p[1];
-} A32;
-
-typedef struct
-{
-  INT64 c, t, r, n, d[9], i, p[1];
-} A64;
-
-
-#define ENDIAN_UNDEF  0
-#define ENDIAN_LITTLE 1
-#define ENDIAN_BIG    2
+extern I dbg_tb;
 
 static char *endianString(int endian)
 {
@@ -135,14 +110,14 @@ static void SwapEndianHeader32(A32 *header)
     header->d[i] = SwapEndianInt32(header->d[i]);
 }
 		
-/* tr64 and tr32 -- from k.c/tr  but deals with negative r */
+/* tr and tr32 -- from k.c */
 
-static INT64 tr64(INT64 r, INT64 *d)
+INT64 tr64(INT64 r, INT64 *d)
 {
   INT64 n=1;
   INT64 *t;
 	
-  if (r>0)
+  if (r)
     for (t = d + r , n = *d; ++d < t; n *= *d);
   return n;
 }
@@ -152,14 +127,10 @@ static INT32 tr32(INT32 r, INT32 *d)
   INT32 n=1;
   INT32 *t;
 	
-  if (r>0)
+  if (r)
     for (t = d + r , n = *d; ++d < t; n *= *d);
   return n;
 }
-
-/* from k.h */
-#define Tt64(t,x) ((x)<<((((t>>1)&1)+3)&3))
-#define Tt32(t,x) ((x)<<(t+2&3))
 
 static void GetHostInformation(int *width, int *endian)
 {
@@ -179,12 +150,13 @@ static void GetHostInformation(int *width, int *endian)
 }
 
 	
-int GetSrcInformation(void *src, I iBytesRead, 
+static int GetSrcInformation(void *src, I iBytesRead, I noSizeChk, 
 		      int *width, int *endian,
 		      int iHostWidth, int iHostEndian)
 {
   long iPredLen;
   long iLen;
+  int sizeOK=1;
   char caHeaderBuf[sizeof(A64)];
   A32 a32BigHeader;
   A64 a64BigHeader;
@@ -275,33 +247,46 @@ int GetSrcInformation(void *src, I iBytesRead,
     (a32BigHeader.t == 2));
   */
 
-#define isAObject(AObject) \
-      (AObject.t >= 0) && \
-      (AObject.t <= 8) && \
-      (AObject.r >= 0)  && \
-      (AObject.r <= 9) && \
-      ((AObject.n > 0) || (AObject.n ==0 && (AObject.r >= 1))) && \
-      ((AObject.i > 0) || (AObject.i ==0 && (AObject.r >= 1))) && \
-      (AObject.c == 0)
+#if defined(linux)
 
-#define checkDims(AObject) \
-       { \
-	 int dims=1,i; \
-	 if( AObject.r==0 && AObject.n!=1 ) \
-	   dimsOK=0; \
-	 else \
-	   { \
-	     for(i=0; i<AObject.r; i++) \
-	       dims *= AObject.d[i]; \
-	     if(dims!=AObject.n) \
-	       dimsOK=0; \
-	   } \
-       }
+#if defined(__ia64) || defined(__x86_64)
+  /* Try 64-bit little endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+  if ( isAObject(a64LittleHeader) )
+    {
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a64LittleHeader);
 
-#define TR32(x) ((x).r ? tr32( ((x).r-1), ((x).d+1)) : 1)
-#define TR64(x) ((x).r ? tr64( ((x).r-1), ((x).d+1)) : 1)
+      /* Check file length */
+      if (dimsOK && 
+	  noSizeChk || (sizeOK=checkFileSize64(a64LittleHeader)<=iLen))
+	{
+	  *width = 64;
+	  *endian = ENDIAN_LITTLE;
+	  return 0;
+	}
+    }
 
-#if defined(__i386)
+  /* Try 64-bit big endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+  if ( isAObject(a64BigHeader) )
+    {
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a64BigHeader);
+
+      /* Check file length */
+      if (dimsOK && 
+	  noSizeChk || (sizeOK=checkFileSize64(a64BigHeader)<=iLen))
+	{
+	  *width = 64;
+	  *endian = ENDIAN_BIG;
+	  return 0;
+	}
+    }
+#endif
+
   /* Try 32-bit little endian */
   /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
   if ( isAObject(a32LittleHeader) )
@@ -311,11 +296,8 @@ int GetSrcInformation(void *src, I iBytesRead,
        checkDims(a32LittleHeader);
 
       /* Check file length */
-      if (dimsOK && 
-	  (sizeof(A32)-sizeof(INT32)+
-	   Tt32(a32LittleHeader.t, a32LittleHeader.i *
-		TR32(a32LittleHeader)) +
-	  (a32LittleHeader.t == 2) <= iLen))
+       if (dimsOK && 
+	   noSizeChk || (sizeOK=checkFileSize32(a32LittleHeader)<=iLen))
 	{
 	  *width = 32;
 	  *endian = ENDIAN_LITTLE;
@@ -334,10 +316,7 @@ int GetSrcInformation(void *src, I iBytesRead,
 
       /* Check file length */
       if (dimsOK && 
-	  (sizeof(A32)-sizeof(INT32)+
-	   Tt32(a32BigHeader.t, a32BigHeader.i *
-		TR32(a32BigHeader)) +
-	  (a32BigHeader.t == 2) <= iLen))
+	  noSizeChk || (sizeOK=checkFileSize32(a32BigHeader)<=iLen))
 	{
 	  *width = 32;
 	  *endian = ENDIAN_BIG;
@@ -346,7 +325,7 @@ int GetSrcInformation(void *src, I iBytesRead,
     }
 		
 
-#else
+#elif (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__sparcv9) 
   /* Try 64-bit big endian */
   /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
   if ( isAObject(a64BigHeader) )
@@ -368,10 +347,7 @@ int GetSrcInformation(void *src, I iBytesRead,
       */
       /* Check file length */
       if (dimsOK && 
-	  (sizeof(A64)-sizeof(INT64)+
-	   Tt64(a64BigHeader.t, a64BigHeader.i *
-		TR64(a64BigHeader)) +
-	  (a64BigHeader.t == 2) <= iLen))
+	  noSizeChk || (sizeOK=checkFileSize64(a32BigHeader)<=iLen))
 	{
 	  *width = 64;
 	  *endian = ENDIAN_BIG;
@@ -390,10 +366,7 @@ int GetSrcInformation(void *src, I iBytesRead,
 
       /* Check file length */
       if (dimsOK && 
-	  (sizeof(A64)-sizeof(INT64)+
-	   Tt64(a64LittleHeader.t,a64LittleHeader.i *
-		TR64(a64LittleHeader)) +
-	   (a64LittleHeader.t == 2) <= iLen))
+	  noSizeChk || (sizeOK=checkFileSize64(a64LittleHeader)<=iLen))
 	{
 	  *width = 64;
 	  *endian = ENDIAN_LITTLE;
@@ -412,10 +385,7 @@ int GetSrcInformation(void *src, I iBytesRead,
 
       /* Check file length */
       if (dimsOK && 
-	  (sizeof(A32)-sizeof(INT32)+
-	   Tt32(a32BigHeader.t, a32BigHeader.i *
-		TR32(a32BigHeader)) +
-	  (a32BigHeader.t == 2) <= iLen))
+	  noSizeChk || (sizeOK=checkFileSize32(a32BigHeader)<=iLen))
 	{
 	  *width = 32;
 	  *endian = ENDIAN_BIG;
@@ -434,19 +404,108 @@ int GetSrcInformation(void *src, I iBytesRead,
 
       /* Check file length */
       if (dimsOK && 
-	  (sizeof(A32)-sizeof(INT32)+
-	   Tt32(a32LittleHeader.t, a32LittleHeader.i *
-		TR32(a32LittleHeader)) +
-	  (a32LittleHeader.t == 2) <= iLen))
+	  noSizeChk || (sizeOK=checkFileSize32(a32LittleHeader)<=iLen))
 	{
 	  *width = 32;
 	  *endian = ENDIAN_LITTLE;
 	  return 0;
 	}
     }
+
+#else
+  /* Try 32-bit big endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+     if( isAObject(a32BigHeader) )
+     {
+       
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a32BigHeader);
+
+      /* Check file length */
+      if (dimsOK && 
+          noSizeChk || (sizeOK=checkFileSize32(a32BigHeader)<=iLen))
+	{
+	  *width = 32;
+	  *endian = ENDIAN_BIG;
+	  return 0;
+	}
+    }
+		
+
+  /* Try 32-bit little endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+  if ( isAObject(a32LittleHeader) )
+    {
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a32LittleHeader);
+
+      /* Check file length */
+      if (dimsOK && 
+	  noSizeChk || (sizeOK=checkFileSize32(a32LittleHeader)<=iLen))
+	{
+	  *width = 32;
+	  *endian = ENDIAN_LITTLE;
+	  return 0;
+	}
+    }
+
+  /* Try 64-bit big endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+  if ( isAObject(a64BigHeader) )
+    {
+
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a64BigHeader);
+
+      /*
+	printf("In 64 bit big endian\n");
+	printf("Count: %lx\n", a64BigHeader.c);
+	printf("Type: %lx\n", a64BigHeader.t);
+	printf("Rank: %lx\n", a64BigHeader.r);
+	printf("Num: %lx\n", a64BigHeader.n);
+	printf("Items: %lx\n", a64BigHeader.i);
+	printf("Size: %ld\n", sizeof(A64) - sizeof(INT64) + Tt64(a64BigHeader.t,
+	a64BigHeader.i) + (a64BigHeader.t == 2));
+      */
+      /* Check file length */
+      if (dimsOK && 
+	  noSizeChk || (sizeOK=checkFileSize64(a64BigHeader)<=iLen))
+	{
+	  *width = 64;
+	  *endian = ENDIAN_BIG;
+	  return 0;
+	}
+    }
+		
+
+  /* Try 64-bit little endian */
+  /* Valid values: 0 <= type <= 8, 0 < rank <= 9, n > 0 */
+  if ( isAObject(a64LittleHeader) )
+    {
+       int dimsOK=1;
+       /* Check dimensions */
+       checkDims(a64LittleHeader);
+
+      /* Check file length */
+      if (dimsOK && 
+	  noSizeChk || (sizeOK=checkFileSize64(a64LittleHeader)<=iLen))
+	{
+	  *width = 64;
+	  *endian = ENDIAN_LITTLE;
+	  return 0;
+	}
+    }
+
 #endif		
 		
-  printf("\343 Error:File does not match any known type.\n");
+  if(!sizeOK)
+    printf("\343 Error:File too small for items. use _items{} to query/fix.\n");
+  else
+    printf("\343 Error:File does not match any known type.\n");
+
   return -1;
 }
 
@@ -455,13 +514,19 @@ static int Convert32to64(A32 *from, A64 *to)
   long items = from->n;
   int i;
 
+  if(((void *)from) == ((void *)to) )
+    {
+      /* This conversion done in mapDotMFile() */
+      return -1;
+    }
+
   to->c = from->c;
   to->t = from->t;
   to->r = from->r;
   to->n = from->n;
+  to->i = from->i;
   for (i = 0; i < 9; i++)
     to->d[i] = from->d[i];
-  to->i = (from->r) ? from->d[0] : from->n;
   switch(from->t)
     {
     case 0: /* Int */
@@ -482,9 +547,8 @@ static int Convert32to64(A32 *from, A64 *to)
       {
 	char *a = (char *)from->p;
 	char *b = (char *)to->p;
-	for (i = 0; i < items; i++)
+	for (i = 0; i <= items; i++) /* Include null  '<=' vs '<'  */
 	  b[i] = a[i];
-	b[i] = 0;
 	break;
       }
     default: /* Can't handle it */
@@ -498,7 +562,8 @@ static int ConvertEndian32(A32 *from, A32 *to)
 {
   int i;
   long items;
-  memcpy(to, from, sizeof(A32) - sizeof(INT32));
+  if(to!=from)
+    memcpy(to, from, sizeof(A32) - sizeof(INT32));
   SwapEndianHeader32(to);
   items=to->n;
   switch(to->t)
@@ -517,10 +582,10 @@ static int ConvertEndian32(A32 *from, A32 *to)
       }
     case 2: /* Char */
       {
-	char *in = (char *)from->p;
-	char *out = (char *)to->p;
-	for (i = 0; i < items; i++)
-	  out[i] = in[i];
+	if(to!=from)
+	  {
+	    memcpy((char *)to->p, (char *)from->p, items+1); /* include null */
+	  }
 	break;
       }
     default: /* Bad type */
@@ -529,9 +594,46 @@ static int ConvertEndian32(A32 *from, A32 *to)
     }
   return 0;
 }
+
+static int ConvertEndian64(A64 *from, A64 *to)
+{
+  int i;
+  long items;
+  if(to!=from)
+    memcpy(to, from, sizeof(A64) - sizeof(INT64));
+  SwapEndianHeader64(to);
+  items=to->n;
+  switch(to->t)
+    {
+    case 0: /* Int */
+      for (i = 0; i < items; i++)
+	to->p[i] = SwapEndianInt64(from->p[i]);
+      break; 
+    case 1: /* Float */
+      {
+	double *out = (double *)to->p;
+	double *in =  (double *)from->p;
+	for (i = 0; i < items; i++)
+	  out[i] = SwapEndianDouble(in[i]);
+	break;
+      }
+    case 2: /* Char */
+      {
+	if(to!=from)
+	  {
+	    memcpy((char *)to->p, (char *)from->p, items+1); /* include null */
+	  }
+	break;
+      }
+    default: /* Bad type */
+      printf("\343 Error:Type %ld not translatable.\n", from->t);
+      return -1;
+    }
+  return 0;
+}
 		
 
-int cvtIfNeeded(void *src, A *dest, I ilen)
+int cvtIfNeeded(void *src, A *dest, I ilen, I cvtInPlace)
 {
   /* Converts the src object to the host format if needed   */
   /*  arguments:                                            */
@@ -545,6 +647,7 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
 
   static int hostWidth = -1;
   static int hostEndian= -1;
+  static int noSizeChk=0;	/* Flag to skip file size check */
   int srcWidth;
   int srcEndian;
   int rc;
@@ -561,7 +664,7 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
     }
 
   /* Check and convert source */
-  rc=GetSrcInformation(src, ilen, 
+  rc=GetSrcInformation(src, ilen, DO_FILE_SIZE_CHECK,
 		       &srcWidth, &srcEndian, 
 		       hostWidth, hostEndian);
   if(rc!=0)
@@ -575,9 +678,9 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
       return 0;
     }
 
-  /* Case 2: Big/32 -> Big/64 */
-  if ( srcEndian  == ENDIAN_BIG && hostEndian == ENDIAN_BIG &&
-       srcWidth   == 32         && hostWidth  == 64 )
+  /* Case 2: Big/32 -> Big/64 or Little32 -> little64  */
+  if ( srcEndian  == hostEndian && 
+       srcWidth   == 32 && hostWidth  == 64 )
     {
       A32 *from = (A32 *)src;
       long items = from->n;
@@ -589,19 +692,20 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
 	{
 	  printf("\343 Error:Convert32to64 failed\n");
 	  *dest=NULL;
-	  mf(to);
+	  mf((I*)to);
 	  return -1;
 	}
       else
 	{
-	  to->i= (to->r) ? to->d[0] : to->n; /* fix items */ 
+	  /* to->i= (to->r) ? to->d[0] : to->n;  fix items */ 
+	  to->c=1;		/* set reference count */
 	  *dest=(A)to;
 	  return 1;
 	}
     }
 
-  /* Case 3: Big/32 -> Little/32 */
-  if ( srcEndian == ENDIAN_BIG && hostEndian == ENDIAN_LITTLE &&
+  /* Case 3: Big/32 <--> Little/32 */
+  if ( srcEndian != hostEndian &&
        srcWidth  == 32         && hostWidth  == 32)
     {
       
@@ -609,33 +713,105 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
       A32 wrk32;
       long items,size32;
 
-      memcpy(&wrk32, src, sizeof(A32) - sizeof(INT32) ); /* copy header */
-      SwapEndianHeader32(&wrk32);                /* correct endian */
-
-      items=wrk32.n;		/* Get the number of elements */
-      
-      size32=(wrk32.t==2) + sizeof(A32) - sizeof(INT32) + Tt32(wrk32.t, items);
-
-      to = (A32 *)mab(size32);
+      if( cvtInPlace )
+	{
+	  static char t[]={"in place"};
+	  if(dbg_tb) beamtrc(t,3,0); /* 3==Converting */
+	  to = (A32 *)src;
+	  to->c=1;		/* set invalid reference count */
+	}
+      else
+	{
+	  A32 wrk32;
+	  memcpy(&wrk32, src, sizeof(A32) - sizeof(INT32) ); /* copy header */
+	  SwapEndianHeader32(&wrk32);                     /* correct endian */
+	  
+	  items=wrk32.n;		              /* number of elements */
+	  size32=(wrk32.t==2)+sizeof(A32)-sizeof(INT32)+Tt32(wrk32.t, items);
+	  to = (A32 *)mab(size32);
+	}
 
       rc = ConvertEndian32(from, to);
       if (rc)
 	{
 	  printf("\343 Error:ConvertEndian32 failed\n");
+	  if( cvtInPlace )
+	    printf("\343 File is most likely corrupted-in place conversion\n");
+	  else
+	    mf((I*)to);
+	  
 	  *dest=(A)NULL;
-	  mf(to);
 	  return -1;
 	}
 	
       else 
 	{
-	  to->i= (to->r) ? to->d[0] : to->n; /* fix items */ 
+	  if( cvtInPlace )
+	    to->c=0;		/* restore valid reference count */
+	  else
+	    to->c=1;		/* set reference count */
+
+	  /*   to->i= (to->r) ? to->d[0] : to->n;  fix items  */
 	  *dest=(A)to;
-	  return 1;
+	  return cvtInPlace?0:1;
 	}
     }
 
-  /* Case 4: Big/32 -> Little/64  or Little/32 -> Big64 */
+  /* Case 4: Big/64 <--> Little/64 */
+  if ( srcEndian != hostEndian &&
+       srcWidth  == 64         && hostWidth  == 64)
+    {
+      
+      A64 *to, *from = (A64 *)src;
+      long items,size64;
+
+      if( cvtInPlace )
+	{
+	  static char t[]={"in place"};
+	  if(dbg_tb) beamtrc(t,3,0); /* 3==Converting */
+	  to = (A64 *)src;
+	  to->c=1;		/* set invalid reference count */
+	}
+      else
+	{
+	  A64 wrk64;
+	  memcpy(&wrk64, src, sizeof(A64) - sizeof(INT64) ); /* copy header */
+	  SwapEndianHeader64(&wrk64);                     /* correct endian */
+	  
+	  items=wrk64.n;		              /* number of elements */
+	  size64=(wrk64.t==2)+sizeof(A64)-sizeof(INT64)+Tt64(wrk64.t, items);
+	  to = (A64 *)mab(size64);
+	}
+
+      rc = ConvertEndian64(from, to);
+      if (rc)
+	{
+	  printf("\343 Error:ConvertEndian64 failed\n");
+	  if( cvtInPlace )
+	    printf("\343 File is most likely corrupted in place conversion\n");
+	  else
+	    mf((I*)to);
+
+	  *dest=(A)NULL;
+	  return -1;
+	}
+	
+      else 
+	{
+	  /* if( !cvtInPlace ) */
+	  /*   to->i= (to->r) ? to->d[0] : to->n;  fix items  */
+	  if( cvtInPlace )
+	    to->c=0;		/* restore valid reference count */
+	  else
+	    to->c=1;		/* set reference count */
+
+	  *dest=(A)to;
+	  return  cvtInPlace?0:1;
+	}
+    }
+
+
+  /* Case 5: Big/32 -> Little/64  or Little/32 -> Big64 */
   if ( srcEndian !=  hostEndian &&
        srcWidth  == 32          && hostWidth  == 64)
     {
@@ -662,8 +838,8 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
 	{
 	  printf("\343 Error:ConvertEndian32 failed\n");
 	  *dest=NULL;
-	  mf(toa);
-	  mf(tob);
+	  mf((I*)toa);
+	  mf((I*)tob);
 	  return -1;
 	}
       else
@@ -673,26 +849,22 @@ int cvtIfNeeded(void *src, A *dest, I ilen)
 	    {
 	      printf("\343 Error:Convert32to64 failed\n");
 	      *dest=(A)NULL;
-	      mf(toa);
-	      mf(tob);
+	      mf((I*)toa);
+	      mf((I*)tob);
 	      return -1;
 	    }
 	  else
 	    {
-	      mf(toa);
-	      tob->i= (tob->r) ? tob->d[0] : tob->n; /* fix items */ 
+	      mf((I*)toa);
+	      /* tob->i= (tob->r) ? tob->d[0] : tob->n;  fix items */ 
+	      tob->c=1;		/* set reference count */
 	      *dest=(A)tob;
 	      return 1;
 	    }
 	}
     }
 
-  /* TODO: downward conversions */
-  /* Case 5: Big/64    -> Big/32    */
-  /* Case 6: Big/64    -> Little/32 */
-  /* Case 7: Little/64 -> Little/32 */
-  /* Case 8: Little/64 -> Big/32    */
-
+  /* TODO: downward conversions 64 -> 32*/
   
   return -1;	
 }
@@ -728,7 +900,7 @@ int getItems(void *src, I *itemCount, I *rank, I *items, I ilen)
     }
 
   /* Check and convert source */
-  rc=GetSrcInformation(src, ilen, 
+  rc=GetSrcInformation(src, ilen, SKIP_FILE_SIZE_CHECK,
 		       &srcWidth, &srcEndian, 
 		       hostWidth, hostEndian);
   if(rc!=0)
@@ -744,8 +916,8 @@ int getItems(void *src, I *itemCount, I *rank, I *items, I ilen)
       return 0;
     }
 
-  /* Case 2: Big/32 -> Big/64 */
-  if ( srcEndian  == ENDIAN_BIG && hostEndian == ENDIAN_BIG &&
+  /* Case 2: 32 -> 64 same endian*/
+  if ( srcEndian  == hostEndian &&
        srcWidth   == 32         && hostWidth  == 64 )
     {
       *itemCount = ((A32 *)src)->i;
@@ -754,8 +926,8 @@ int getItems(void *src, I *itemCount, I *rank, I *items, I ilen)
       return 1;
     }
 
-  /* Case 3: Big/32 -> Little/32 */
-  if ( srcEndian == ENDIAN_BIG && hostEndian == ENDIAN_LITTLE &&
+  /* Case 3: Big/32 <--> Little/32 */
+  if ( srcEndian != hostEndian &&
        srcWidth  == 32         && hostWidth  == 32)
     {
       
@@ -770,8 +942,23 @@ int getItems(void *src, I *itemCount, I *rank, I *items, I ilen)
       return 1;
     }
 
-  /* Case 4: Big/32 -> Little/64 */
-  if ( srcEndian == ENDIAN_BIG && hostEndian == ENDIAN_LITTLE &&
+  /* Case 4: Big/64 <--> Little/64 */
+  if ( srcEndian != hostEndian &&
+       srcWidth  == 64         && hostWidth  == 64)
+    {
+      A64 *to, *from = (A64 *)src;
+      A64 wrk64;
+
+      memcpy(&wrk64, src, sizeof(A64) - sizeof(INT64) ); /* copy header */
+      SwapEndianHeader64(&wrk64);                /* correct endian */
+      *itemCount = wrk64.i;
+      *items     = wrk64.d[0];
+      *rank      = wrk64.r;
+      return 1;
+    }
+
+  /* Case 5: Big/32 -> Little/64 */
+  if ( srcEndian != hostEndian &&
        srcWidth  == 32         && hostWidth  == 64)
     {
       A32 *from = (A32 *)src;
@@ -789,12 +976,7 @@ int getItems(void *src, I *itemCount, I *rank, I *items, I ilen)
       return 1;
     }
 
-  /* TODO: downward conversions */
-  /* Case 5: Big/64    -> Big/32    */
-  /* Case 6: Big/64    -> Little/32 */
-  /* Case 7: Little/64 -> Little/32 */
-  /* Case 8: Little/64 -> Big/32    */
-
+  /* TODO: downward conversions 64->32 */
   
   return -1;	
 }

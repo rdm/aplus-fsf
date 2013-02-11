@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -32,8 +32,8 @@ extern C **get_primlist();
 static PFI *saveP1=NULL;
 static PFI *saveP2=NULL;
 
-static int sizeP1;
-static int sizeP2;
+static I sizeP1;
+static I sizeP2;
 
 static I (*dyadic)[][NUM_TYPES][NUM_BUCKETS]=NULL;
 static I (*monadic)[][NUM_TYPES][NUM_BUCKETS]=NULL;
@@ -41,12 +41,12 @@ static I (*monadic)[][NUM_TYPES][NUM_BUCKETS]=NULL;
 static I (*cpuDyadic)[][NUM_TYPES][NUM_CPU_BUCKETS]=NULL;
 static I (*cpuMonadic)[][NUM_TYPES][NUM_CPU_BUCKETS]=NULL;
 
-static int clockTicksPerSec=1;
+static I clockTicksPerSec=1;
 
 I profileDyadic(A a, A w, I i)
 {
   struct tms tStart, tEnd;
-  int typeIdx=-1, sizeIdx;
+  I typeIdx=-1, sizeIdx;
   I z;
 
   if( i<sizeP2 )

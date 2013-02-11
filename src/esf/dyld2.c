@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -41,8 +41,8 @@ static int dyld2(sharedobj, bindings)
   A bindings;		/* Bindings from c/f77 to A names/types */
 {
   A *ap;		/* Points to elements of bindings */
-  int nentries;		/* Number of entries */
-  int i;		/* Loop index */
+  I nentries;		/* Number of entries */
+  I i;		        /* Loop index */
   void *handle;		/* handle for shared object */
   void **locations;	/* locations of symbols in shared object */
 

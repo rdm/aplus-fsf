@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -354,7 +354,7 @@ void MSParagraph::computeParagraphSize(MSReport* report_)
                   {
                     double currentWidth=width-w+minSpaceCharWidth*wordCount;
                     int row=outputText().length()-1;
-                    width=dissectWord(report_,aString,tlw,currentWidth);
+                    width=dissectWord(report_,aString,(int)(tlw),currentWidth);
                     if (wordCount>0)
                      {
                        double rowWidth=fdata->textWidth(fontSize(),outputText()(row),outputText()(row).length());
@@ -417,7 +417,7 @@ void MSParagraph::computeParagraphSize(MSReport* report_)
                   }
                  else if (ww>tlw)
                   {
-                    w=dissectWord(report_,aString,tlw,width-w);
+                    w=dissectWord(report_,aString,(int)(tlw),width-w);
                   }
                  else
                   {
@@ -441,7 +441,7 @@ void MSParagraph::computeParagraphSize(MSReport* report_)
          }
         width=0;
       }
-     lastLineWidth(width);
+     lastLineWidth((int)(width));
    }
   else MSMessageLog::errorMessage("Error: font data not available - unable to print paragraph\n");
 }

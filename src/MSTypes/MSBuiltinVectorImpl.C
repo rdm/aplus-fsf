@@ -1,14 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <float.h>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_SSTREAM
+#include <sstream>
+#else
 #include <strstream.h>
+#endif
 
 #include <MSTypes/MSDefines.H>
 
@@ -72,10 +80,10 @@ MSString MSBuiltinVectorImpl::asMSF()
 {
   MSString result;
   static char buf[64];
-#if (__GNUC__ < 3)
-  static ostrstream oss (buf, 64, ios::out);
-#else
+#if HAVE_SSTREAM
   static ostringstream oss (buf, ios::out);
+#else
+  static ostrstream oss (buf, 64, ios::out);
 #endif
   oss.precision (8);
 
@@ -107,10 +115,10 @@ MSError::ErrorStatus MSBuiltinVectorImpl::setFromString (const char *pString_, c
 #if defined(MS_NO_ISTRSTREAM_CONSTCHAR_CONSTRUCTOR)
       istrstream ist ((char *)(void *)pString_, strlen(pString_));
 #else
-#if (__GNUC__ < 3)
-      istrstream ist (pString_, strlen(pString_));
-#else
+#if HAVE_SSTREAM
       istringstream ist (pString_, istringstream::in);
+#else
+      istrstream ist (pString_, strlen(pString_));
 #endif
 #endif	
       _len = _pBuiltInOps->stringLen (pString_);

@@ -3,7 +3,7 @@
 
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -14,7 +14,11 @@
 #include <a/fncdcls.h>
 
 /* external macro declarations */
+#if (defined(__sgi) && _MIPS_SZLONG == 64) || defined(__sparcv9)
+#define MD      63
+#else
 #define MD	31
+#endif
 
 /* external data declarations */
 /* number of words in block of given scale */

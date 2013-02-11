@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -12,7 +12,11 @@
 #include <MSTypes/MSString.H>
 #include <MSTypes/MSFormat.H>
 #include <MSTypes/MSMessageLog.H>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 #include <stdlib.h> // for getenv
 #include <stdio.h>
 

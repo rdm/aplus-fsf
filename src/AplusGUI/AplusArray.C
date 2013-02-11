@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -189,6 +189,7 @@ A AplusArray::defaultInFunc(V v_,const char *string_)
 
 const char *AplusArray::formatOutput(MSString& str_, unsigned i, unsigned j)
 {
+  static const char blank[]={" "};
   V v = (model()==0)?0:((AplusModel*)model())->aplusVar();
   ACharStrFunction *outFunc = AplusModel::getOutFunc(v);
   A outStr;
@@ -227,7 +228,7 @@ const char *AplusArray::formatOutput(MSString& str_, unsigned i, unsigned j)
      break;
    }
   
-  str_ = (char *)outStr->p;
+  str_ = (Ct==outStr->t) ? (char *)outStr->p : blank;
   dc(outStr);
 
   return str_;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -45,7 +45,7 @@ A pRaw_Connection::readOne(void)
   ipcWarn(wrnlvl(),"%t pRaw_Connection::readOne\n");
   MSBuffer bbuff;
   A z;
-  I slen=0,slen1;
+  I slen=0,slen1,rlen;
   if(-1==ioctl(fd(),FIONREAD,&slen)) {
 //     ipcWarn(wrnlvl(),"%t ioctl FIONREAD failed: %s\n", 
 // 	  (errno<sys_nerr)?sys_errlist[errno]:"unknown error");
@@ -68,9 +68,9 @@ A pRaw_Connection::readOne(void)
   bbuff.maxofbuffer(bbuff.minofbuffer()+slen1);
   bbuff.reset();
 
-  if(0>readTheBuffer(&bbuff,slen)) {dc(z);z=(A)0;}
+  if(0>(rlen=readTheBuffer(&bbuff,slen))) {dc(z);z=(A)0;}
   else if(0>=bbuff.put()-bbuff.get()) {dc(z);z=(A)0;}
-  else {z->n=z->d[0]=slen;((C*)z->p)[slen]='\0';}
+  else {z->n=z->d[0]=rlen;((C*)z->p)[rlen]='\0';}
   turnInReadOff();
   bbuff.minofbuffer(0);
   bbuff.maxofbuffer(0);

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -72,8 +72,10 @@ INLINELINKAGE const char *MSStringBuffer::contents() const
 { return data;}
 INLINELINKAGE char *MSStringBuffer::contents()
 { return data;}
+#if 0
 INLINELINKAGE MSStringBuffer *MSStringBuffer::fromContents(const char *p)
 { return(MSStringBuffer*)(p-offsetof(MSStringBuffer,data)); }
+#endif
 
 #endif
 

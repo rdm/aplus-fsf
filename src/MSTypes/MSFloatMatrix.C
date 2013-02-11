@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -9,7 +9,11 @@
 
 #include <math.h>
 #include <float.h>
+#if HAVE_SSTREAM
+#include <sstream>
+#else
 #include <strstream.h>
+#endif
 #include <MSTypes/MSRandom.H>
 #include <MSTypes/MSUtil.H>
 #include <MSTypes/MSFloatMatrix.H>
@@ -42,8 +46,13 @@ MSString MSTypeMatrix<double>::asString(void) const
 
 MSString MSTypeMatrix<double>::asMSF(void) const
 {
+#if HAVE_SSTREAM
+  static string buf;
+  static ostringstream oss(buf,ios::out);
+#else
   static char buf[64];
   static ostrstream oss(buf,64,ios::out);
+#endif
   oss.precision(8);
   MSString result;
   
@@ -58,7 +67,11 @@ MSString MSTypeMatrix<double>::asMSF(void) const
       {
 	oss.seekp(ios::beg);
 	oss<<MSMSF_US<<data()[i]<<ends;
+#if HAVE_SSTREAM
+	result+=MSString(buf.data());
+#else
 	result+=buf;
+#endif
       }
    }
   return result;
@@ -270,7 +283,11 @@ MSError::ErrorStatus MSTypeMatrix<double>::set(const char *pString_)
      // therefore we have to do the following cast.     
      istrstream ist((char *)(void *)pString_,strlen(pString_));
 #else
+#if HAVE_SSTREAM
+     istringstream ist(pString_);
+#else
      istrstream ist(pString_,strlen(pString_));
+#endif
 #endif
      char c='\0';
 

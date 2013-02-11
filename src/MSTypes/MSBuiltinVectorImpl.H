@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -12,10 +12,20 @@
 
 #include <MSTypes/MSVectorImpl.H>
 
-#if (__GNUC__ < 3)
-class ostream;
+// #if HAVE_IOSTREAM
+// #include <iostream>
+// // #include <fstream>
+// using namespace std;
+// #else
+// class ostream;
+// #endif
+#if HAVE_SSTREAM
+#include <sstream>
+#else
 class istrstream;
 class ostrstream;
+#endif
+
 class MSTypesExport MSBuiltinVectorImplOps
 {    
 public:
@@ -25,36 +35,19 @@ public:
   virtual void   setToNumber (void *, unsigned int, double) const =0;
   virtual double getAsNumber (const void *, unsigned int) const =0;
 
-  virtual void readFromStream (void *, unsigned int, istrstream &) const =0;
-  virtual void writeToStream  (const void *, unsigned int, ostrstream &) const =0;
-
-  virtual void whitespace (istrstream &) const =0;
-  virtual unsigned int stringLen (const char *) const =0;
-};
-#else
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-using namespace std;
-class MSTypesExport MSBuiltinVectorImplOps
-{    
-public:
-  MSBuiltinVectorImplOps();
-  virtual ~MSBuiltinVectorImplOps();
-
-  virtual void   setToNumber (void *, unsigned int, double) const =0;
-  virtual double getAsNumber (const void *, unsigned int) const =0;
-
+#if HAVE_SSTREAM
   virtual void readFromStream (void *, unsigned int, istringstream &) const =0;
   virtual void writeToStream  (const void *, unsigned int, ostringstream &) const =0;
 
   virtual void whitespace (istringstream &) const =0;
+#else
+  virtual void readFromStream (void *, unsigned int, istrstream &) const =0;
+  virtual void writeToStream  (const void *, unsigned int, ostrstream &) const =0;
+
+  virtual void whitespace (istrstream &) const =0;
+#endif
   virtual unsigned int stringLen (const char *) const =0;
 };
-#endif
-
-
 
 class MSTypesExport MSBuiltinVectorImpl : public MSVectorImpl
 {

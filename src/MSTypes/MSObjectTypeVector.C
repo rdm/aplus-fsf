@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -104,7 +104,7 @@ MSObjectVector<Type> & MSObjectVector<Type>::operator= (const Type & value_)
 template <class Type>
 MSObjectVector<Type> & MSObjectVector<Type>::operator= (const char *pString_)
 {
-  set (pString_);
+  this->set (pString_);
   return *this;
 }
 
@@ -113,17 +113,17 @@ template <class Type>
 Type & MSObjectVector<Type>::elementAt (unsigned int index_)
 {
 #if !defined(MS_NO_INDEX_ERROR)
-  if (index_ >= _pImpl->length())
+  if (index_ >= this->_pImpl->length())
     {
-      _pImpl->vectorIndexError (index_);
-      return *(MSVectorElement<Type> *)ops().badData();
+      this->_pImpl->vectorIndexError (index_);
+      return *(MSVectorElement<Type> *)this->ops().badData();
     }
 #endif  //MSPRODUCTION_BUILD
-  if (vectorData()->refCount() > 1)
-    _pImpl->makeUniqueCopy();
+  if (this->vectorData()->refCount() > 1)
+    this->_pImpl->makeUniqueCopy();
   
-  MSVectorElement<Type> &element = (MSVectorElement<Type> &)vectorData()->elements()[index_];  
-  if (doChanged()==MSTrue)
+  MSVectorElement<Type> &element = (MSVectorElement<Type> &)this->vectorData()->elements()[index_];  
+  if (this->doChanged()==MSTrue)
     element.vector (this);
 
   return element;
@@ -140,7 +140,7 @@ MSVectorElement<Type>::~MSVectorElement()
 template <class Type>
 void MSVectorElement<Type>::sendEvent (MSEvent &)
 {
-  MSObjectVector<Type> *pVect = (MSObjectVector<Type> *)_pReceiverList;  
+  MSObjectVector<Type> *pVect = (MSObjectVector<Type> *)this->_pReceiverList;  
   // ASSERTION:  pVect != 0
   if (pVect->_blocked == MSTrue)
     vector (0);

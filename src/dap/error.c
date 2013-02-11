@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1989-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1989-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -43,7 +43,7 @@ static VPF _WarnFunc = _DefaultWarnFunc;
 
 #define	MAXERRSIZE	BUFSIZ
 
-char _ErrBuf[2 * MAXERRSIZE];
+/* char _ErrBuf[2 * MAXERRSIZE]; not thread safe moved into functions*/
 
 #if defined(__sun__)
 extern int sys_nerr;
@@ -51,10 +51,9 @@ extern int sys_nerr;
 
 /* preprocess the format string */
 static char *
-fixit(int errnum, char *s)
+fixit(int errnum, char *s, char r[])
 {
-  static char r[MAXERRSIZE];
-  char *z, *p = r, *cp = s, *str;
+  char *z, *p = r, *cp = s, *str, ctimebuf[60];
   static struct timeval tp;
   static struct timezone tzp;
 
@@ -90,8 +89,13 @@ fixit(int errnum, char *s)
 	if (gettimeofday(&tp, &tzp) < 0)
 	  str = "(time?) ";
 	else {
-	  str = ctime((const clock_t *)&tp.tv_sec);
-	  str[19] = (char) NULL;
+#if defined(__SUNPRO_C)
+          str = ctime_r(&tp.tv_sec,ctimebuf,sizeof(ctimebuf));
+#else
+          /* For linux ctimebuf must be at least 26 */
+          str = ctime_r(&tp.tv_sec,ctimebuf);
+#endif
+	  str[19] = '\0';
 	}
 	for (z = str + 4; *z != (char) NULL &&
 	     p < &r[MAXERRSIZE - 1]; *p++ = *z++);
@@ -113,9 +117,11 @@ fixit(int errnum, char *s)
 void 
 vWarn(char *fmt, va_list ap)
 {
+  char r[MAXERRSIZE];
+  char _ErrBuf[2 * MAXERRSIZE];
   if (_WarnFunc != (VPF) NULL) {
     int errnum = errno;
-    fmt = fixit(errnum, fmt);
+    fmt = fixit(errnum, fmt,r);
     (void) vsprintf(_ErrBuf, fmt, ap);
     (_WarnFunc) (_ErrBuf);
   }
@@ -124,11 +130,13 @@ vWarn(char *fmt, va_list ap)
 void
 Warn(char *fmt,...)
 {
+  char r[MAXERRSIZE];
+  char _ErrBuf[2 * MAXERRSIZE];
   if (_WarnFunc != (VPF) NULL) {
     int errnum = errno;
     va_list ap;
 
-    fmt = fixit(errnum, fmt);
+    fmt = fixit(errnum, fmt,r);
     va_start(ap, fmt);
     (void) vsprintf(_ErrBuf, fmt, ap);
     va_end(ap);
@@ -140,10 +148,12 @@ Warn(char *fmt,...)
 void
 Abort(char *fmt,...)
 {
+  char r[MAXERRSIZE];
+  char _ErrBuf[2 * MAXERRSIZE];
   int errnum = errno;
   va_list ap;
 
-  fmt = fixit(errnum, fmt);
+  fmt = fixit(errnum, fmt,r);
   va_start(ap, fmt);
   (void) vsprintf(_ErrBuf, fmt, ap);
   va_end(ap);
@@ -158,10 +168,12 @@ Abort(char *fmt,...)
 void
 Panic(char *fmt,...)
 {
+  char r[MAXERRSIZE];
+  char _ErrBuf[2 * MAXERRSIZE];
   int errnum = errno;
   va_list ap;
 
-  fmt = fixit(errnum, fmt);
+  fmt = fixit(errnum, fmt, r);
   va_start(ap, fmt);
   (void) vsprintf(_ErrBuf, fmt, ap);
   va_end(ap);
@@ -175,10 +187,12 @@ Panic(char *fmt,...)
 void
 Exit(int exitcode, char *fmt,...)
 {
+  char r[MAXERRSIZE];
+  char _ErrBuf[2 * MAXERRSIZE];
   int errnum = errno;
   va_list ap;
 
-  fmt = fixit(errnum, fmt);
+  fmt = fixit(errnum, fmt, r);
   va_start(ap, fmt);
   (void) vsprintf(_ErrBuf, fmt, ap);
   va_end(ap);

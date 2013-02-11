@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -10,9 +10,21 @@
 #include <MSGUI/MSPrintFont.H>
 #include <MSGUI/MSPrintFontData.H>
 #include <MSTypes/MSMessageLog.H>
+#if HAVE_SSTREAM
+#include <sstream>
+#else
 #include <strstream.h>
+#endif
+#if HAVE_FSTREAM
+#include <fstream>
+#else
 #include <fstream.h>
+#endif
+#if HAVE_IOMANIP
+#include <iomanip>
+#else
 #include <iomanip.h>
+#endif
 
 MSPrintFontData::MSPrintFontData(void)
 {
@@ -139,7 +151,11 @@ void MSPrintFontData::loadFont(void)
   pin>>_width[0];
   while(pin.getline(_pbuf,_buflen)&&strcmp(_pbuf,"EndCharMetrics")!=0&&pin.eof()!=ios::eofbit&&i>=0)
    {
+#if HAVE_SSTREAM
+     istringstream isl(_pbuf);
+#else
      istrstream isl(_pbuf,strlen(_pbuf));
+#endif
      isl>>junk>>i>>junk>>junk;
      if (i>0) isl>>_width[i-_offset];
    }     

@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -12,7 +12,7 @@
 #undef _AIX
 #endif
 #if defined(_AIX)
-extern fsync(),getsockopt(),setsockopt();
+extern closelog(),fsync(),getsockopt(),setsockopt();
 #endif
 #include <stdio.h>
 #if defined(HAVE_SVR4)
@@ -76,7 +76,6 @@ extern fsync(),getsockopt(),setsockopt();
  *
  * Error Code Table and Functions
  */
-extern int errno;
 
 #if !defined(__osf__)
 
@@ -403,17 +402,32 @@ A cpu()
   R r;
 }
 
-I amsync(a, flags)
-  A a;
-  I flags;
+#ifndef _AIX
+static MaskTable MsyncMasks[] = {
+
+  { MS_ASYNC,     "MS_ASYNC",     0,      0 },
+  { MS_SYNC,      "MS_SYNC",      0,      0 },
+  { MS_INVALIDATE,"MS_INVALIDATE",0,      0 },
+  { 0,            (char *)0,      0,      0 }
+};
+#endif
+
+I amsync(A a, A aflags)
 {
 #ifdef _AIX
   R 0;
 #else
   int bytes;
 
+  unsigned long flags;
+
+  if (SymbolsToMask(MsyncMasks, aflags, &flags) == -1) {
+    (void)pa((V)aflags);
+    q = ERR_DOMAIN;
+    R 0;
+  }
   bytes=mf_length(a);
-  R bytes?msync((caddr_t)a, bytes, (int)flags):0;
+  R bytes?msync((caddr_t)a, AH+Tt(a->t,a->n), (int)flags):0;
 #endif /* _AIX */
 }
 
@@ -520,7 +534,7 @@ I mkts1gmt(a)
 #if defined(_AIX) || defined(HAVE_SVR4) || defined (__osf__) || defined(HAVE_MKTIME)
   z->p[0]=mktime(&lt); 
   if( z->p[0] != -1) 
-    z->p[0]=z->p[0]-(long)timezone;  
+    z->p[0]=z->p[0]-timezone;  
 #else
   z->p[0]=timegm(&lt);
 #endif
@@ -673,7 +687,7 @@ A readmat(name)
   {
     start_c = mmap(0, stbuf.st_size, PROT_READ, MAP_SHARED, descriptor, 0);
     (void)close(descriptor);
-    if ((long)start_c == -1) {
+    if ((int)start_c == -1) {
       perror("readmat mmap");
       R (A)gz();
     }
@@ -1388,7 +1402,7 @@ void eponymousInstall()
   install((PFI)sysaccess, "access", IV,2,A_,A_,0,0,0,0,0,0);
   install((PFI)agetdents, "agetdents", A_, 1, CP,0,0,0,0,0,0,0);
   install((PFI)alstat, "alstat", A_, 1, CA,0,0,0,0,0,0,0);
-  install((PFI)amsync,"amsync", IV,2,A_,IV,0,0,0,0,0,0);
+  install((PFI)amsync,"amsync", IV,2,A_,A_,0,0,0,0,0,0);
   install((PFI)areadlink, "areadlink", A_, 1, CP,0,0,0,0,0,0,0);
   install((PFI)aselect, "aselect", A_,4,IA,IA,IA,IA,0,0,0,0);
   install((PFI)astat, "astat", A_, 1, CA,0,0,0,0,0,0,0);

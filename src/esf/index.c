@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -14,7 +14,7 @@
 Z I e;
 
 #define G00(T,f) Z void f(r,a,w,na,n)T *r,*w,*na;I *a,n;
-#define CI(T,f) G00(T,f)DO(n,if((unsigned)(n=*a++)>=e)*r++=*na;else *r++=w[n];)
+#define CI(T,f) G00(T,f)DO(n,if((unsigned long)(n=*a++)>=e)*r++=*na;else *r++=w[n];)
 
 CI(I,jj0)CI(F,jj1)CI(C,jj2) 
 

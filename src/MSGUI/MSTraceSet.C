@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -854,13 +854,13 @@ void MSTraceSet::lineStyle(const MSUnsignedLongVector& x_)
   graph()->redrawImmediately(); 
 }
 
-void MSTraceSet::xAxis(const MSUnsignedLongVector& x_)
+void MSTraceSet::xAxis(const MSUnsignedLongVector& x_, MSExplicitInit)
 {
   for (int i=0; i<traceList().count(); i++) trace(i)->xAxis(MSTop&x_[i%x_.length()]?1:0);
   graph()->redrawImmediately(); 
 }
 
-void MSTraceSet::yAxis(const MSUnsignedLongVector& x_)
+void MSTraceSet::yAxis(const MSUnsignedLongVector& x_, MSExplicitInit)
 {
   for (int i=0; i<traceList().count(); i++) trace(i)->yAxis(MSRight&x_[i%x_.length()]?1:0);
   graph()->redrawImmediately(); 
@@ -1374,7 +1374,7 @@ MSAttrValueList& MSTraceSet::get(MSAttrValueList& avList_)
   if(ct>0) aSize=((const MSTraceSet *)this)->symbolSize(0);
   avList_<<MSAttrValue("symbolSize",MSString(aSize));
   
-  unsigned long alignment = MSNone;
+  MSAlignment alignment = MSNone;
   if(ct>0) alignment = xAxis(0);
   avList_<<MSAttrValue("xAxis",MSAttrValue::alignmentToString(alignment),MSStringVector("MSNone\nMSTop\nMSBottom"));
 

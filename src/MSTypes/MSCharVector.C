@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -14,11 +14,11 @@
 #endif
 
 #include <MSTypes/MSCharVector.H>
-#if (__GNUC__ < 3)
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
 #include <strstream.h>
-#else
-#include <iostream>
 #endif
 
 #ifdef MS_NO_INLINES
@@ -139,10 +139,10 @@ const MSSymbol & MSTypeVector<char>::symbol()
 }
 
 
-#if (__GNUC__ < 3)
-void whitespace (const char &, istrstream & ist)
-#else
+#if HAVE_SSTREAM
 void whitespace (const char &, istringstream & ist)
+#else
+void whitespace (const char &, istrstream & ist)
 #endif
 {
   ist.unsetf (ios::skipws);

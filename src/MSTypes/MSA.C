@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -10,7 +10,11 @@
 #include <MSTypes/MSMessageLog.H>
 #include <MSTypes/MSException.H>
 #include <MSTypes/MSMMap.H>
+#if HAVE_FSTREAM
+#include <fstream>
+#else
 #include <fstream.h>
+#endif
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>

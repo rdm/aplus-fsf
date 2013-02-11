@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -27,6 +27,63 @@ inline MSBoolean isNl (A aobject_) { return(aobject_==aplus_nl)?MSTrue : MSFalse
 
 MSBoolean isAplusWidget(const MSWidget *);
 
+class AScbTraceHook
+{
+ public:
+  static A _function;
+
+  AScbTraceHook(A function_) {_function=(A)ic(function_);}
+  AScbTraceHook(void)        {_function=(A)(0);}
+  ~AScbTraceHook(void)       {dc(_function); _function=(A)0;}
+  
+  static void function(A function_)
+  {
+    if(_function) dc(_function);
+
+    if(aplus_nl==function_)
+      { 
+	_function=(A)0;
+      }
+    else
+      {
+	_function=(A)ic(function_);
+      }
+  };
+
+  static A function(void)         { return _function; };
+
+  static void run(A f,I a,I b,I c,I d,V v)
+  {
+    const int numArgs=6;
+    
+    // Function cx.name as a symbol
+    CX cx=(CX)f->p[f->n+2];      
+    if((cx->s->n[0]=='s') &&(cx->s->n[1]=='\0')) return; // Ignore calls to the `s context
+
+    A fn=ge(MS(symjoin(cx->s,XS(*f->d))));  
+    
+    // variable cx.name as a symbol
+    A vn=ge(MS(symjoin(v->cx->s, v->s)));
+    
+    E e=(E)ma(numArgs+2);
+    e->n=numArgs;
+    e->f=(I)AScbTraceHook::_function;
+    e->a[0]=(I)fn;		// `cx.functionName
+    e->a[1]=a?a:(I)aplus_nl;		// s
+    e->a[2]=b?b:(I)aplus_nl;		// d
+    e->a[3]=c?c:(I)aplus_nl;		// i
+    e->a[4]=d?d:(I)aplus_nl;		// p
+    e->a[5]=(I)vn;		// `cx.variableNme
+    
+    dc((A)ez(ME(e))); 
+    mf((I *)e);
+    dc((A)fn);
+    dc((A)vn); 
+    return;
+  }
+
+};
+
 class AClientData
 {
 private:
@@ -41,7 +98,7 @@ public:
   AClientData(A function_,A data_,A actualData_=aplus_nl) 
     {_aplusVar=0;_function=(A)ic(function_);_data=(A)ic(data_);_actualData=(A)ic(actualData_);}
   ~AClientData(void)
-    {dc(_function);dc(_data);dc(_actualData);_aplusVar=0;}
+    {dc(_function);dc(_data);dc(_actualData);_aplusVar=0;_aplusVar=0;_actualData=aplus_nl;_data=aplus_nl;}
 
   V aplusVar(void)   { return _aplusVar; }
   A function(void)   { return _function; }

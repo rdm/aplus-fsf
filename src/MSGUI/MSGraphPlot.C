@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -2406,22 +2406,25 @@ void MSGraph::drawPieSlices(MSTrace * trace_,const MSGraphPieData* pieData_,int 
            int angle_2=(int)((angle1(i)+angle2(i)>circle)?circle-angle1(i):angle2(i));
            int offset=angle_1-angle1(i);
            XSetForeground(display(),traceGC(),lineColors(i));
-           XDrawArc(display(),graphPixmap(),traceGC(),_pieX+xo(i),_pieY-yo(i)+_pieDepth,
-                    w_,h_,angle_1,angle_2-offset);
+           XDrawArc(display(),graphPixmap(),traceGC(),(int)(_pieX+xo(i)),
+		    (int)(_pieY-yo(i)+_pieDepth),w_,h_,angle_1,angle_2-offset);
            if (angle2(i)>semi&&angle1(i)+angle2(i)-circle>semi)
             {
               angle_1=semi;
               angle_2=(int)(angle1(i)+angle2(i)-circle-semi);
-              XDrawArc(display(),graphPixmap(),traceGC(),_pieX+xo(i),_pieY-yo(i)+_pieDepth,w_,h_,angle_1,angle_2);
+              XDrawArc(display(),graphPixmap(),traceGC(),(int)(_pieX+xo(i)),
+		       (int)(_pieY-yo(i)+_pieDepth),w_,h_,angle_1,angle_2);
             }
          }
       }
      // draw pie slices
      double yOffset=_pieDepth-_pieDepth*profiles(i);
      XSetForeground(display(),traceGC(),fillColors(i));
-     XFillArc(display(),graphPixmap(),traceGC(),_pieX+xo(i),_pieY-yo(i)+yOffset,w_,h_,angle1(i),angle2(i));
+     XFillArc(display(),graphPixmap(),traceGC(),(int)(_pieX+xo(i)),
+	      (int)(_pieY-yo(i)+yOffset),w_,h_,angle1(i),angle2(i));
      XSetForeground(display(),traceGC(),lineColors(i));
-     XDrawArc(display(),graphPixmap(),traceGC(),_pieX+xo(i),_pieY-yo(i)+yOffset,w_,h_,angle1(i),angle2(i));
+     XDrawArc(display(),graphPixmap(),traceGC(),(int)(_pieX+xo(i)),
+	      (int)(_pieY-yo(i)+yOffset),w_,h_,angle1(i),angle2(i));
      for (unsigned p=0;p<2;p++)
       {
         double cose=p==0?cos1[i]:cos2[i];
@@ -2459,7 +2462,8 @@ void MSGraph::drawPieSlices(MSTrace * trace_,const MSGraphPieData* pieData_,int 
             }
            else if (profiles(i)>0.0&&sine<0)
             {
-              XDrawLine(display(),graphPixmap(),traceGC(),x2,y2,x2,y2+_pieDepth-yOffset);
+              XDrawLine(display(),graphPixmap(),traceGC(),x2,y2,x2,
+			(int)(y2+_pieDepth-yOffset));
             }
            // draw outer vertical lines
            if (p==0&&profiles(i)>0.0)
@@ -2469,14 +2473,16 @@ void MSGraph::drawPieSlices(MSTrace * trace_,const MSGraphPieData* pieData_,int 
                   (angle1(i)>semi&&angle1(i)+angle2(i)>=circle+semi)||
                   (angle1(i)>semi&&angle1(i)<semi+64))
                {
-                 XDrawLine(display(),graphPixmap(),traceGC(),_pieX+xo(i),_pieY-yo(i)+_pieRy+yOffset,
-                           _pieX+xo(i),_pieY-yo(i)+_pieRy+_pieDepth);
+                 XDrawLine(display(),graphPixmap(),traceGC(),(int)(_pieX+xo(i)),
+			   (int)(_pieY-yo(i)+_pieRy+yOffset),
+                           (int)(_pieX+xo(i)),(int)(_pieY-yo(i)+_pieRy+_pieDepth));
                }
               // draw right side of pie
               if (angle1(i)<circle&&angle1(i)+angle2(i)>=circle)
                {
-                 XDrawLine(display(),graphPixmap(),traceGC(),_pieX+w_+xo(i),_pieY-yo(i)+_pieRy+yOffset,
-                           _pieX+w_+xo(i),_pieY-yo(i)+_pieRy+_pieDepth);
+                 XDrawLine(display(),graphPixmap(),traceGC(),(int)(_pieX+w_+xo(i)),
+			   (int)(_pieY-yo(i)+_pieRy+yOffset),
+                           (int)(_pieX+w_+xo(i)),(int)(_pieY-yo(i)+_pieRy+_pieDepth));
                }
             }
          }

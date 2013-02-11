@@ -10,7 +10,7 @@
 /*****************************************************************************/
 
 /* external macro declarations */
-#define RELEASE_CODE 	                "4.18"
+#define RELEASE_CODE 	                "4.22"
 #define OWNER_FULLNAME                  ""
 #define IMDIR                           "/usr/local"
 #endif /* included_main_version_h */

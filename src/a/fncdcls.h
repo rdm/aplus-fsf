@@ -3,7 +3,7 @@
 
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -26,7 +26,7 @@ extern I htxi(HT,S,I);					/* att */
 extern void rmatb(V);					/* att */
 extern void attInstall(void);				/* att */
 extern void mi(void);					/* b */
-extern unsigned long mb(long*,unsigned long);		/* b */
+/* extern unsigned long mb(long*,unsigned long);	   b */
 extern C* mab(unsigned long);				/* b */
 extern long* ma(unsigned long);				/* b */
 extern void mf(I*);					/* b */
@@ -39,6 +39,14 @@ extern long *ma_malloc(unsigned long);                  /* b */
 extern void (*pf_mf)(long *);                           /* b */
 extern void mf_atmp(long *);                            /* b */
 extern void mf_malloc(long *);                          /* b */
+extern void memStatsInstall(void);                      /* b */
+
+extern I getAutoBeamConvert(void);			/* beam */
+extern I mf_length(A aobj);                             /* beam */
+extern I isWritableFile(I a);                           /* beam */
+extern void MFALimitSysCmd(I newlim);                   /* beam */
+extern void beamInstall(void);                          /* beam */
+extern void setAutoBeamConvert(I m);                    /* beam */
 
 extern void dst(V);					/* callouts */
 extern I xf(void);					/* callouts */
@@ -95,7 +103,6 @@ extern C **get_dbglist(void);				/* dbg */
 extern void dbgInstall(void);				/* dbg */
 extern C *PIDcmd(pid_t);                                /* dyldSlow */
 extern I rsh(A,I,I *);					/* f */
-extern I ic_or_gc(A);                                   /* f */
 extern I ic_or_copy(A);                                 /* f */
 extern I pck(I,A);					/* gpick */
 extern I pka(A,A *);					/* gpick */
@@ -105,6 +112,7 @@ extern I fsy(A);					/* i */
 extern I cm(I *,I *,I);					/* i */
 extern I mt(A,A);					/* i */
 extern I fnd(A,A);					/* i */
+extern I index_of(A,A);					/* i */
 extern I xin(A,I,A);					/* j */
 extern I xr(A,A,A);					/* j */
 extern void ki(void);					/* k */
@@ -138,17 +146,20 @@ extern A un(A *);					/* k */
 extern I set(I,I,I);					/* k */
 extern I aset(I,I,I,I); 				/* k */
 extern I xis(E);					/* k */
+extern A getBeamMSyncMode(void);                        /* k */
+extern void setBeamMSyncMode(A);                        /* k */
 extern I log_EWouldBlock(I,I,I,C *,C *);		/* m */
 extern I syst(C *);					/* m */
 extern void gwd(C *s);					/* m */
 extern void siginit(void);				/* m */
 extern A getSigv(void);					/* m */
 extern A getSigb(void);					/* m */
-extern void setSigv(int);				/* m */
-extern void setSigb(int);				/* m */
+extern void setSigv(I);				        /* m */
+extern void setSigb(I);				        /* m */
 extern I wr(I);						/* m */
 extern I im(I);						/* m */
 extern void dm(A);					/* m */
+extern I map(int,int);                                  /* m */
 extern int nmap(int,int,C *,C *);			/* m */
 extern void dbg_mfr(void);				/* m */
 extern int flen(int,off_t);				/* m */
@@ -170,7 +181,7 @@ extern void te(void);					/* n */
 extern I t2(I,I);					/* n */
 extern void xfs(void);					/* n */
 extern void x_fs(void);					/* n */
-extern void install(PFI,C *,I,I,I,I,I,I,I,I,I,I);	/* n */
+extern void install(PFI,const C *,I,I,I,I,I,I,I,I,I,I);	/* n */
 extern void xshti(void);				/* n */
 extern A ep_xfsinfo(void);				/* n */
 extern A gsym(const C*);                                /* nsf */
@@ -215,7 +226,7 @@ extern CX cxi(S);					/* r */
 extern CX cxlu(S);					/* r */
 extern V vi(S,CX);					/* r */
 extern V vlu(S,CX);					/* r */
-extern CX cx(C *);					/* r */
+extern CX cx(const C *);				/* r */
 extern I gz(void);					/* r */
 extern I qz(A);						/* r */
 extern I peak(I);					/* r */
@@ -241,9 +252,11 @@ extern A SymbolTableHashChainLengths(void);		/* u */
 extern A SymbolTableBlockInfo(void);			/* u */
 extern V sv(CX,S);					/* u */
 extern V svlu(CX,S);					/* u */
+
 extern I ispu(I);					/* u */
 extern I isal(I);					/* u */
 extern I isdi(I);					/* u */
+
 extern C *dlb(C *);					/* u */
 extern C *cl(C *);					/* u */
 extern C *bl(C *);					/* u */
@@ -265,7 +278,6 @@ extern I pexm(I,I);					/* u */
 extern I af(I);						/* u */
 extern void frep(A);					/* u */
 extern C *doloadafile(C *,int);				/* y */
-extern C *stringfromAobj(A);				/* beam */
 extern I exx(V);					/* y */
 extern void sys(C*);					/* y */
 extern A ci(I);						/* y */

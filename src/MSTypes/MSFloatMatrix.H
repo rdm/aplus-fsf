@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -34,7 +34,7 @@ class MSMatrixSTypePick<double>;
 #if !defined(MS_MSFloatMatrix_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSTypeMatrix<double> : public MSMatrix
 #else
-class MSTypesExport MSTypeMatrix<double> : public MSMatrix
+template <> class MSTypesExport MSTypeMatrix<double> : public MSMatrix
 #endif
 {
 public:
@@ -281,7 +281,7 @@ protected:
 #if !defined(MS_MSFloatMatrix_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSMatrixSTypePick<double>
 #else
-class MSTypesExport MSMatrixSTypePick<double>
+template <> class MSTypesExport MSMatrixSTypePick<double>
 #endif
 {
 public:

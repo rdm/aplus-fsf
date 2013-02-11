@@ -3,7 +3,7 @@
 
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -27,7 +27,7 @@ typedef union{I *i;F *f;C *c;A *a;}P;
 struct a{I c,t,r,n,d[MAXR],i,p[1];};
 typedef struct _s{struct _s *s;C n[4];}*S;
 #define CX_USED
-typedef struct _ht{unsigned nb,ni;void *b[1];}*HT;
+typedef struct _ht{unsigned long nb,ni;void *b[1];}*HT;
 typedef struct _htnode{I a;S s;struct _htnode *n;}*HTN;
 #define HTHASH(ht,s) ((ht)->b+(((ht)->nb-1)&hafn(((unsigned long)(s))>>3)))
 #define CxHTSIZE       (1<<9)
@@ -46,7 +46,7 @@ typedef I (*PFI_AAI)(A,A,I);
 typedef A (*PFA_A)(A);
 typedef A (*PFA_AA)(A,A);
 
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
+#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64) || defined(__x86_64)
 typedef unsigned long * jmptype;
 #else
 typedef int * jmptype;
@@ -58,10 +58,11 @@ typedef int * jmptype;
 #define WS_ATMP_PRIVATE   (2)
 #define WS_ATMP_HEAP      (4)
 #define WS_MALLOC         (8)
+#define WS_MEM_STATS      (16)
 
 #define Tt32(t,x) ((x)<<(t+2&3))
 #define Tt64(t,x) ((x)<<((((t>>1)&1)+3)&3))
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
+#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64) || defined(__x86_64)
 #define Tt(t,x) ((x)<<((((t>>1)&1)+3)&3))
 #else
 #define Tt(t,x) ((x)<<(t+2&3))

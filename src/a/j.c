@@ -1,10 +1,12 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+
 #include <a/ik.h>
 #include <a/f.h>
 #include <a/fncdcls.h>
@@ -40,7 +42,22 @@ J(m1,I,(*(G)s)(p+*j++,h-1))
 
 #define CK(n) if((unsigned long)(n)>=m)q=10;
 
-Z I j_t2(A w){I *p=w->p,j=*p;DO(w->n-1,if(*++p!=++j)R 0)R 1;}
+/* Z I j_t2(A w){I *p=w->p,j=*p;DO(w->n-1,if(*++p!=++j)R 0)R 1;} */
+Z I j_t2(A w)
+{
+  if(w->n>1)
+    {
+      I *p=w->p;
+      I j=*p;
+      I i=0,_i=w->n-1;
+      for(;i<_i;++i)
+	{
+	  if(*++p!=++j)
+	    R 0;
+	}
+    }
+  R 1;
+}
 
 I xin(A a,I m,A z)
 {
@@ -65,7 +82,7 @@ I xin(A a,I m,A z)
     if(!m)R tst(t,(I *)p,1,z->p,r,n),1;
   }
   if(!n)R(I)z;
-#if (_MIPS_SZLONG == 64) || defined (__alpha) || defined(__ia64)
+#if (_MIPS_SZLONG == 64) || defined (__alpha) || defined(__sparcv9) || defined(__ia64) || defined(__x86_64)
   l=(((t>>1)&1)+3)&3,j=1<<l;
 #else
   l=t+2&3,j=1<<l;
@@ -165,7 +182,7 @@ H2(dtr)
 {
   A z;
   I k,r,i,n=1,m=0;
-  unsigned j;
+  unsigned long j;
   ND2;
   r=w->r;
   I1 Q(a->n!=r,7);

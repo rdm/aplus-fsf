@@ -3,7 +3,7 @@
 
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -29,7 +29,7 @@
 #define MAXITEMS_ERROR 16
 
 typedef struct _PointerTable {
-  int		length;		/* number of pointers allocated */
+  long		length;		/* number of pointers allocated */
   void		**ptr;
 } PointerTable;
 

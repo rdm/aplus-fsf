@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -51,7 +51,7 @@ For text errors indicating where an error message originates from, use:
 */
 
 A        dmd(A,A), mmd(A);
-static A ls_c(A,A,int,int,int,int);
+static A ls_c(A,A,I,I,I,I);
 
 /*
 
@@ -63,8 +63,8 @@ static A ls_c(A,A,int,int,int,int);
 */
 A dmd(A b,A a) 
 {
-  int result_rank;
-  int m, n, p;
+  I result_rank;
+  I m, n, p;
   A   z;
 
   if(!QA(a)||!QA(b)) ERROUT(ERR_NONDATA);
@@ -123,8 +123,8 @@ A dmd(A b,A a)
 
 A mmd( A a )
 {
-  int result_rank;
-  int m, n, p;
+  I result_rank;
+  I m, n, p;
   A   z;
 
   if(!QA(a)) ERROUT(ERR_NONDATA);
@@ -177,7 +177,7 @@ A mmd( A a )
 */ 
 
 
-static A ls_c(A a0,A b,int m,int n,int p,int monadic) 
+static A ls_c(A a0,A b,I m,I n,I p,I monadic) 
 /*
   m,n,p     :  scalars set by the driver
   a0        :  the right argument, a matrix of shape m,n

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -87,16 +87,20 @@ class AipcConnection : public MSProtocolConnection<A>, public AipcService
   virtual void connectNotify(void);
   virtual void sentNotify(int);
   virtual void resetNotify(MSProtocolConnection<A>::State);
-  virtual void resetNotify(C *errmsg_);
-  virtual void resetWithError(C *errmsg_){reset();resetNotify(errmsg_);}
+  virtual void resetNotify(const C *errmsg_);
+  virtual void resetWithError(const C *errmsg_){reset();resetNotify(errmsg_);}
   virtual void resetWithError(State){resetWithError("unknown State");}
 
   // M:Other methods;
   // C *name(void) {return (C*)MSProtocolConnection<A>::name().string();}
   virtual void initFromListener(void);
   virtual I serviceType(void) {return AipcConnection::ServiceType;}
-  virtual int send(const A &aobj){ Warn("this connection does not send\n");
-				   return aobj?0:0;}
+  virtual int send(const A &aobj)
+  {
+    static char fmt[]="this connection does not send\n";
+    Warn(fmt);
+    return aobj?0:0;
+  }
   virtual void reset(void);
   MSBoolean isOpen(void) {return(-1==fd())?MSFalse:MSTrue;}
   A writeQueueStatus(void);
@@ -106,6 +110,8 @@ class AipcConnection : public MSProtocolConnection<A>, public AipcService
   virtual A syncSendCover(A,A){R aplus_nl;}
   virtual A syncReadCover(A){R aplus_nl;}
   virtual A syncTimeout(A){R aplus_nl;}
+
+  int openSync(int timeout);
 };
 
 

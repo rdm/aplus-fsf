@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -166,7 +166,7 @@ Z C *argtypes[]={"any","int","float","char","any","int","float","string",
 Z C *cxtdotname(V v){ C *res, *cxt=v->cx->s->n, *name=v->s->n;
   res=(C *)malloc(2+strlen(cxt)+strlen(name));sprintf(res,"%s.%s",cxt,name);R res;}
   
-Z C *defaultdoc(C *s,I t,I n,I *y){ C *z=(C *)malloc(128+strlen(s));
+Z C *defaultdoc(const C *s,I t,I n,I *y){ C *z=(C *)malloc(128+strlen(s));
   strcpy(z,s);
   if(n) {
     strcat(z,"{");
@@ -176,13 +176,13 @@ Z C *defaultdoc(C *s,I t,I n,I *y){ C *z=(C *)malloc(128+strlen(s));
   strcat(z," returns ");strcat(z,(8==t)?"null":argtypes[t]);R z;
 }
 
-Z C *installdoc(C *s,C *d){C *z=(C*)malloc(2+strlen(s)+strlen(d));
+Z C *installdoc(const C *s,C *d){C *z=(C*)malloc(2+strlen(s)+strlen(d));
  strcpy(z,s);strcat(z,"\n");strcat(z,d);R z;}
 
 void xfs(void){C **s=xfs_name;for(;*++s;)if(**s=='_'&&(*s)[1]!='_')H("%s ",*s);NL;} 
 void x_fs(void){C **s=xfs_name;for(;*++s;)if(**s=='_'&&(*s)[1]=='_')H("%s ",*s);NL;} 
 
-I xinstall(PFI f,C *s,I t,I n,I *y,C *d)
+I xinstall(PFI f, const C *s,I t,I n,I *y,C *d)
 {
   I p=0,i;V v;C *nm=0;
   if(xi==XI-1)R H("too many installs\n"),0;
@@ -198,7 +198,7 @@ I xinstall(PFI f,C *s,I t,I n,I *y,C *d)
   R 1;
 }
 
-void install(PFI f,C *s,I t,I n,I t0,I t1,I t2,I t3,I t4,I t5,I t6,I t7)
+void install(PFI f,const C *s,I t,I n,I t0,I t1,I t2,I t3,I t4,I t5,I t6,I t7)
 {
   switch(abs(n)) 		/* xinstall() will take a negative n */
   {

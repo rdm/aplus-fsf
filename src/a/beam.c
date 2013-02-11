@@ -1,6 +1,7 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -11,19 +12,21 @@
 #include <string.h>
 #include <syslog.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/param.h>
 
 #include <dap/balloc.h>
 
-#include <a/development.h>
+#include <development.h>
 
 #include <a/f.h>
 #include <a/fncdcls.h>
 #include <a/ik.h>
 #include <a/arthur.h>
 #include <a/fir.h>
+#include <a/beam.h>
 
 extern I dbg_tb, dbg_tnan;
 
@@ -31,24 +34,12 @@ extern C *findMapped32FileName();
 extern C *findMapped64FileName();
 extern C *findFileName();
 
-#if defined(__alpha) || defined(__ia64)
-char beamFileCPrefix[8]={'A','p','l','u','s','L','6','4'};
-int *beamFilePrefix=(int *)beamFileCPrefix;
-#elif (_MIPS_SZLONG == 64)
-char beamFileCPrefix[8]={'A','p','l','u','s','B','6','4'};
-int *beamFilePrefix=(int *)beamFileCPrefix;
-#elif defined(__VISUAL_C_2_0__) || defined(__i386)
-char beamFileCPrefix[8]={'A','p','l','u','s','l','3','2'};
-int *beamFilePrefix=(int *)beamFileCPrefix;
-#else
-int  *beamFilePrefix=0;
-#endif
+Z I items(I n,A z);
 
-
-
-#define ENDIAN_UNDEF  0
-#define ENDIAN_LITTLE 1
-#define ENDIAN_BIG    2
+/* flag to control auto/endain conversion of the .m file  */
+Z I autoBeamConvert=0;		/* Default is off  */
+I getAutoBeamConvert(void)   {R autoBeamConvert;}
+void setAutoBeamConvert(I m) {autoBeamConvert=m;}
 
 Z I mapOut(C *s,A z) ;
 
@@ -67,7 +58,7 @@ static C *endianString(I endian)
     (endian==ENDIAN_UNDEF)?"undef":"unknown";
 }
 
-static int hostEndian(void)
+static I hostEndian(void)
 {
   return (0x61626364==*EndianTag.u)?ENDIAN_BIG:
     (0x64636261==*EndianTag.u)?ENDIAN_LITTLE:
@@ -132,7 +123,7 @@ static void ndnfswap(F *start,I nfs)
   }
 }
 
-static int aobjEndian(A aobj)
+static I aobjEndian(A aobj)
 {
   int result=ENDIAN_UNDEF;
   I tempint;
@@ -150,7 +141,7 @@ static int aobjEndian(A aobj)
 
 static void doSwapEndianInPlace(A aobj, I targetndn)  
 {
-  int n,t;
+  I n,t;
   I sourcendn=aobjEndian(aobj);
   I hostndn=hostEndian();
   if(targetndn==sourcendn)return;
@@ -173,7 +164,7 @@ static void doSwapEndianInPlace(A aobj, I targetndn)
   case Ct:
     break;
   default:
-    printf("\343 error!!: doSwapEndianInPlace encountered bad type:%d\n",t);
+    printf("\343 error!!: doSwapEndianInPlace encountered bad type:%ld\n",t);
     break;
   }
 }
@@ -259,7 +250,7 @@ A ep_SwapToEndian(A aobj,A andn) /* must use argument type 12, not 0!!! */
 
 Z int loopen(C *path,int flags,mode_t mode)
 {
-  I i=0,st=1,fd=-1;
+  int i=0,st=1,fd=-1;
   static C fcn[]="open";
   if(!path) R -1;
   while(i<10&&-1==(fd=open(path,flags,mode))&&EWOULDBLOCK==errno)
@@ -267,12 +258,6 @@ Z int loopen(C *path,int flags,mode_t mode)
   if (i) errno=log_EWouldBlock(i,fd,errno,path,fcn);
   R fd;
 }
-
-struct a32 {
-    int c,t,r,n,d[MAXR],i,p[1];
-};
-
-#define AH32 (sizeof(struct a32) - sizeof(int))
 
 C *tmv32(int t,I *d,int *s,int n) {
   int i;
@@ -326,7 +311,7 @@ void mv32(I *dest64,int *src32,int n) {
 }
 
 A
-gc32(int t,int r,int n,int d[],int *p) {
+gc32(int t, int r, int n, int d[], int *p) {
   I f ;
   A z ;
 
@@ -347,17 +332,17 @@ gc32(int t,int r,int n,int d[],int *p) {
 }
 
 A
-cvt64(struct a32 *aobj) {   /* mapped objects only - floats, chars and longs */
+cvt64(A32 *aobj) {   /* mapped objects only - floats, chars and longs */
     A newa;
-	int i = aobj->i ;
+    I i = aobj->i ;
     /*printf("%d %d %d %d %d\n", aobj->c, aobj->t, aobj->r, aobj->n, aobj->i) ; */
     newa = gc32(aobj->t,aobj->r,aobj->n,aobj->d,aobj->p);
 	newa->i = i ;
     R newa;
 }
 
-#if defined(__alpha) || defined(__i386) || defined(__ia64)
-Z A vetteMappedFile(I fsize,I aarg,int mode,C *name)
+
+Z A vetteMappedFile(I fsize, I aarg, int mode, C *name, int *rc, I cvtInPlace)
 {
   A aobj=(A)aarg,z;
 
@@ -365,128 +350,9 @@ Z A vetteMappedFile(I fsize,I aarg,int mode,C *name)
 /*   return  1, conversion successful, z is new object in memory */
 /*   return -1, conversion failed,     z is set to NULL */
 
-  if( 1==cvtIfNeeded(aobj, &z, fsize) )	/* Conversion Successful */
-    1; /* need to unmap aobj */
-  
+  *rc=cvtIfNeeded(aobj, &z, fsize, cvtInPlace);
   return z;
-
 }
-#else
-Z A vetteMappedFile(I fsize,I aarg,int mode,C *name)
-{
-  A aobj=(A)aarg,z=(A)0;
-  static struct a tempheader;
-  /*printf("In vetteMappedFile(%ld, %ld, %d, %s)\n", 
-		fsize, aarg, mode, name) ; */
-  if (aarg!=-1 && 0==aobj->c)
-  {
-    if(isWrongEndian(aobj))
-    {
-      if(ENDIAN_UNDEF!=aobjEndian(aobj))
-      {
-	ndnicopy((I *)aobj,(I *)&tempheader,AH/sizeof(I));
-	if(Ct>=tempheader.t&&fsize>=AH+tempheader.n)
-	{
-	  if(BEAM_RO==mode)
-	  {
-	    H("%s[warn]: Beam: File %s is wrong endian.  Making local copy\n",
-	      CC,name);
-	    z=ep_CopyRightEndian(aobj);
-	    dc(aobj);
-	  }
-	  else
-	  {
-	    H("%s[warn]: Beam: File %s is wrong endian.  Aborting map.\n",
-	      CC,name);
-	    z=0;
-	  }
-	}
-      }
-    }
-    else if(Ct>=aobj->t&&fsize>=AH+Tt(aobj->t,aobj->n))z=aobj;
-  }
-  if((I)aobj == -1)
-	{
-	printf("\343 Internal error vetteMappedFile(): This is being doubly converted. Bad.\n") ;
-	return (A)0 ;
-	}
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
-  if(!z)
-	{
-	I m, t, items ;
-	int ret, fd;
-	char * dotPos ;
-
-	printf("\343 Converting 32 bit file.\n") ; 
-    z=cvt64((struct a32 *)aobj);
-	t = z->t ;
-  	 /* printf("z->c: %ld z->t: %ld z->r: %ld z->n: %ld z->d[0]: %ld z->d[1]: %ld z->i: %ld\n",
-			z->c, t, z->r, z->n, z->d[0], z->d[1], z->i) ; 
-	*/
-    if (z==NULL)
-	  {
-	  H("%s[warn]: Beam error: not an `a object\n",CC);
-      z = NULL;
-	  }
-	/* ok it's converted. now we can unlink */
-	/* printf("Creating 64 bit mapped file (.m64)\n") ; */
-	dotPos = strrchr(name, '.') ;
-	if (dotPos)
-		*dotPos = 0 ;
-	name=findFileName(name,"m64");
-
-	/* printf("Attempting to write the file out to %s\n", name) ;  */
-	fd=loopen(name,O_CREAT|O_WRONLY,0666) ;
-	if (!fd)
-		{
-		printf("\343 Error in loopen(%s)\n", name) ;
-		return (A)0 ;
-		}
-	/* we hacked the i correctly already so ignore d[0] */
-	z->c = 0 ;
-	items = z->i ;
-	if (z->n > z->i)
-		items = z->n ;
-	ret=writeAobjToFile(fd,(C *)z,AH+Tt(t,items)+(Ct==t?1:0),1);
-	if (ret < 0)
-		{
-		printf("\343 Error in writeAobjToFile: %d\n", ret) ;
-		return (A)0 ;
-		}
-	m=z->i*tr(z->r-1,z->d+1);
-	if(z->i<*z->d)
-	  {
-	  *z->d=z->i ;
-	  z->n=m;
-	  }
-	/* printf("m = %ld\n", m) ; */
-	/* printf("Setting file len to %ld\n", AH+Tt(t,m)+(t==Ct)) ; */
-	/* if(-1==flen(fd,AH+Tt(t,m)+(t==Ct)))
-		{
-		perror(name) ;
-		close(fd);
-		q=9 ;
-		return (A)0;
-		}
-	*/
-/*	if(-1==lseek(fd,0,0))  R perror(name),close(fd),q=9,(A)0;
-	if(-1==write(fd,(C *)z,AH))R perror(name),close(fd),q=9,(A)0; */
-
-  	 /* printf("z->c: %ld z->t: %ld z->r: %ld z->n: %ld z->d[0]: %ld z->d[1]: %ld z->i: %ld\n",
-			z->c, t, z->r, z->n, z->d[0], z->d[1], z->i) ; */
-
-	printf("\343 Wrote %s.\n", name) ;
-	close(fd) ;
-	dc(z) ; /* This should free */
-	return (A)-1 ;
-	}
-#else
-	if (!z)
-		H("%s[warn]: Beam error: not an `a object\n",CC);
-#endif
-  R z;
-}
-#endif
 
 typedef struct{I a,c,n,w;C *s,*t;}MFInfo;  
   /* n field used for "next" in freelist */
@@ -500,7 +366,7 @@ Z C MFAErrorMsg[128];
 Z int MFArealloc(I newlim)
 {
   Z MFInfo *newMFA;
-  int i, count=0;
+  I i, count=0;
   if(0==newlim||newlim<maxMFAindex)
   {
     strcpy(MFAErrorMsg,"New limit is less than Mapped File Array length");
@@ -575,11 +441,13 @@ Z void unmapDotMFile(A a,MFInfo *p)
 {
   /* printf("In unmapDotMFile(%s, %lx, %ld)\n", p->t, a, p->n) ; */
   if(dbg_tb) beamtrc(p->t,2,0);
-  if(munmap((caddr_t)a,(int)p->n)) 
+  if(munmap((void*)a,(size_t)p->n)) 
   {
     I nern=errno;
+#ifndef __ia64
     syslog(LOG_INFO,"A+ munmap() failed for %s with args (%#lx,%ld) with %m",
-	   p->t,a,p->n);
+	   p->t,a,p->n,nern);
+#endif
     H("\343 A+ munmap() failed for %s with args (%#lx,%ld) and errno=%ld\n",
       p->t,a,p->n,nern);
   }
@@ -592,27 +460,87 @@ Z void unmapDotMFile(A a,MFInfo *p)
   if(p==MappedFileArray+(maxMFAindex-1))--maxMFAindex;
 }
 
-extern I map(int,int);
 Z I mapDotMFile(int fd,int mode,C *fname,C *t)
 {
   A aobj;
-  I mfile;
+  I mfile; int rc;
   MFInfo *p;
-  I n;
-  (void) setStickyBit(fd,0);
+  off_t n;
   n=lseek(fd,0,SEEK_END);
   mfile=map(fd,mode);		/* map returns a 0 on failure    */
   Q(!mfile,9);			/* Set domain error if map fails */
   /* printf("mfile = %ld, n = %ld\n", mfile, n) ; */
-  aobj=vetteMappedFile(n,mfile,mode,fname);
-  Q(!aobj,9);
-  p=getFreeMFInfoStruct();
-  if(!p)
-  {
-    R H("maplim\n"),dc(aobj),q=9,0;
-  }
-    p->c=1,p->n=n,p->w=mode,p->s=bstring(fname),p->t=bstring(t),p->a=mfile;
-    if(aobj!=(A)mfile) unmapDotMFile((A)mfile,p);
+  aobj=vetteMappedFile(n, mfile, mode, fname, &rc,
+		       mode==BEAM_RW && autoBeamConvert);
+  if(!aobj || rc==-1) 
+    {
+      if(dbg_tb) beamtrc(t,2,0);
+      munmap((caddr_t)mfile,n);
+      R q=9,0;
+    }
+
+  if(rc==1 && mode==BEAM_RW && autoBeamConvert==0) 
+    {
+      if(dbg_tb) beamtrc(t,2,0);
+      munmap((caddr_t)mfile,n);
+      dc(aobj);
+      printf("\343 Error: read/write, but conversion to local variable\n");
+      R q=9,0;
+    }
+
+  /* The following if clause will convert the .m file to the native format */
+  /* for 32 bit to 64 bit otherwise it is done in place */
+
+  if(rc==1 && mode==BEAM_RW && autoBeamConvert==1) /* Convert .m file */
+    {
+      struct a a;
+      I itemCount=aobj->i;	/* original item count */
+
+      if(dbg_tb) beamtrc(t,3,0); /* 3==Converting */
+
+      if(dbg_tb) beamtrc(t,2,0);
+      munmap((caddr_t)mfile,n);	/* unmap previous */
+      mapOut(t, aobj);		/* write new .m with converted data */
+      dc(aobj);			/* free a object */
+                                /* reset the items to match orignal*/
+      {
+	A mFile=gsv(0,t);
+	I rc=items(itemCount, mFile);
+	if(dbg_tb) printf("\343 Setting Items to %ld\n",itemCount);
+	dc(mFile);
+      }
+
+				/* re-map it */
+      ERR(t, fd=loopen(t,BEAM_RW==mode?O_RDWR:O_RDONLY,0666));
+      n=lseek(fd,0,SEEK_END);
+      mfile=map(fd,mode);	/* map returns a 0 on failure    */
+      Q(!mfile,9);		/* Set domain error if map fails */
+
+      /* Call  vetteMappedFile with autoBeamConvert off */
+      aobj=vetteMappedFile(n, mfile, mode, fname, &rc, 0);
+
+      if(!aobj || rc!=0)
+	{
+	  if(dbg_tb) beamtrc(t,2,0);
+	  munmap((caddr_t)mfile,n);
+	  R q=9,0;
+	}
+    }
+
+  if(rc==1)			/* Conversion to regular variable*/
+    {
+      if(dbg_tb) beamtrc(t,2,0);
+      munmap((caddr_t)mfile,n);	/* unmap previous */
+    }
+  else
+    {
+      p=getFreeMFInfoStruct();
+      if(!p)
+	{
+	  R H("maplim\n"),dc(aobj),q=9,0;
+	}
+      p->c=1,p->n=n,p->w=mode,p->s=bstring(fname),p->t=bstring(t),p->a=mfile;
+    }
   R (I)aobj;
 }
 
@@ -642,7 +570,7 @@ Z void dbg_mfapp(MFInfo *p)
 
 void dbg_mfa(void)
 {
-  int i;
+  I i;
   H("\343 maplim:%ld  maxIndex:%ld  freeIndex:%ld\n",maxMFAlimit,maxMFAindex,
     freeMFAindex);
   if(0==MappedFileArray){H("\343 Mapped File Array not initialized.\n");R;}
@@ -653,7 +581,7 @@ void dbg_mfa(void)
   for(i=maxMFAindex;i<maxMFAindex+10;i++)
   {
     if(i>=maxMFAlimit)break;
-    H("\343  %d: ",i);
+    H("\343  %ld: ",i);
     if(MappedFileArray[i].a)dbg_mfapp(MappedFileArray+i);
     else H("<free>  next:%ld\n",MappedFileArray[i].n);
   }
@@ -670,7 +598,7 @@ void dbg_mfr(void)
 
 A dbg_mfrsf(void)
 {
-  int n=0;
+  I n=0;
   A z,modes,args,fnames,addrs,refcnts,bytes;
   MFInfo *p;
   z=gv(Et,2);
@@ -701,20 +629,16 @@ A dbg_mfrsf(void)
 } 
 
 I mapIn(C *name,I mode){
-  I fd=-1,z;
-  I tmode = mode ;
+  int fd=-1; I z;
+  int tmode = mode ;		/* Valid modes 0, 1, or 2  */
   C*t=0;
   /* printf("In mapIn(%s, %d)\n", name, mode) ;*/
   Q(!name||BEAM_RO>mode||BEAM_LOCAL<mode,9);
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
+#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__sparcv9) || defined(_ia64)
   /* First look for a 64 bit file */
   t = findMapped64FileName(name, (BEAM_RW==tmode)) ;
   if (!t)
-	{
-	/* We are only reading */
-	tmode = BEAM_RW ;
-	t = findMapped32FileName(name, (BEAM_RW==tmode)) ;
-	}
+    t = findMapped32FileName(name, (BEAM_RW==tmode)) ;
 #else
   t = findMapped32FileName(name, (BEAM_RW==tmode)) ;
 #endif
@@ -722,53 +646,38 @@ I mapIn(C *name,I mode){
   if(dbg_tb)beamtrc(t,1,tmode);
   ERR(t,fd=loopen(t,BEAM_RW==tmode?O_RDWR:O_RDONLY,0666));
   z=mapDotMFile(fd, tmode, name, t) ;
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
-  switch(z)
-	{
-	case 0:
-	  R 0 ;
-	case -1:
-	  /* printf("Converted 32 bit file, mapping file again\n") ; */
-	  close(fd) ;
-	  t = findMapped64FileName(name, (BEAM_RW==mode)) ;
-	  /* printf("t = %s\n", t) ; */
-	  ERR(t,fd=loopen(t,BEAM_RW==mode?O_RDWR:O_RDONLY,0666));
-	  /* printf("Calling mapDotMFile(%d, %d, %s, %s)\n",
-			fd, mode, name, t) ; */
-	  if(0==(z=mapDotMFile(fd,mode,name,t)))R 0;
-	  break ;
-	}
-#endif
-  if(dbg_tnan)nanbeamchk(t,(A)z);
-  /* printf("Returning z = %ld\n", (I)z) ; */
+  if(z && dbg_tnan )nanbeamchk(t,(A)z);
   R z;
 }
 
-Z writeAobjToFile(int fd,C *s,unsigned n,I c)
+Z ssize_t writeAobjToFile(int fd, C *s, size_t n, I c)
 {
-  I t;
+  ssize_t t; off_t lt; I newItems;
   A a=(A) s; 
   /* printf("in writeAobj - n = %u\n", n) ; */
   do t=write(fd,s,n); while(s+=t,t!=-1&&(n-=t));
-  if((!c) && t!=-1 && a->i!=a->d[0]) 
+  if((!c) && t!=-1 && a->i!=(newItems=a->r ? a->d[0] : a->n)) 
   { 
     /* if beaming out a mapped variable, writeover a->i with a->d[0]  */
-    t=lseek(fd,(AH-sizeof(I)),SEEK_SET);
-    if(t!=-1) t=write(fd,(C *)a->d,4);
+    lt=lseek(fd,(AH-sizeof(I)),SEEK_SET);
+    if(lt!=-1) t=write(fd,(C *)&newItems,sizeof(I));
   }
   fsync(fd);R t;
 } /* IBM write fix */
 
 Z I mapOut(C *s,A z)
 {
-  I fd,rc,c=0;
+  int fd; I rc,c=0;
   C r[MAXPATHLEN];
   C *dotPos, *slashPos;
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
-  static C defaultSuffix[]={"m64"} ;
-#else
+/* #if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__sparcv9) || defined(_ia64) */
+/*   static C defaultSuffix[]={"m64"} ; */
+/* #else */
+/*   static C defaultSuffix[]={"m"}; */
+/* #endif */
+
   static C defaultSuffix[]={"m"};
-#endif
+
   Q(Ct<z->t,6);
 
 /* On solaris this comparison was failing when '.' was zero and the address */
@@ -796,6 +705,7 @@ Z I mapOut(C *s,A z)
   if(z->c)c=z->c,z->c=0,z->i=z->r?*z->d:1;
   rc=writeAobjToFile(fd,(C *)z,AH+Tt(z->t,z->n)+(Ct==z->t?1:0),c);
   if(c)z->c=c;
+  fsync(fd);
   close(fd);
   ERR(s,rc);
   ERR(s,rename(r,s));
@@ -817,7 +727,7 @@ Z I setSizeOfFile(int fd,off_t n)
 #ifdef __VISUAL_C_2_0__
   I j=CLBYTES,k=lseek(fd,0,SEEK_END);
 #else
-  I j=getpagesize(),k=lseek(fd,0,SEEK_END);
+  size_t j=getpagesize(),k=lseek(fd,0,SEEK_END);
 #endif
   C junk[4];
   /* printf("In setSizeOfFile; n = %ld, j = %ld, k = %ld\n",
@@ -839,75 +749,206 @@ Z I setSizeOfFile(int fd,off_t n)
 
 Z I items(I n,A z)
 {
-  C *s;Z struct a a;I fd,t,m,j,w=n!=-1;
+  C *s;Z struct a a;int fd; I t,m,j,w=n!=-1;
   C *name ;
   Q(-2>n,9);
   NDC1(z);s=stringFromAobj(z);Q(!s,9);
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
+
+#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__sparcv9) || defined(__ia64)
   name = findMapped64FileName(s, w) ;
   if (!name)
 	name = findMapped32FileName(s, w) ;
 #else
   name = findMapped32FileName(s, w) ;
 #endif
-  if(-1==(fd=loopen(name,w?O_RDWR:O_RDONLY,0666))) 
-    return q=9,0;
+
+  ERR(s, fd=loopen(name,w?O_RDWR:O_RDONLY,0666));
   if(-1==read(fd,(C *)&a,AH)) 
     return perror(s),close(fd),q=9,0;
-#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__ia64)
+
   {
-    I ret, totsize,rank,itemCount,items;
+    int ret; I totsize,rank,itemCount,items;
     struct stat statbuf;
-    ret = fstat(fd, &statbuf) ;
-    if (ret)
-    {
-      close(fd);
-      perror("items (fstat):") ;
-      return 0;
-    }
+    if ( -1==fstat(fd, &statbuf) ) /* To get size for getItems() */
+      return perror(s), close(fd), q=9, 0;
     
     ret=getItems(&a, &itemCount, &rank, &items, statbuf.st_size);
     
-    /* domain error if conversion error or */
-    /* conversion and trying to set        */
-    if( ret==-1 || (ret && n!=-1) )
+    if( ret==-1 || rank==0 )	/* error conversion or scalar */
       {
-	 close(fd);
-	 q=9;
-	 return 0;
+	printf("\343 Error: %s [%s]\n", 
+	       (ret==-1) ? "Conversion ":"Scalar ",name);
+	return close(fd), q=(ret==-1)?9:7, 0;
       }
-    else if( ret==1 )		/* Conversion was required     */
+
+    if( n==-1 )			/* Query */
+      return close(fd), itemCount>items?itemCount:items;
+
+    if( ret==1 && !autoBeamConvert ) /* conversion required */
       {
-	close(fd);
-	Q( !rank, 7);		/* Must be not be a scalar */
-	return itemCount>items?itemCount:items;
+	printf("\343 Error: requires conversion [%s]\n",name);
+	return close(fd), q=9, 0;
       }
-  }
-#endif		
-  if(!a.r) R close(fd),q=7,0;
-  m=*a.d;j=a.i;if(m>j)j=m;
-  if(w){
-    t=a.t;
-    if(n==-2) 
-    {
-      if(-1==setSizeOfFile(fd,AH+Tt(t,a.n)+(t==Ct)))
-	R perror(s),close(fd),q=9,0;
+
+    /* try to set the items */
+    if( ret==1 )		/* convert before setting items */
+      {
+	A aobj=(A)mapDotMFile(fd, BEAM_RW, s, name);
+	if(aobj==0) 
+	  return 0;
+	else
+	  dc(aobj);
+#if (_MIPS_SZLONG == 64) || defined(__alpha) || defined(__sparcv9) || defined(__ia64)
+	name = findMapped64FileName(s, w) ;
+	if (!name)
+	  name = findMapped32FileName(s, w) ;
+#endif
+				/* re-open converted file */
+	if(-1==(fd=loopen(name,w?O_RDWR:O_RDONLY,0666))) 
+	  return perror(s),q=9,0;
+	if(-1==read(fd,(C *)&a,AH)) 
+	  return perror(s),close(fd),q=9,0;
+      }
+
+    m=*a.d;			/* Set the items */
+    j=a.i;
+    if(m>j)j=m;
+    
+    if(w){
+      t=a.t;
+      if(n==-2)
+	{
+	  if(-1==setSizeOfFile(fd,AH+Tt(t,a.n)+(t==Ct)))
+	    R perror(s),close(fd),q=9,0;
+	}
+      else
+	{
+	  a.i=n;
+	  m=n*tr(a.r-1,a.d+1);
+	  if(n<*a.d)	/* reset d[0] if greater than n */
+	    *a.d=n,a.n=m;
+	  if(-1==flen(fd,AH+Tt(t,m)+(t==Ct))) 
+	    R perror(s),close(fd),q=9,0;
+	  if(-1==lseek(fd,0,0))  
+	    R perror(s),close(fd),q=9,0;
+	  if(-1==write(fd,(C *)&a,AH))
+	    R perror(s),close(fd),q=9,0;
+	}
     }
-    else
-    {
-      a.i=n,m=n*tr(a.r-1,a.d+1);if(n<*a.d)*a.d=n,a.n=m;
-      if(-1==flen(fd,AH+Tt(t,m)+(t==Ct))) R perror(s),close(fd),q=9,0;
-      if(-1==lseek(fd,0,0))  R perror(s),close(fd),q=9,0;
-      if(-1==write(fd,(C *)&a,AH))R perror(s),close(fd),q=9,0;
-    }
+    R close(fd),j;
   }
-  R close(fd),j;
 }
+
+static long ep_isaDotM(char *fname)
+{
+  long rc=0;                    /* 0 == invalid dot M file */
+  A aobj;
+  off_t mlen;
+  int fd;
+
+  if(-1==(fd=open(fname,O_RDONLY)))
+    {
+      perror(fname);
+      return rc;
+    }
+
+  mlen=lseek(fd,0,2);
+  if(0==(aobj=(A)map(fd,0)))    /* map closes fd */
+    {
+      perror(fname);
+      return rc;
+    }
+
+  if ( isAObject(*aobj) )
+    {
+      int dimsOK=1;
+      /* Check dimensions */
+      checkDims(*aobj);
+
+      /* Check file length */
+#if (HAS_64BIT_TYPE==1)
+      if (dimsOK && checkFileSize64(*aobj) <= mlen)
+        rc=1;
+#else
+      if (dimsOK && checkFileSize32(*aobj) <= mlen)
+        rc=1;
+#endif
+    }
+
+  munmap(aobj,mlen);
+  return rc;
+}
+
+static void ep_msyncAll(A msyncMode_)
+{
+  int msyncFlag=0;
+  long i;
+
+  if(msyncMode_->t!=Et || !QS(*msyncMode_->p) )
+    {
+      q=ERR_DOMAIN;
+      R;
+    }
+
+  for(i=0; i<msyncMode_->n; i++)
+    {
+      if(msyncMode_->p[i]==MS(si("MS_ASYNC")))
+	{
+          if(msyncFlag&MS_SYNC)
+	    {
+	      q=ERR_DOMAIN;
+	      return;
+	    }
+	  else
+	    {
+	      msyncFlag|=MS_ASYNC;
+	    }
+	}
+      else if(msyncMode_->p[i]==MS(si("MS_SYNC")))
+	{
+          if(msyncFlag&MS_ASYNC)
+	    {
+	      q=ERR_DOMAIN;
+	      return;
+	    }
+	  else
+	    {
+	      msyncFlag|=MS_SYNC;
+	    }
+	}
+      else if(msyncMode_->p[i]==MS(si("MS_INVALIDATE")))
+	{
+	  msyncFlag|=MS_INVALIDATE;
+	}
+      else
+	{
+	  q=ERR_DOMAIN;
+	  return;
+	}
+    }
+
+  for(i=0; i<maxMFAindex; i++)
+    {
+      MFInfo *p=MappedFileArray+i;
+      if(p->a  && p->w==1 )
+	{
+	  A a=(A)p->a;
+	  if(-1==msync((C*)a, AH+Tt(a->t,a->n), msyncFlag))
+	    {
+	      printf("\343 Error: %s\n",p->t); 
+	      perror("ep_amsyncAll: msync");
+	    }
+	}
+    }
+} 
+
 
 void beamInstall(void){
   install((PFI)items,        "_items",     9,2,9,0,0,0,0,0,0,0);
   install((PFI)ep_hostEndian,"_hostendian",0,0,0,0,0,0,0,0,0,0);
   install((PFI)ep_aobjEndian,"_endian",    0,1,0,0,0,0,0,0,0,0);
+  install((PFI)ep_isaDotM,   "_isaDotM",   9,1,7,0,0,0,0,0,0,0);
+  install((PFI)ep_msyncAll,  "_msyncAll",  8,1,0,0,0,0,0,0,0,0);
   R;
 }
 

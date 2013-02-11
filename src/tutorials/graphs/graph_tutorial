@@ -717,7 +717,7 @@ Press F4 to start A+ again, then move the cursor back to the tutorial
 buffer, on the next line.
 
 	$load s
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 This data is high, low, open, close information taken at, roughly, 
 5-minute intervals over a 5-day period in Tokyo. The market day is
@@ -1262,7 +1262,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 We can restrict our attention to a single day.
 
@@ -1567,7 +1567,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 	yûx[;0 1]
 	gû`y
@@ -1715,7 +1715,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 	yûx
 	gû`y

@@ -1,13 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_SSTREAM
+#include <sstream>
+#include <iosfwd>
+#else
 #include <strstream.h>
+#endif
 
 #include <MSTypes/MSBinaryVector.H>
 #include <MSTypes/MSIndexVector.H>
@@ -245,7 +254,11 @@ MSError::ErrorStatus MSBinaryMatrix::set(const char *pString_)
      // therefore we have to do the following cast.
      istrstream ist((char *)(void *)pString_,strlen(pString_));
 #else
+#if HAVE_SSTREAM
+     istringstream ist(pString_);
+#else
      istrstream ist(pString_,strlen(pString_));
+#endif
 #endif
      char c='\0';
 

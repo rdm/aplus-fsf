@@ -24,8 +24,9 @@ SUBDIRS = \
 	main \
 	html \
 	contrib \
-	lisp \
+	scripts \
 	lisp.1 \
+	lisp.0 \
 	fonts \
 	tutorials \
 	app-defaults

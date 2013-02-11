@@ -3,14 +3,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 
 #include <MSTypes/MSError.H>
 #include <MSTypes/MSString.H>
@@ -24,12 +28,12 @@
 #include <MSTypes/MSVectorImpl.H>
 #include <MSTypes/MSMergeSort.H>
 
-#if (__GNUC__ < 3)
-class ostream;
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
-#include <fstream>
+// #include <fstream>
 using namespace std;
+#else
+class ostream;
 #endif
 
 class istrstream;

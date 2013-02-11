@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -40,7 +40,7 @@ MSError::ErrorStatus msConvert(const MSBinaryVector& bv_, MSIndexVector& iv_)
 {
   unsigned int n=bv_.length();
 
-  iv_.reshape(bv_.sum());	// the number of elements in iv_ is the number of 1's in bv_
+  iv_.reshape((unsigned int)(bv_.sum()));	// the number of elements in iv_ is the number of 1's in bv_
   //
   // iv_'s reference count should now be 1, so it's safe to write directly into elements
   //

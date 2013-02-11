@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -20,12 +20,12 @@
 #pragma implementation("MSPointer.C")
 #endif
 
-#if (__GNUC__ < 3)
-class ostream;
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
-#include <fstream>
+// #include <fstream>
 using namespace std;
+#else
+class ostream;
 #endif
 
 

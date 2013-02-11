@@ -1,4 +1,4 @@
-aplus-fsf-4.18-8 December 25, 2001
+aplus-fsf-4.20-0 December 30, 2003
 
 A complete compiler/platform grid is found at the end of this file.
 
@@ -8,24 +8,24 @@ Build/Install
 
    sed 's;missing_dir=`cd $ac_aux_dir && pwd`;missing_dir=`pwd`/$ac_aux_dir;' \
      configure > configure.ok; chmod +x configure.ok
-   CFLAGS=-O3 CXXFLAGS=-O3 ./configure.ok --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O3 CXXFLAGS=-O3 ./configure.ok --prefix=/usr/local/aplus-fsf-4.20
    ./fix4mac
    make install
 
   FreeBSD, IRIX, Linux w/gcc:
 
-   CFLAGS=-O3 CXXFLAGS=-O3 ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O2 CXXFLAGS=-O2 ./configure --prefix=/usr/local/aplus-fsf-4.20
    make install
 
   IRIX with MipsPro:
 
-   CFLAGS=-Ofast CXXFLAGS=-Ofast ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-Ofast CXXFLAGS=-Ofast ./configure --prefix=/usr/local/aplus-fsf-4.20
    ./fix4mipspro
    make install
 
   NetBSD:
 
-   CFLAGS=-O3 CXXFLAGS=-O3 ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O2 CXXFLAGS=-O2 ./configure --prefix=/usr/local/aplus-fsf-4.20
    ./fix4netbsd
    make install
 
@@ -34,26 +34,26 @@ Build/Install
     See http://aplusdev.org/Download/optLibs.html.  If you don't have a cc
     command in your path, set CC=gcc.)
 
-   CFLAGS=-O3 CXXFLAGS=-O3 ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O2 CXXFLAGS=-O2 ./configure --prefix=/usr/local/aplus-fsf-4.20
    make install
-   rm /usr/local/aplus-fsf-4.18/lib/lib*.so*
-   g++ src/main/*.o -L /usr/local/aplus-fsf-4.18/lib \
+   rm /usr/local/aplus-fsf-4.20/lib/lib*.so*
+   g++ src/main/*.o -L /usr/local/aplus-fsf-4.20/lib \
      -lAplusGUI -lIPC -lMSGUI -lMSIPC -lMSTypes -la -lcxb -lcxc \
      -lcxs -lcxsys -ldap -lesf -lX11 -lnsl -lsocket -ldl \
-     -o /usr/local/aplus-fsf-4.18/bin/a+
+     -o /usr/local/aplus-fsf-4.20/bin/a+
 
   AIX:
 
-   CFLAGS=-O3 CXXFLAGS="-Wl,-bbigtoc -O3" \
-     ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O2 CXXFLAGS="-Wl,-bbigtoc -O2" \
+     ./configure --prefix=/usr/local/aplus-fsf-4.20
    ./fix4aix
    make install
 
   OSF:
 
-   CFLAGS=-O3 \
-     CXXFLAGS="-rpath /usr/local/aplus-fsf-4.18/lib -O3 -timplicit_local" \
-     ./configure --prefix=/usr/local/aplus-fsf-4.18
+   CFLAGS=-O2 \
+     CXXFLAGS="-rpath /usr/local/aplus-fsf-4.20/lib -O2 -timplicit_local" \
+     ./configure --prefix=/usr/local/aplus-fsf-4.20
    ./fix4cxx
    make install
 
@@ -61,11 +61,11 @@ Test
 
   All Platforms:
 
-   /usr/local/aplus-fsf-4.18/bin/a+ ./src/a/fsftest.+
+   /usr/local/aplus-fsf-4.20/bin/a+ ./src/a/fsftest.+
 
    # export your DISPLAY variable if testing remotely
 	
-   /usr/local/aplus-fsf-4.18/bin/a+ ./src/a/apter.+
+   /usr/local/aplus-fsf-4.20/bin/a+ ./src/a/apter.+
 
 
 Compiler/platform grid:

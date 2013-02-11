@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -43,12 +43,12 @@ extern I ipcWarnFlag;
     level.  ipcWarnFlag must exceed warnLevel for the message to
     be generated.
 */
-void ipcWarn(int warnLevel_, C *fmt_, ...)
+void ipcWarn(int warnLevel_, const C *fmt_, ...)
 {
   va_list ap;
   
   va_start(ap,fmt_);
-  if(ipcWarnFlag>warnLevel_) vWarn(fmt_, ap);
+  if(ipcWarnFlag>warnLevel_) vWarn((char *)fmt_, ap); // Note cast
   va_end(ap);
 }
 

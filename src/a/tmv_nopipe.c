@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -39,7 +39,7 @@ C *tmv(I t,I *d,I *s,I n)
 	if( QS(*s) )
 	  * d ++ = * s ++ ;
 	else
-	  * d ++ = ic ((A) * s ++ ) ;
+	  * d ++ = ic ( (A) * s ++ ) ;
       }
     }
   return ( C * ) d ;

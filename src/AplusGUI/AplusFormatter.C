@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -8,9 +8,23 @@
 
 #include <math.h>
 #include <stdio.h>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_SSTREAM && HAVE_IOSFWD
+#include <sstream>
+# if HAVE_IOSFWD
+#include <iosfwd>
+# else
+# error "Must have iosfwd with sstream"
+# endif
+#else
 #include <strstream.h>
+#endif
 #include <limits.h>
+#include <time.h>
 #include <AplusFormatter.H>
 
 const int EnumHashTableSize=128;
@@ -193,11 +207,16 @@ A AplusFormatter::thorn(A fmt_,A data_)
 const char *AplusFormatter::formatOutput(OutputFormat fmt_,double v_,int p_,MSBoolean showPos_)
 {
   static char microSymbol[] ={' ','1','2','3','+','5','6','7'};
-  static char *day[]   	    ={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-  static char *month[] 	    ={"Jan","Feb","Mar","Apr","May","Jun",
+  static const char *day[]  ={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+  static const char *month[]={"Jan","Feb","Mar","Apr","May","Jun",
 			      "Jul","Aug","Sep","Oct","Nov" ,"Dec"};
+#if HAVE_SSTREAM
+  static string bufstr;
+  static ostringstream os(bufstr,ios::out);
+#else
   static char 	      buf[64];
   static ostrstream   os(buf,64,ios::out);
+#endif
   static char         plus[1];
   static char         minus[1];
   int    	      i,j;
@@ -570,7 +589,11 @@ const char *AplusFormatter::formatOutput(OutputFormat fmt_,double v_,int p_,MSBo
      os<<when->tm_year<<ends;
      break;
    }
+#if HAVE_SSTREAM
+  return bufstr.data();
+#else
   return buf;
+#endif
 }
 
 
@@ -686,7 +709,7 @@ struct tm *AplusFormatter::julianDay(double value_)
   // Convert Gregorian calendar date to the corresponding Julian day
   // number j.  Algorithm 199 from Communications of the ACM, Volume 6, No.
   // 8, (Aug. 1963), p. 444.  Gregorian calendar started on Sep. 14, 1752.
-  unsigned long jday=(unsigned long)(offset+value_/86400-1721119);
+  unsigned long jday= (unsigned long)(offset+value_/86400-1721119);
   int wday=(int)((((jday+3)%7)+6)%7);
   int yr=(int)(((jday<<2)-1)/146097);
   jday=(jday<<2)-1-146097*yr;

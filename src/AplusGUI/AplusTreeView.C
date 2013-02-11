@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -110,7 +110,7 @@ MSError::ErrorStatus AplusTreeItem::set(const char *pString_)
 }
 
 
-const char *AplusTreeItem::format(MSString& str_)
+const char *AplusTreeItem::format(MSString& str_) const
 {
   str_.removeAll();
 

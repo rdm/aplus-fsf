@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley Dean Witter & Co. All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -29,7 +29,7 @@ extern I Tf;
 #define ACKNOWLEDGE_LICENSE_FILE  ".apluslicok"
 #define BANNER "A+"
 #define COPYRIGHT \
-        "Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved."
+        "Copyright (c) 1990-2008 Morgan Stanley.  All rights reserved."
 #define POR_UNSET       (0)
 #define POR_DEVWORK	(1)
 #define POR_DEV		(2)
@@ -67,6 +67,7 @@ static C *_copyright = COPYRIGHT;
 static C *_defaultATREE = (char *)0;
 static C *_version = (char *)0;
 static C *usage = "usage: a+ [-d display] [-s] [-w workarea] [-q] [-h megsforheap] [-m atmpMode] [script [args]]\n";
+static I _enable_coredump;
 static I _backing_store;
 static C *_display;
 static I _load_s;
@@ -76,16 +77,17 @@ static I _quiet = 0;
 static I _atmp_mode = WS_ATMP_SHARED;
 
 #ifdef _INTERPRETER_ONLY
-static I m=1;
+#include <sys/select.h>
 static void getm()
 {
-  I n=m;
-  if(-1==select(32,&n,0,0,0) && Tf) 
+  fd_set read_fd;
+  FD_ZERO(&read_fd);
+  FD_SET(fileno(stdin),&read_fd);
+  if(-1==select(fileno(stdin)+1, &read_fd,0,0,0) && Tf)
     NL, sbi(), pr();
-  else 
-    if(n&1) tf();
+  else
+    if(FD_ISSET(fileno(stdin), &read_fd))  tf();
 }
-
 #endif
 
 void aplus_main(long argc, char** argv)
@@ -109,6 +111,12 @@ void aplus_main(long argc, char** argv)
 	envinit();
 	if(0!=_megsforheap)setk1(_megsforheap);  /* must be before mem init! */
 	ai(_workarea);                           /* initialize */
+        if(_enable_coredump)
+          {
+            setSigv(1);
+            setSigb(1);
+            coreLimSet(aplusInfinity);
+          }
 	versSet(_version);
 	releaseCodeSet(_releaseCode);
 	phaseOfReleaseSet(_phaseOfRelease);
@@ -121,6 +129,8 @@ void aplus_main(long argc, char** argv)
 #if !defined(_INTERPRETER_ONLY)
 	AplusLoop(argc, argv, i);
 #else
+        if (i < argc && argv[i] && *argv[i])
+          loadafile(argv[i],0);
 	if (Tf) pr(); 
 	while(1) getm();
 #endif
@@ -313,7 +323,12 @@ static void printId(void)
 }
 
 #ifdef BSTUB
-static void atmpinit() {}
+extern void setAplusMemStatsMode(int mode_); /* a/bstub.c */
+static void atmpinit() 
+{
+  if ( _atmp_mode==WS_MEM_STATS )
+    setAplusMemStatsMode(1);
+}
 #else
 
 static void atmpinit()
@@ -385,8 +400,8 @@ register I argc;
 register C *argv[];
 {
   I isinvalid = 0;
-  C *optlist = "bd:w:sh:qm:";
-  I bflag = 0, dflag = 0, wflag = 0, sflag = 0, hflag = 0;
+  C *optlist = "bcd:w:sh:qm:";
+  I bflag = 0,  cflag=0, dflag = 0, wflag = 0, sflag = 0, hflag = 0;
   I qflag = 0, mflag = 0;
   I c;
   C *ep;       /* points to end of option argument */
@@ -407,6 +422,14 @@ register C *argv[];
 	bflag = 1;
 	_backing_store = 0;
       }
+      else ignore_dup(c);
+      break;
+    case 'c':
+      if (cflag == 0)
+	{
+	  cflag = 1;
+	  _enable_coredump = 1;
+	}
       else ignore_dup(c);
       break;
     case 'd':
@@ -473,6 +496,8 @@ register C *argv[];
 	    _atmp_mode = WS_ATMP_PRIVATE;
 	  else if( !strcmp(args_value,"ws_atmp_shared") )
 	    _atmp_mode = WS_ATMP_SHARED;
+          else if( !strcmp(args_value,"ws_mem_stats") )
+            _atmp_mode = WS_MEM_STATS;
 	  else 
 	    {
 	      Warn("%t usage: '%s' is an invalid memory mode\n", args_value);
@@ -496,6 +521,11 @@ register C *argv[];
   }
   
   /* set up defaults as necessary */
+  if (cflag == 0)
+    {
+      if( getenv("APLUS_ENABLE_COREDUMP"))
+        _enable_coredump = 1;
+    }
   if (bflag == 0) _backing_store = 1;
   if (dflag == 0) _display = (char *)(0);
   if (sflag == 0) _load_s = 0;

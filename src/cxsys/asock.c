@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
@@ -40,8 +40,7 @@ int i;
  * Opens a socket, binds it to a specified port and enables connections
  * Returns the file descriptor of the listening socket or -1 on error
  */
-I socklisten(port)
-I port;
+I socklisten(I port)
 {
   int	sock;
   struct sockaddr_in sin;
@@ -80,7 +79,7 @@ I port;
     (void)close(sock);
     return -1;
   }
-  return sock;
+  return (I)sock;
 }
 
 /*
@@ -91,9 +90,7 @@ I port;
  * connection was pending and waiflag is 0 then a -2 is returned.
  * A -1 is returned on error.
  */
-I sockaccept(sock, waitflag)
-I sock;
-I waitflag;
+I sockaccept(I sock, I waitflag)
 {
   int newsock;
   fd_set afd;
@@ -121,16 +118,14 @@ I waitflag;
   } else {
     return newsock = -2;
   }
-  return newsock;
+  return (I)newsock;
 }
 
 /*
  * Make socket blocking or non-blocking
  * blockflag = 1
  */
-I sockblock(sock, blockflag)
-I sock;
-I blockflag;
+I sockblock(I sock, I blockflag)
 {
   int bf = blockflag ? 0 : 1;
   return ioctl((int)sock, FIONBIO, &bf);
@@ -140,9 +135,7 @@ I blockflag;
  * Connect to a port on a host where there is expected to be a listening
  * server.  Returns the file descriptor of the socket or -1 on failure.
  */
-I sockconnect(host, port)
-char *host;
-I port;
+I sockconnect(char *host, I port)
 {
   int sock;
   struct sockaddr_in server;
@@ -182,12 +175,10 @@ I port;
   {
     (void)perror("setsockopt");
   }
-  return sock;
+  return (I)sock;
 }
 
-I awrite(fd, a)
-I fd;
-A a;
+I awrite(I fd, A a)
 {
   int cnt;
   I c;
@@ -220,9 +211,7 @@ A a;
   return 0;		/* OK */
 }
 
-I aread(fd, waitflag)
-I fd;
-I waitflag;
+I aread(I fd, I waitflag)
 {
   A z;
   struct a a;
@@ -280,10 +269,7 @@ I waitflag;
   return (I)z;
 }
 
-I areadstat(fd, waitflag, stat)
-I fd;
-I waitflag;
-A stat;
+I areadstat(I fd, I waitflag, A stat)
 {
   A z;
   struct a a;
@@ -350,10 +336,7 @@ A stat;
   return (I)z;
 }
 
-I areadwait(fd, sec, usec)
-     I fd;
-     I sec;
-     I usec;
+I areadwait(I fd, I sec, I usec)
 {
   struct timeval timeout;
   A z;

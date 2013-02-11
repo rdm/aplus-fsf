@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -16,31 +16,6 @@
 #include <AplusGUI/AplusModel.H>
 #include <AplusGUI/AplusCommon.H>
 #include <AplusGUI/AplusButtonBox.H>
-
-class AplusCheckButton : public MSCheckButton
-{
-friend class AplusCheckBox;
-  
-public:
-  AplusCheckButton(MSWidget *);
-  ~AplusCheckButton(void);
-
-protected:
-  virtual void checkBoxArm(void);
-  virtual void checkBoxDisarm(void);
-  inline const AplusCheckBox *checkBox(void) const;
-  inline AplusCheckBox *checkBox(void);
-
-  virtual void up(void);
-  virtual void down(void);
-  virtual void left(void);
-  virtual void right(void);
-
-  virtual void focusIn(void);
-
-  virtual MSBoolean isProtected(void) const;
-};
-
 
 class AplusCheckBox : public AplusButtonBox
 {
@@ -68,6 +43,32 @@ protected:
   virtual MSActionButton *newButton(void);
   virtual void setButtonState(MSActionButton *, unsigned long);
 };
+
+class AplusCheckButton : public MSCheckButton
+{
+friend class AplusCheckBox;
+  
+public:
+  AplusCheckButton(MSWidget *);
+  ~AplusCheckButton(void);
+
+protected:
+  virtual void checkBoxArm(void);
+  virtual void checkBoxDisarm(void);
+  inline const AplusCheckBox *checkBox(void) const;
+  inline AplusCheckBox *checkBox(void);
+
+  virtual void up(void);
+  virtual void down(void);
+  virtual void left(void);
+  virtual void right(void);
+
+  virtual void focusIn(void);
+
+  virtual MSBoolean isProtected(void) const;
+};
+
+
 
 inline AplusCheckBox *AplusCheckButton::checkBox(void)
 { return (parentWidgetType()==AplusCheckBox::symbol()?(AplusCheckBox *)owner():0); }

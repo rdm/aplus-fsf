@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -27,7 +27,11 @@
 
 #include <MSIPC/MSTv.H>
 #include <BufferUtilities.H>
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 
 MSFds pA_Connection::Syncfds;
 
@@ -70,8 +74,8 @@ A pA_Connection::getAobjFromBuffer(MSBuffer *bb)
     s=longAt(hb->get());
     if(0>=s)
     {
-      Warn("\343 IPC warning: zero-length message found.  s=%d [%d]\n",
-	   s,handle());
+      static char fmt[]="\343 IPC warning: zero-length message found.  s=%d [%d]\n";
+      Warn(fmt, s,handle());
       hb->reset();
       turnInReadOff();
       R(A)0;
@@ -106,8 +110,8 @@ A pA_Connection::readBurst(void)
   if(-1==slen)R(A)0;
   if(0==slen)
   {
-    Warn("\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n",
-      handle());
+    static char fmt[]="\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n";
+    Warn(fmt, handle());
   }
 
   /* create buff to hold it.  Fill buffer */
@@ -183,8 +187,8 @@ A pA_Connection::readOne(void)
     s=longAt(hb->get());
     if(0>=s)
     {
-      Warn("\343 IPC warning: zero-length A-protocol message.  s=%d [%d]\n",
-	s,handle());
+      static char fmt[]="\343 IPC warning: zero-length A-protocol message.  s=%d [%d]\n";
+      Warn(fmt,	s,handle());
       hb->reset();
       turnInReadOff();
       R(A)0;
@@ -293,7 +297,7 @@ A pA_Connection::getAttr(C *attr_)
 static C errorMessage[MAXBUF];
 static C errorSymbol[MAXBUF];
 
-static A syncErrorResult(C *sym_, C *str_)
+static A syncErrorResult(const C *sym_, const C *str_)
 {
   return gvi(Et,3,gsym("error"),gsym(sym_),gsv(0,str_));
 }
@@ -384,7 +388,7 @@ I pA_Connection::syncWriteLoop(struct timeval *pgameover)
     {
       if (Syncfds.fdsisset(Syncfds.wa(), fd())) 
       {
-	if ((result=syncDoWrite())) break;
+	if (result=syncDoWrite()) break;
       }
       else 
       {
@@ -411,8 +415,8 @@ I pA_Connection::syncWriteLoop(struct timeval *pgameover)
 I pA_Connection::syncDoRead(A *pdataobj)
 {
   I result;
-//   MSBuffer *hb=headBuffer();
-//   MSBuffer *db=readBuffer();
+  MSBuffer *hb=headBuffer();
+  MSBuffer *db=readBuffer();
   ipcWarn(wrnlvl(),"%t pA_Connection::syncDoRead\n");
   
   *pdataobj=readOne();

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -50,7 +50,7 @@ class MSTypesExport MSVectorElement<MSString>;
 #if !defined(MS_MSStringVector_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSTypeVector<MSString> : public ObjectVectorString
 #else
-class MSTypesExport MSTypeVector<MSString> : public ObjectVectorString
+template <> class MSTypesExport MSTypeVector<MSString> : public ObjectVectorString
 #endif
 {
 public:

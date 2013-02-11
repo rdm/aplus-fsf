@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -15,6 +15,12 @@ AplusCallback::~AplusCallback(void)
 void AplusCallback::process(void)
 {
 //  MSDeleteQueue::allowDelete(MSFalse);
+
+  if(AScbTraceHook::function()) 
+    {
+      AScbTraceHook::run(ac()->function(),(I)ac()->data(),0,0,0,ac()->aplusVar());
+    }
+
   A r=af4(ac()->function(),(I)ac()->data(),0,0,0,ac()->aplusVar());
   if (r==0) showError(qs);
   else dc(r);

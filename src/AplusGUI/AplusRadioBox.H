@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -16,31 +16,6 @@
 #include <AplusGUI/AplusEvent.H>
 #include <AplusGUI/AplusModel.H>
 #include <AplusGUI/AplusButtonBox.H>
-
-class AplusRadioButton : public MSRadioButton
-{
-friend class AplusRadioBox;
-  
-public:
-  AplusRadioButton(MSWidget *);
-  ~AplusRadioButton(void);
-
-protected:
-
-  virtual void radioBoxArm(void);
-  virtual void radioBoxDisarm(void);
-  virtual void radioBoxActivate(void);
-
-  inline const AplusRadioBox *radioBox(void) const;
-  inline AplusRadioBox *radioBox(void);
-
-  virtual void up(void);
-  virtual void down(void);
-  virtual void left(void);
-  virtual void right(void);
-  virtual void focusIn(void);
-  virtual MSBoolean isProtected(void) const;
-};
 
 class AplusRadioBox : public AplusButtonBox
 {
@@ -75,6 +50,31 @@ protected:
   virtual void setButtonState(MSActionButton *, unsigned long);
 
   MSRadioButton *_armedButton;
+};
+
+class AplusRadioButton : public MSRadioButton
+{
+friend class AplusRadioBox;
+  
+public:
+  AplusRadioButton(MSWidget *);
+  ~AplusRadioButton(void);
+
+protected:
+
+  virtual void radioBoxArm(void);
+  virtual void radioBoxDisarm(void);
+  virtual void radioBoxActivate(void);
+
+  inline const AplusRadioBox *radioBox(void) const;
+  inline AplusRadioBox *radioBox(void);
+
+  virtual void up(void);
+  virtual void down(void);
+  virtual void left(void);
+  virtual void right(void);
+  virtual void focusIn(void);
+  virtual MSBoolean isProtected(void) const;
 };
 
 inline MSRadioButton *AplusRadioBox::activeButton(void)

@@ -425,7 +425,7 @@ First, load some auxiliary variables that are in a separate file to avoid
 cluttering the tutorial; they will all have the prefix ld_ so you will know
 where they came from.
 
-     _load{'/usr/local/aplus-fsf-4.18/doc/tutorials/s.tutorials/aux_vars.+'};
+     _load{'/usr/local/aplus-fsf-4.22/doc/tutorials/s.tutorials/aux_vars.+'};
      aû(`a`b`c`d`e`f`g`h`i`j`k`l`m;(;;;;;;;;;;;;))
      lbû('Exit';'Refresh';'Corporate Axes'),ld_nlb
      `a has (`class`shelltitle`title`label;(`action;'nexus';'';lb));

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -55,7 +55,7 @@ class MSTypesExport MSBuiltinSPick<unsigned int>;
 #if !defined(MS_MSUnsignedVector_INSTANTIATE) && defined(MS_STD_TEMPLATE_SPECIALIZATION)
 template <> class MSTypeVector<unsigned int> : public BuiltinVectorUnsigned
 #else
-class MSTypesExport MSTypeVector<unsigned int> : public BuiltinVectorUnsigned
+template <> class MSTypesExport MSTypeVector<unsigned int> : public BuiltinVectorUnsigned
 #endif
 {
 public:

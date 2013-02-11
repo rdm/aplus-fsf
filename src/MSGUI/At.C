@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -8,7 +8,11 @@
 
 
 #include <MSGUI/At.H>
+#if HAVE_SSTREAM
+#include <sstream>
+#else
 #include <strstream.h>
+#endif
 
 At::At(void) 
 { at(0,0,1,1); }
@@ -36,7 +40,11 @@ void At::parseString(const char *pString_, int len)
 #if defined(MS_NO_ISTRSTREAM_CONSTCHAR_CONSTRUCTOR)
   istrstream ist((char *)(void*)pString_,len);
 #else
+#if HAVE_SSTREAM
+  istringstream ist(pString_);
+#else
   istrstream ist(pString_,len);
+#endif
 #endif  // MS_NO_ISTRSTREAM_CONSTCHAR_CONSTRUCTOR
 
   ist>>_row;

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997 -2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997 -2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -133,10 +133,10 @@ public:
     { return node->ivElement; }
 
     Key const& key(Element const& element) const
-    { return ::key(elementForOps(element));}
+    { return key(elementForOps(element));}
 #if !defined(MS_CONST_ELEMENT_FOR_OPS_BUG)
     Key const& key(Element& element)
-    { return ::key(elementForOps(element));}
+    { return key(elementForOps(element));}
 #endif
     Key const& keyAt(Node const* node) const
     { return key(node->ivElement);}

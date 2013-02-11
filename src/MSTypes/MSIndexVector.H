@@ -3,14 +3,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#if HAVE_NEW
+#include <new>
+#else
 #include <new.h>
+#endif
 
 #include <MSTypes/MSError.H>
 #include <MSTypes/MSString.H>
@@ -28,16 +32,20 @@
 #include <MSTypes/MSDefines.H>
 #endif
 
-#if (__GNUC__ < 3)
-class ostream;
-class istrstream;
-class ostrstream;
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
 #include <fstream>
+using namespace std;
+#else
+class ostream;
+#endif
+
+#if HAVE_SSTREAM
 #include <sstream>
 #include <string>
-using namespace std;
+#else
+class istrstream;
+class ostrstream;
 #endif
 
 class MSBinaryVector;
@@ -109,17 +117,17 @@ protected:
     virtual void   setToNumber (void *, unsigned int, double) const;
     virtual double getAsNumber (const void *, unsigned int) const;
 
-#if (__GNUC__ < 3)
-    virtual void readFromStream (void *, unsigned int, istrstream &) const;
-    virtual void writeToStream  (const void *, unsigned int, ostrstream &) const;
-
-    virtual void whitespace (istrstream &) const;
-    virtual unsigned int stringLen (const char *) const;
-#else
+#if HAVE_SSTREAM
     virtual void readFromStream (void *, unsigned int, istringstream &) const;
     virtual void writeToStream  (const void *, unsigned int, ostringstream &) const;
 
     virtual void whitespace (istringstream &) const;
+    virtual unsigned int stringLen (const char *) const;
+#else
+    virtual void readFromStream (void *, unsigned int, istrstream &) const;
+    virtual void writeToStream  (const void *, unsigned int, ostrstream &) const;
+
+    virtual void whitespace (istrstream &) const;
     virtual unsigned int stringLen (const char *) const;
 #endif
   };

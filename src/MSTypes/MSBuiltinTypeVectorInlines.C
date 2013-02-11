@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -28,7 +28,7 @@ INLINELINKAGE Type MSBuiltinVector<Type>::firstElement() const
 template <class Type>
 INLINELINKAGE Type MSBuiltinVector<Type>::lastElement() const
 {
-  return elementAt (_pImpl->length() -1);
+  return elementAt (this->_pImpl->length() -1);
 }
 
 
@@ -50,13 +50,13 @@ template <class Type>
 INLINELINKAGE const Type & MSBuiltinVector<Type>::elementAt (unsigned int index_) const
 {
 #if !defined(MS_NO_INDEX_ERROR)
-  if (index_ >= _pImpl->length())
+  if (index_ >= this->_pImpl->length())
     {
-      _pImpl->vectorIndexError (index_);
-      return *(const Type *)ops().badData();
+      this->_pImpl->vectorIndexError (index_);
+      return *(const Type *)this->ops().badData();
     }
 #endif  //MS_NO_INDEX_ERROR
-  return data()[index_];
+  return this->data()[index_];
 }
 
 
@@ -70,7 +70,7 @@ INLINELINKAGE MSBuiltinSPick<Type> MSBuiltinVector<Type>::operator[] (unsigned i
 template <class Type>
 INLINELINKAGE MSBuiltinVector<Type> MSBuiltinVector<Type>::operator[] (const MSIndexVector & iVect_) const
 {
-  return select (*this, iVect_);
+  return this->select (*this, iVect_);
 }
 
 
@@ -84,35 +84,35 @@ INLINELINKAGE MSBuiltinVector<Type> MSBuiltinVector<Type>::operator[] (const MSB
 template <class Type>
 INLINELINKAGE MSBuiltinVector<Type> & MSBuiltinVector<Type>::series()
 {
-  return series(_pImpl->length());
+  return series(this->_pImpl->length());
 }
 
 
 template <class Type>
 INLINELINKAGE double MSBuiltinVector<Type>::avg() const
 {
-  return sum()/_pImpl->length();
+  return sum()/this->_pImpl->length();
 }
 
 
 template <class Type>
 INLINELINKAGE double MSBuiltinVector<Type>::mean() const
 {
-  return sum()/_pImpl->length();
+  return sum()/this->_pImpl->length();
 }
 
 
 template <class Type>
 INLINELINKAGE double MSBuiltinVector<Type>::median() const
 {
-  return ((MSBuiltinVectorImpl *)_pImpl)->median();
+  return ((MSBuiltinVectorImpl *)this->_pImpl)->median();
 }
 
 
 template <class Type>
 INLINELINKAGE double MSBuiltinVector<Type>::variance(MSEstimateType estType_) const
 {
-  return ((MSBuiltinVectorImpl *)_pImpl)->variance(mean(), estType_);
+  return ((MSBuiltinVectorImpl *)this->_pImpl)->variance(mean(), estType_);
 }
 
 
@@ -155,7 +155,7 @@ INLINELINKAGE MSBuiltinVector<Type>& MSBuiltinVector<Type>::operator--()
 template <class Type>
 INLINELINKAGE MSBuiltinVector<Type> MSBuiltinVector<Type>::operator++(int)
 {
-  MSBuiltinVectorImpl *pResImpl = (MSBuiltinVectorImpl *)_pImpl->clone();
+  MSBuiltinVectorImpl *pResImpl = (MSBuiltinVectorImpl *)this->_pImpl->clone();
   return operator++(), MSBuiltinVector<Type>(pResImpl);	// call the prefix operator & return the old data
 }
 
@@ -163,7 +163,7 @@ INLINELINKAGE MSBuiltinVector<Type> MSBuiltinVector<Type>::operator++(int)
 template <class Type>
 INLINELINKAGE MSBuiltinVector<Type> MSBuiltinVector<Type>::operator--(int)
 {
-  MSBuiltinVectorImpl *pResImpl = (MSBuiltinVectorImpl *)_pImpl->clone();
+  MSBuiltinVectorImpl *pResImpl = (MSBuiltinVectorImpl *)this->_pImpl->clone();
   return operator--(), MSBuiltinVector<Type>(pResImpl);	// call the prefix operator & return the old data
 }
 

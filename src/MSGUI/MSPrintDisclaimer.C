@@ -1,13 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
+#if HAVE_IOMANIP
+#include <iomanip>
+#else
 #include <iomanip.h>
+#endif
 #include <MSTypes/MSString.H>
 #include <MSTypes/MSMessageLog.H>
 #include <MSGUI/MSPostScript.H>

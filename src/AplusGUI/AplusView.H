@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -32,7 +32,7 @@ protected:
   virtual unsigned maxLength(void) const;
   virtual unsigned rowLength(unsigned) const;
 
-  virtual void drawSelectOutline(Window, int, MSBoolean);
+  virtual void drawSelectOutline(Window, int, MSBoolean,MSBoolean=MSFalse);
 
   virtual unsigned long rowForeground(unsigned);
   virtual unsigned long rowBackground(unsigned);

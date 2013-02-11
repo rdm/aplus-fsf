@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -16,9 +16,10 @@
 // is the contents of the message, as a char string.
 // 
 
-#if defined(__edgfe) || defined( __sgi) || defined(_AIX) || defined(SOLARIS_CSET)
+#include <netinet/in.h>
+//#if defined(__edgfe) || defined( __sgi) || defined(_AIX) || defined(SOLARIS_CSET)
 #include <errno.h>
-#endif
+//#endif
 #include <pString_Connection.H>
 
 #include <BufferUtilities.H>
@@ -44,8 +45,8 @@ A pString_Connection::getAobjFromBuffer(MSBuffer *bb)
     s=longAt(hb->get());
     if(0>=s)
     {
-      Warn("\343 IPC warning: zero-length message found.  s=%d [%d]\n",
-	s,handle());
+      static char fmt[]="\343 IPC warning: zero-length message found.  s=%d [%d]\n";
+      Warn(fmt,	s,handle());
       hb->reset();
       turnInReadOff();
       R(A)0;
@@ -78,8 +79,8 @@ A pString_Connection::readBurst(void)
   if(-1==slen)R(A)0;
   if(0==slen)
   {
-    Warn("\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n",
-      handle());
+    static char fmt[]="\343 IPC warning: pA::ReadBurst: read event with no data [%d]\n";
+    Warn(fmt, handle());
   }
 
   /* create buff to hold it.  Fill buffer */
@@ -155,8 +156,8 @@ A pString_Connection::readOne(void)
     slen=longAt(hb->get());
     if(0>=slen)
     {
-      Warn("\343 IPC warning: zero-length string message.  slen=%d [%d]\n",
-	slen,handle());
+      static char fmt[]="\343 IPC warning: zero-length string message.  slen=%d [%d]\n";
+      Warn(fmt,	slen,handle());
       hb->reset();
       turnInReadOff();
       return (A)0;
@@ -183,11 +184,263 @@ int pString_Connection::send(const A &msg_)
   if(isInReset()||readChannel()==0) return -1;
   if(Ct!=msg_->t) return -1;
 
-  MSBuffer *sb=new MSBuffer(msg_->n+sizeof(I));
+  MSBuffer *sb=new MSBuffer(msg_->n+sizeof(int));
   if(NULL==sb) return -1;
-  sb->stuff((char *)(&msg_->n),sizeof(I));
+  int msgLen=htonl((int)msg_->n);
+  sb->stuff((char *)(&msgLen),sizeof(int));
   sb->stuff((const char *)msg_->p, msg_->n);
   sendTheBuffer(sb);
   if (MSFalse==isWritePause()) writeChannel()->enable();
   return doWrite(MSFalse);
+}
+
+
+// M:Syncronous Send and Read
+
+#define LOCALCHANENBL(fds,chan) if(chan)Syncfds.fdsset(fds,chan->fd())
+
+#define MAXBUF 256
+static C errorMessage[MAXBUF];
+static C errorSymbol[MAXBUF];
+static const int HeaderLength=4;
+
+static A syncErrorResult(const C *sym_, const C *str_)
+{
+  return gvi(Et,3,gsym("error"),gsym(sym_),gsv(0,str_));
+}
+
+static I syncFillError(const C *sym, const C *fmt, ...) 
+{
+  va_list ap;
+  
+  strcpy(errorSymbol,sym);
+  va_start(ap, fmt);
+  (void)vsprintf(errorMessage, fmt, ap);
+  va_end(ap);
+  return -1;
+}
+
+/* syncDoWrite
+ * returns -1 on error, 0 if not finished, 1 if finished
+ * Note that, on a return of 0, some messages may have been sent, if 
+ * several were queued up.
+ */
+I pString_Connection::syncDoWrite(void)
+{
+  I c,n=0;
+  MSNodeItem *hp=writeList();
+  MSNodeItem *np;
+  MSBuffer *bp;
+  MSBoolean notdone=MSTrue;
+  
+  ipcWarn(wrnlvl(), "%t pString_Connection::syncDoWrite\n");
+  /* write queue to write channel */ 
+
+  while(notdone&&(hp!=(np=hp->next())))
+  {
+    bp=(MSBuffer *)np->data();
+    c=bp->put()-bp->get();
+    while(c>0 && 0<(n=bp->write(fd(),c))) c-=n;
+    if(bp->get() == bp->put())
+    {
+      delete bp;delete np;turnInWriteOff();
+    }
+    else 
+    {
+      notdone=MSFalse;turnInWriteOn();
+    }
+    if (0 > n)
+      return syncFillError("buffwrite","buffwrite returned error %d",n);
+  }
+  if(hp == hp->next()) return 1;
+  else return 0;
+}
+
+
+I pString_Connection::syncWriteLoop(struct timeval *pgameover)
+{
+  I result;
+  int rc;
+  struct timeval timeleft, *tvp;
+
+  ipcWarn(wrnlvl(), "%t pString_Connection::syncWriteLoop\n");
+
+  /* make arguments for select() */
+  Syncfds.fdszero(Syncfds.w());
+  Syncfds.fdszero(Syncfds.wa());
+  LOCALCHANENBL(Syncfds.w(),writeChannel());
+
+  if (pgameover != (struct timeval *)0) 
+  {
+    tvp=&timeleft;
+    tvdiff(pgameover,tod(),tvp);
+    if (0>tvp->tv_sec) tvp->tv_sec=tvp->tv_usec=0;
+  } 
+  else tvp=NULL;
+
+  for(;;) {
+    Syncfds.fdscopy(Syncfds.w(),Syncfds.wa());
+    if (((rc = select(Syncfds.size(), NULL, Syncfds.wa(), NULL, tvp)) < 0)) 
+    {
+      if (-1==rc && EINTR==errno)
+	result=syncFillError("interrupt","select() received an interrupt");
+      else
+	result=syncFillError("select",
+			     "select() returned error code %d.  errno=%d",
+			     rc, errno);
+      break;
+    }
+
+    if (rc) 
+    {
+      if (Syncfds.fdsisset(Syncfds.wa(), fd())) 
+      {
+	if (result=syncDoWrite()) break;
+      }
+      else 
+      {
+	result=syncFillError("fdsisset","unexpected event broke select()");
+	break;
+      }
+    }
+    
+    /* check for timeout and reset timeleft */
+    if (NULL != tvp) 
+    {
+      tvdiff(pgameover,tod(),tvp);
+      if (0>tvp->tv_sec) tvp->tv_sec=tvp->tv_usec=0;
+      if (0==tvp->tv_sec && 0==tvp->tv_usec) {
+	result=syncFillError("timeout","Syncwrite loop timed out");
+	break;
+      }
+    }
+  } /* end forever loop */
+
+  return result;
+}  
+  
+I pString_Connection::syncDoRead(A *pdataobj)
+{
+  I result;
+  MSBuffer *hb=headBuffer();
+  MSBuffer *db=readBuffer();
+  ipcWarn(wrnlvl(),"%t pString_Connection::syncDoRead\n");
+  
+  *pdataobj=readOne();
+  if(*pdataobj==(A)0) 
+  {
+    if(isInReset()) 
+      result=syncFillError("reset","Reset occurred.  No message read.");
+    else result=0;
+  } 
+  else result=1;
+
+  return result;
+}
+
+A pString_Connection::syncReadLoop(struct timeval *pgameover)
+{
+  A result=(A)0, dataobj;
+  int rc;
+  struct timeval timeleft, *tvp;
+  
+  ipcWarn(wrnlvl(), "%t pString_Connection::syncReadLoop\n");
+  /* make arguments for select() */
+  Syncfds.fdszero(Syncfds.r());
+  Syncfds.fdszero(Syncfds.ra());
+  LOCALCHANENBL(Syncfds.r(),readChannel());
+  
+  if (pgameover != (struct timeval *)0) 
+  {
+    tvp=&timeleft;
+    tvdiff(pgameover,tod(),tvp);
+    if (0>tvp->tv_sec) tvp->tv_sec=tvp->tv_usec=0;
+  } else tvp=NULL;
+  
+  for(;;) 
+  {
+    Syncfds.fdscopy(Syncfds.r(),Syncfds.ra());
+
+    if (((rc = select(Syncfds.size(), Syncfds.ra(), NULL, NULL, tvp)) < 0)) 
+    {
+      if (EINTR==errno)
+	syncFillError("interrupt","select() received an interrupt");
+      else
+	syncFillError("select", 
+		      "select() returned error code %d.  errno=%d",
+		      rc, errno);
+      break;
+    }
+    
+    if (rc) 
+    {
+      if (Syncfds.fdsisset(Syncfds.ra(), fd()))
+      {
+	rc=syncDoRead(&dataobj);
+	if (0<rc) result=dataobj;
+	if (rc) break;
+      }
+      else {
+	syncFillError("fdsisset","unexpected event broke select()");
+	break;
+      }
+    }
+    
+    /* check for timeout and reset timeleft */
+    if (NULL != tvp) 
+    {
+      tvdiff(pgameover,tod(),tvp);
+      if (0>tvp->tv_sec) tvp->tv_sec=tvp->tv_usec=0;
+      if (0==tvp->tv_sec && 0==tvp->tv_usec) 
+      {
+	syncFillError("timeout","Syncread loop timed out");
+	break;
+      }
+    }
+    
+  } /* end for(;;) loop */
+  
+  return result;
+}  
+
+A pString_Connection::syncSendCover(A msg_, A aTimeout)
+{
+  struct timeval gameover, *tvp;
+  I rc;
+
+  ipcWarn(wrnlvl(),"%t pString_Connection::syncSend\n");
+
+  tvp = atotv(aTimeout, &gameover);
+  if(writeChannel()==0) return syncErrorResult("nochan","channel is null");
+  
+  /* put stuff on queue */
+  int dataSize     = msg_->n;
+  int bufferSize   = HeaderLength  +dataSize;
+  int temp         = htonl(dataSize);
+
+  MSBuffer *sb=new MSBuffer( bufferSize);
+  if(NULL==sb) return syncErrorResult("Buffer","new MSBuffer routine failed.");
+  sb->stuff((char *)(&temp), HeaderLength);
+  sb->stuff((const char *)msg_->p, dataSize);
+  sendTheBuffer(sb);
+
+  /* while loop on select() until timeout or write queue empty */
+  rc=syncWriteLoop(tvp);
+  if(0>rc) return syncErrorResult(errorSymbol,errorMessage);
+  else return gvi(Et,3,gsym("OK"),gi(rc),writeQueueStatus());
+}
+
+A pString_Connection::syncReadCover(A aTimeout)
+{
+  struct timeval gameover, *tvp;
+  A dataobj;
+  ipcWarn(wrnlvl(),"%t pString_Connection::SyncRead\n");
+
+  tvp = atotv(aTimeout, &gameover);
+  if(readChannel()==0) return syncErrorResult("nochan","channel is null");
+
+  /* while loop on select() until timeout or complete message received */
+  dataobj=syncReadLoop(tvp);
+  if (dataobj) return gvi(Et,3,gsym("OK"),dataobj,aplus_nl);
+  else return syncErrorResult(errorSymbol, errorMessage);
 }

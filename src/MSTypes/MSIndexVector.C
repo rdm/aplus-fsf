@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -10,15 +10,19 @@
 #include <MSTypes/MSIndexVector.H>
 
 #include <stddef.h>	// defines offsetof macro used in MSIndexVector::Data::operator new()
-#if (__GNUC__ < 3)
-#include <iostream.h>
-#include <MSTypes/MSRandom.H>
-#include <strstream.h>
-#else
+#if HAVE_IOSTREAM
 #include <iostream>
+#else
+#include <iostream.h>
+#endif
+
 #include <MSTypes/MSRandom.H>
+
+#if HAVE_SSTREAM
 #include <sstream>
 #include <string>
+#else
+#include <strstream.h>
 #endif
 
 #ifdef MS_NO_INLINES
@@ -1388,30 +1392,30 @@ double MSIndexVector::Operations::getAsNumber (const void *pElements_, unsigned 
 }
 
 
-#if (__GNUC__ < 3)
-void MSIndexVector::Operations::readFromStream (void *pData_, unsigned int index_, istrstream & ist) const
-#else
+#if HAVE_SSTREAM
 void MSIndexVector::Operations::readFromStream (void *pData_, unsigned int index_, istringstream & ist) const
+#else
+void MSIndexVector::Operations::readFromStream (void *pData_, unsigned int index_, istrstream & ist) const
 #endif
 {
   ist >> ((Data *)pData_)->elements()[index_];
 }
 
 
-#if (__GNUC__ < 3)
-void MSIndexVector::Operations::writeToStream (const void *pData_, unsigned int index_, ostrstream & ost) const
-#else
+#if HAVE_SSTREAM
 void MSIndexVector::Operations::writeToStream (const void *pData_, unsigned int index_, ostringstream & ost) const
+#else
+void MSIndexVector::Operations::writeToStream (const void *pData_, unsigned int index_, ostrstream & ost) const
 #endif
 {
   ost << ((Data *)pData_)->elements()[index_];
 }
 
 
-#if (__GNUC__ < 3)
-void MSIndexVector::Operations::whitespace (istrstream &) const
-#else
+#if HAVE_SSTREAM
 void MSIndexVector::Operations::whitespace (istringstream &) const
+#else
+void MSIndexVector::Operations::whitespace (istrstream &) const
 #endif
 {
 }

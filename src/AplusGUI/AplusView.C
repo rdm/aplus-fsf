@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -78,7 +78,7 @@ const char *AplusView::formatOutput(MSString& str_, unsigned row_)
      int cl=((AplusModel*)model())->charLength();
      int offset=row_*cl;
      
-     str_=MSString((const void *)(p.c+offset),cl);
+     str_=MSString((const char *)(p.c+offset),cl);
    }
   return str_;
 }
@@ -161,7 +161,7 @@ unsigned long AplusView::selectedRowForegroundColor(int row_)
 }
 
 
-void AplusView::drawSelectOutline(Window, int, MSBoolean)
+void AplusView::drawSelectOutline(Window window_,int row_,MSBoolean select_,MSBoolean highlightedRow_)
 {
   // override drawSelectOutline() to do nothing as we don't want the rows to have any outline
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1998-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1998-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -461,7 +461,7 @@ void MSCollapsibleLayout::doHiddenPlacement()
       entry = (MSCollapsibleEntry*)np->data();
       if(entry->state()==MSCollapsibleEntry::CLOSED){
 	entry->moveTo(xDisplacement,yDisplacement_);
-	entry->resize(entry->height()*(1-xDiff),entry->height());
+	entry->resize((int)(entry->height()*(1-xDiff)),entry->height());
 	xDisplacement += (int)(entry->height()*(1-xDiff));
       }
     }

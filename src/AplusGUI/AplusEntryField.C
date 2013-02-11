@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -109,6 +109,7 @@ void AplusEntryField::receiveEvent(MSEvent &event_)
 
 const char *AplusEntryField::formatOutput(MSString& str_)
 {
+  static const char blank[]={" "};
   A outStr=aplus_nl;
   if (model() && ((AplusModel *)model())->aplusVar())
   {
@@ -123,7 +124,7 @@ const char *AplusEntryField::formatOutput(MSString& str_)
   }
   if (isNull(outStr)==MSTrue) return (char *) 0;
 
-  str_ = (const char *)outStr->p;
+  str_ = (Ct==outStr->t) ? (const char *)outStr->p : blank;
   dc(outStr);
   return str_;
 }

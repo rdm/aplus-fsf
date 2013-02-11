@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyrightg (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -167,7 +167,7 @@ void AplusTraceSet::initStringEnumHashTable(void)
   symbolEnumHashTable()->add(MSG::X          	         ,(void*)"xsym");
 }
 
-A AplusTraceSet::enumSymbols(char *str_)
+A AplusTraceSet::enumSymbols(const char *str_)
 { 
   A		r=aplus_nl;
   TraceEnum	k;
@@ -357,7 +357,7 @@ void AplusTraceSet::lineStyleFuncInvoke(void)
 	    graph()->styleConvert(s,style,weight)==MSTrue)
 	 {
 	   styleVector<<(unsigned long) style;
-	   weightVector<<(unsigned int) weight;
+	   weightVector<<(unsigned) weight;
 	 }
 	else graph()->enumError()->showError(((AplusModel*)model())->aplusVar(),(char *)XS(sym->p[0])->n);
 	dc(sym);
@@ -371,7 +371,7 @@ void AplusTraceSet::lineStyleFuncInvoke(void)
 	       graph()->styleConvert(s,style,weight)==MSTrue)
 	    {
 	      styleVector<<(unsigned long) style;
-	      weightVector<<(unsigned int) weight;
+	      weightVector<<(unsigned) weight;
 	    }
 	   else graph()->enumError()->showError(((AplusModel*)model())->aplusVar(),(char *)XS(sym->p[0])->n);
 	   dc(sym);
@@ -669,7 +669,7 @@ void AplusTraceSet::altXaxisFuncInvoke(void)
 	   if (convertXAxis(sym,axis)==MSTrue) axisVector<<axis;
 	 }
       }
-     if (axisVector.length()>0) xAxis(axisVector);
+     if (axisVector.length()>0) xAxis(axisVector, MSInit);
    }
 }
 
@@ -697,7 +697,7 @@ void AplusTraceSet::altYaxisFuncInvoke(void)
 	   if (convertYAxis(sym,axis)==MSTrue) axisVector<<axis;
 	 }
       }
-     if (axisVector.length()>0) yAxis(axisVector);
+     if (axisVector.length()>0) yAxis(axisVector, MSInit);
    }
 }
 
@@ -1212,11 +1212,12 @@ void AplusTraceSet::gradient(const MSUnsignedVector x_)
 
 const char *AplusTraceSet::formatOutput(MSString& str_, unsigned row_, unsigned col_)
 {
+  static const char blank[]={" "};
   V v                       = (model()!=0)?((AplusModel*)model())->aplusVar():0;
   ACharStrFunction *outFunc = AplusModel::getOutFunc(v);
   AVariableData    *vd      = ::pAVarDataFromV(v);
   invokeFunction(outFunc, row_, col_);
-  str_ = (char *)_outStr->p;
+  str_ = (Ct==_outStr->t) ? (char *)_outStr->p : blank;
   dc(_outStr);
   _outStr=aplus_nl;
 

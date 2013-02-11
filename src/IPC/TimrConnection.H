@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -73,8 +73,8 @@ class TimrConnection : public AipcService
 
   // M: from AipcAttributes;
  protected:
-  A timrSetableAttrs(void){R SetableAttrs;}
-  A timrNonsetableAttrs(void){R NonsetableAttrs;}
+  A timrSetableAttrs(void){return SetableAttrs;}
+  A timrNonsetableAttrs(void){return NonsetableAttrs;}
   int timrSetAttrIndex(C *attr_);
   int timrNonsetAttrIndex(C *attr_);
 

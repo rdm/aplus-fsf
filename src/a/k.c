@@ -1,18 +1,18 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+
 #include <sys/param.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <limits.h>
 #include <stdio.h>
 #include <setjmp.h>
-#ifndef LONG_MAX
-#include <values.h>
-#define LONG_MAX MAXLONG
-#endif
 #include <a/ik.h>
 #include <a/f.h>
 #include <a/fncdcls.h>
@@ -36,10 +36,103 @@ Z A e0(E,A);
 extern I dbg_tscb, dbg_tpcb, dbg_tprcb, dbg_trcb;
 
 static I aplusPageMask=4096-1;
+#define PAGE_ALIGN(k) ((void *)(((unsigned long)(k)) & ~aplusPageMask))
+
+static int msyncFlag=MS_ASYNC;	/* Default flag for msync */
+
+#if defined(linux) || defined(__sgi)
+  static int msyncMode=1;		/* Default msyncMode is on*/
+#else
+  static int msyncMode=0;		/* Default msyncMode is off*/
+#endif
+
+void setBeamMSyncMode(A msyncMode_)
+{
+  int i;
+  int saveFlag=msyncFlag;
+
+  if(msyncMode_->t==It)		/* Allow explicit setting */
+    {
+      msyncFlag=*msyncMode_->p;
+      msyncMode=1;
+      R;
+    }
+
+
+  if(msyncMode_->t!=Et || !QS(*msyncMode_->p) )
+    {
+      q=ERR_DOMAIN;
+      R;
+    }
+  
+  msyncFlag=0;
+  for(i=0; i<msyncMode_->n; i++)
+    {
+      if(msyncMode_->p[i]==MS(si("MS_ASYNC")))
+	{
+          if(msyncFlag&MS_SYNC)
+	    {
+	      q=ERR_DOMAIN;
+	    }
+	  else
+	    {
+	      msyncFlag|=MS_ASYNC;
+	      msyncMode=1;
+	    }
+	}
+      else if(msyncMode_->p[i]==MS(si("MS_SYNC")))
+	{
+          if(msyncFlag&MS_ASYNC)
+	    {
+	      q=ERR_DOMAIN;
+	    }
+	  else
+	    {
+	      msyncFlag|=MS_SYNC;
+	      msyncMode=1;
+	    }
+	}
+      else if(msyncMode_->p[i]==MS(si("MS_INVALIDATE")))
+	{
+	  msyncFlag|=MS_INVALIDATE;
+	  msyncMode=1;
+	}
+      else if(msyncMode_->p[i]==MS(si("none")))
+	{
+	  msyncMode=0;
+	}
+      else
+	q=ERR_DOMAIN;
+    }
+
+  if(q) msyncFlag=saveFlag;
+
+}
+
+
+A getBeamMSyncMode(void)
+{
+  if(msyncMode)
+    {
+      if(msyncFlag&MS_ASYNC && msyncFlag&MS_INVALIDATE)
+	return gvi(Et,2,MS(si("MS_ASYNC")),MS(si("MS_INVALIDATE")));
+      else if(msyncFlag&MS_SYNC && msyncFlag&MS_INVALIDATE)
+	return gvi(Et,2,MS(si("MS_SYNC")),MS(si("MS_INVALIDATE")));
+      else if(msyncFlag==MS_ASYNC)
+	return gsym("MS_ASYNC");
+      else if(msyncFlag==MS_SYNC)
+	return gsym("MS_SYNC");
+      else
+	return gi(msyncFlag);
+    }
+  else
+    return gsym("none");
+}
+
 
 void ki(void)
 {
-#if defined(HAVE_SVR4)
+#if  defined(HAVE_SVR4)
   aplusPageMask=sysconf(_SC_PAGESIZE)-1;
 #elif __VISUAL_C_2_0__
    aplusPageMask=CLBYTES;
@@ -169,32 +262,41 @@ I zr(A a){zer(a->t,(I *)a->p,a->n);R(I)a;}
 I tr(I r,I *d){I n,*t;if(!r)R 1;for(t=d+r,n= *d;++d<t;n*= *d);R n;}
 int tr32(int r,int *d){int n,*t;if(!r)R 1;for(t=d+r,n= *d;++d<t;n*= *d);R n;}
 
+/* Replace 0x7FFFFFFF with LONG_MAX-1 */
 /* I tr1(I r,I *d){F s=1;I t;if(r<0)DO(-r,s*=*d) */
 /*  else DO(r,if(s*=t=*d++,t<0)R -1)R s>0x7FFFFFFF?-1:(I)s;} */
-I tr1(I r,I *d) { 
-  F s=1; 
-  I t; 
-  if(r<0) 
-    DO(-r,s*=*d) 
- else 
-    DO(r,if(s*=t=*d++,t<0)R -1) 
-      R s>(LONG_MAX-1)?-1:(I)s; 
-}           
+I tr1(I r,I *d) {
+  F s=1;
+  I t;
+  if(r<0)
+    DO(-r,s*=*d)
+ else
+    DO(r,if(s*=t=*d++,t<0)R -1)
+      R s>(LONG_MAX-1)?-1:(I)s;
+}                                     
 
-#define GA(_t,_r,_n,x) {I _f=_t==Ct;A z=(A)mab(_f+AH+Tt(_t,_n)); \
-			  z->c=1,z->t=_t,z->r=_r,z->n=_n;x; \
-			  if(_f)((C*)z->p)[_n]=0;R z;}
+/* #define GA(_t,_r,_n,x) {I _f=_t==Ct;A z=(A)mab(_f+AH+Tt(_t,_n)); \ */
+/* 			  z->c=1,z->t=_t,z->r=_r,z->n=_n;x; \ */
+/* 			  if(_f)((C*)z->p)[_n]=0;R z;} */
 
-/* GA_OA overallocates by the max of 2*n or 10 meg */ 
+#define GA(_t,_r,_n,x) \
+{\
+  I _f=_t==Ct;A z=(A)mab(_f+AH+Tt(_t,_n)); \
+  z->c=1,z->t=_t,z->r=_r,z->n=_n;x; \
+  if(_f)((C*)z->p)[_n]=0; \
+  R z;}
+
+/* GA_OA overallocates by the max of 2*n or 10 meg */
 #define GA_OA(_t,_r,_n,x) \
 {\
- I aSize,_f=_t==Ct;\
- A z;\
- aSize=AH+Tt(_t,_n);\
- aSize=((2*aSize)<(10*1024*1024)) ? (2*aSize) : (aSize+(10*1024*1024));\
- z=(A)mab(_f+aSize); \
- z->c=1,z->t=_t,z->r=_r,z->n=_n;x; \
- if(_f)((C*)z->p)[_n]=0;R z;}
+  I aSize,_f=_t==Ct;\
+  A z;\
+  aSize=AH+Tt(_t,_n);\
+  aSize=((2*aSize)<(10*1024*1024)) ? (2*aSize) : (aSize+(10*1024*1024));\
+  z=(A)mab(_f+aSize); \
+  z->c=1,z->t=_t,z->r=_r,z->n=_n;x; \
+  if(_f)((C*)z->p)[_n]=0; \
+  R z;}
 
 #define GA3(_t,_r,_n ) {I _f=_t==Ct;A z=(A)mab(_f+AH+Tt(_t,_n)); \
 			  z->c=1,z->t=_t,z->r=_r,z->n=_n; \
@@ -211,13 +313,13 @@ A gf(F f)GA(Ft,0,1,*(F*)z->p=f)
 A ge(I x){A z=gs(Et);*z->p=x;R z;}
 
 #define EV(z) {I t;switch(aplusMask&z){CS(0,ic((A)z))CS(3,z=ee(XE(z)))\
- CS(1,ic((A)(z=(I)gt(XV(z)))))CS(5,for(;!(t=X[U(z)]);)aplus_err(4,(A)z);ic((A)(z=t)))}}
+ CS(1,ic((A)(z=(I)gt(XV(z)))))CS(5,for(;!(t=X[U(z)]);)err(4,(A)z);ic((A)(z=t)))}}
 #if 0
-I ev(I z){if(q)aplus_err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
+I ev(I z){if(q)err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
 #else
  I ev(I z){
    if(q)
-     aplus_err(q,(A)(QE(z)?XE(z)->f:z));
+     err(q,(A)(QE(z)?XE(z)->f:z));
  
    {
     I t;
@@ -233,7 +335,7 @@ I ev(I z){if(q)aplus_err(q,(A)(QE(z)?XE(z)->f:z));EV(z) R z;}
        z=ee(etmp);
        break;
       CS(1,ic((A)(z=(I)gt(XV(z)))))
-      CS(5,for(;!(t=X[U(z)]);)aplus_err(4,(A)z);ic((A)(z=t)))
+      CS(5,for(;!(t=X[U(z)]);)err(4,(A)z);ic((A)(z=t)))
     }
  }
  
@@ -335,21 +437,22 @@ Z I app(A *z,A w){
     if(a && !a->c)
       Q(*d>a->i,ERR_MAXITEMS)
 #ifdef BSTUB
-    else if(AH+Tt(at,n)+(at==Ct)+sizeof(long)>(((I*)a)[-1])) 
-      { 
-	/* printf("ga(%ld,%ld,%ld,%ld)\n",at,ar,n,ad); */ 
-	/* Use ga_oa to overallocate storage */ 
-	*z=ga_oa(at,ar,n,ad), 
-	  tmv(at,(*z)->p,a->p,an), 
-	  dc(a), 
-	  a=*z; 
-	/*      printf("AH+Tt(at,n)+(at==Ct)+sizeof(long)=%d  z[-1]=%d\n", */ 
-	/*            (AH+Tt(at,n)+(at==Ct)+sizeof(long)),((I*)a)[-1]); */ 
-      } 
+    else if(AH+Tt(at,n)+(at==Ct)+sizeof(long)>(((I*)a)[-1]))
+      {
+        /* printf("ga(%ld,%ld,%ld,%ld)\n",at,ar,n,ad); */
+        /* Use ga_oa to overallocate storage */
+	*z=ga_oa(at,ar,n,ad),
+	  tmv(at,(*z)->p,a->p,an),
+	  dc(a),
+	  a=*z;
+/* 	printf("AH+Tt(at,n)+(at==Ct)+sizeof(long)=%d  z[-1]=%d\n", */
+/* 	      (AH+Tt(at,n)+(at==Ct)+sizeof(long)),((I*)a)[-1]); */
+      }
 #else
     else if(AH+Tt(at,n)+(at==Ct)+sizeof(long)>sizeof(long)*MZ[255&((I*)a)[-1]])
       {
-	*z=ga(at,ar,n,ad),
+/*          printf("ga(%ld,%ld,%ld,%ld)\n",at,ar,n,ad); */
+	*z=ga_oa(at,ar,n,ad),
 	  tmv(at,(*z)->p,a->p,an),
 	  dc(a),
 	  a=*z;
@@ -387,7 +490,7 @@ Z I in(A *z,I g,I f,A a,A w,I r)
     p.i=aobj->p;
     j=Tt(t,j);
     DO(n,
-       Q((unsigned)(n=*ap++)>=aobj->n,10);
+       Q((unsigned long)(n=*ap++)>=aobj->n,10);
        switch(t)
        {
 	 CS(It,p.i[n]=*(I*)wp);
@@ -414,7 +517,7 @@ Z I upd(I x,I d,I i,A p,I r,I o){
   extern I Sf;
   Q(QP(i)&&!g,18);
   if(f){if(p||i)gt(v);}else Q((p||i)&&!v->a,4);
-  if(p){z=(I*)pka(p,(A *)v);if(q)R aplus_err(q,(A)MP(36)),0;}else z=(I*)v;
+  if(p){z=(I*)pka(p,(A *)v);if(q)R err(q,(A)MP(36)),0;}else z=(I*)v;
   if(QE(i))Q(!(i=*Y=(I)e0(XE(i),(A)*z)),9);
   if(f)
   {
@@ -428,6 +531,36 @@ Z I upd(I x,I d,I i,A p,I r,I o){
   }  
   if(!z)R 0;
   a=!i?(dc((A)*z),*z=ic((A)d)):in((A *)z,g,f,(A)i,(A)d,r);
+  if( msyncMode && v && v->a && QA(v->a) && 
+      ((A)(v->a))->c==0 && ((A)(v->a))->t<4)
+    {
+      A a=(A)v->a;
+      I an=a->n;
+      I at=a->t;
+      if(g) 
+	{			/* append assigment */
+	  I  bytesAdded=Tt( ((A)d)->t, ((A)d)->n);
+	  C *addr1=( ((C*)a->p) + Tt(at,an)) - bytesAdded;
+	  C *addr2=PAGE_ALIGN(addr1);
+	  bytesAdded += addr1-addr2;
+	  
+	  /* 	  printf("msync: v->a:0x%x actual:=0x%x aligned:=0x%x bytes=%u\n", */
+	  /* 		 v->a, addr1, addr2, bytesAdded); */
+	  
+	  if(-1==msync( addr2, bytesAdded, msyncFlag)) /* data */
+	    perror("upd data: msync");
+	  if(-1==msync( (C*)a, AH, msyncFlag))         /* header */
+	    perror("upd header: msync");
+	} 
+      else 
+	{
+	  /* msync data */
+	  /* if(-1==msync((A)v->a, mf_length((A)v->a), msyncFlag)) */
+	  if(-1==msync((C*)a, AH+Tt(at,an), msyncFlag))
+	    perror("upd: msync");
+	};
+    }
+
   if(!a||!f)R a;
   i=*Y;d=Y[2];
   if(2>=v->z)inv(v,r?0:i,0);
@@ -491,9 +624,14 @@ Z I pea(E e,A w)
   R dc(c),dc(v),z;
 }
 Z I mrg(I e){R *--Y=0,*--Y=0,e=mr0((E)e),dc((A)*Y++),dc((A)(*Y++)),e;}
+/* #if defined(__SVR4) || defined(_SYSTYPE_SVR4) || defined(__VISUAL_C_2_0__) */
+#if 1
 I xis(E e)
 {
   I n=e->n-1,a=*e->a,w=e->a[n];
+/*  EV(w) */
+/*	printf("In xis, n = %ld, a = %ld, w = %ld\n", n, a, w) ; */
+/*	printf("aplusMask&w = %ld\n", aplusMask&w) ; */
 	{
     I t;
     E etmp;
@@ -504,15 +642,19 @@ I xis(E e)
       case 3:
        itmp = (I)(w)&~aplusMask;
        etmp = (E)itmp;
+/*		printf("w = ee(%ld)\n", itmp) ; */
        w=ee(etmp);
+/*	    printf("after ee(), w = %ld\n", w) ; */
        break;
 	  case 5:
 		while (!(t=X[U(w)]))
-			aplus_err(4, (A)w) ;
+			err(4, (A)w) ;
 		ic((A)(w=t)) ;
 		break ;
+/*      CS(5,for(;!(t=X[U(w)]);)err(4,(A)w);ic((A)(w=t))) */
 	  }
 	}
+/*	printf("w = %ld\n", w) ; */
   if(!n) {
 	Glbrtn = (void *)w ;
 	longjmp(J,(int)w);
@@ -522,10 +664,23 @@ I xis(E e)
 	(e=XE(a),e->f==MN(7))?lst(e->n,e->a,(A)w):
 	peak(e->f)?pea(e,(A)w):
 	mrg((I)e));)
-    aplus_err(q,(A)MN(0));
+    err(q,(A)MN(0));
   R *Y++;
 }
-
+#else
+I xis(E e)
+{
+  I n=e->n-1,a=*e->a,w=e->a[n];
+  EV(w)if(!n)_longjmp(J,w);
+  for(*--Y=w;
+      !(!QE(a)?set(a,ic((A)w),1):
+	(e=XE(a),e->f==MN(7))?lst(e->n,e->a,(A)w):
+	peak(e->f)?pea(e,(A)w):
+	mrg((I)e));)
+    err(q,(A)MN(0));
+  R *Y++;
+}
+#endif
 Z A e0(E e,A a)
 {
   I *r=e->a+e->n-1;

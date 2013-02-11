@@ -498,7 +498,7 @@ expressions produce? Evaluate them to confirm your guesses.
 Reduction, Scan, Outer Product, and Inner Product are not operators,  
 strictly speaking: they do not accept all functions as operands.  The 
 ones they do accept are shown in Table 2-2.  Because these character  
-sequences look so much like derived functions, ohowever, we will use  
+sequences look so much like derived functions, however, we will use  
 the term operator to include these four as well as the primitive Each 
 and Rank operators and user defined operators.                        
 

@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -34,7 +34,7 @@ public:
   static MSHashTable *cycleColorModeEnumHashTable(void)   { return _cycleColorModeEnumHashTable;   }
   static MSHashTable *cycleColorModeStringHashTable(void) { return _cycleColorModeStringHashTable; }
 
-  A enumSymbols(char *str_);
+  A enumSymbols(const char *str_);
   
   // Format Conversion
   unsigned long alignFormat(A);

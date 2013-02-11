@@ -1,10 +1,11 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+#include <pthread.h>            /* Needed for locking in si()  */
 #include <string.h>
 #include <a/ik.h>
 #include <a/arthur.h>
@@ -146,11 +147,62 @@ Z S newSymbol(const C *str,S prevsym)
 
 void symhti(void){SymHashTable=hti(STARTHASHSIZE);}
 
+/* The insertion of a new symbol needs to be guarded since si() can be  */
+/* called from other threads */
+
+static pthread_mutex_t newSymbol_lock = PTHREAD_MUTEX_INITIALIZER;
+
+#if defined(linux)
+static int _initMutex(void)
+{
+  int rc;
+  pthread_mutexattr_t mattr;
+  if(0!=(rc=pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_ADAPTIVE_NP)))
+    {
+      perror("initMutex():pthread_mutexattr_settype");
+    }
+  if (rc==0 && pthread_mutex_init(&newSymbol_lock, &mattr))
+    {
+      perror("initMutex():thread_mutex_init");
+    }
+  return 0;
+}
+#endif
+
 S si(const C *n)
 {
   S s,a=(S)(((S *)(SymHashTable->b))+((SymHashTable->nb-1)&HA(n)));
+
   for(;(s=a->s)&&strneq(n,s->n);a=s) ;
-  if(s==0)s=newSymbol(n,a);
+  if(s==0)
+    {
+      int rc;
+
+#if defined(linux)
+      static int initMutex=1;
+      if(initMutex)
+	initMutex=_initMutex();
+#endif
+
+      if(0!=(rc=pthread_mutex_lock(&newSymbol_lock)))
+        {
+          perror("si() pthread_mutex_lock");
+        }
+      {
+        /* Need to re-check for Symbol after getting lock */
+        S a=(S)(((S *)(SymHashTable->b))+((SymHashTable->nb-1)&HA(n)));
+        for(;(s=a->s)&&strneq(n,s->n);a=s) ;
+        if(s==0)
+          {
+            s=newSymbol(n,a);
+          }
+      }
+
+      if(rc==0 && pthread_mutex_unlock(&newSymbol_lock))
+        {
+          perror("si() pthread_mutex_unlock");
+        }
+    }
   R s;
 }
 
@@ -487,7 +539,7 @@ Z I go(void)
     }
     if(rf) 
     {
-      if(s[6]) Reset=MAX(0,MIN(u,atoi(&s[6])));
+      if(s[6]) Reset=MAX(0,MIN(u,atol(&s[6])));
       else Reset=u;
       R 0;
     }  
@@ -645,7 +697,7 @@ I exm(C* expstr,I mode)
  R QE(e)&&XE(e)->f==MN(0)?(ef(e),dc((A)z),(I)aplus_nl):(ef(e),z);
 }
 
-extern I Gf,Xf,doErrorStack;;
+extern I Gf,Xf,doErrorStack;
 I pev(I a)
 {
  I g=G;A z;

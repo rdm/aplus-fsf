@@ -5,7 +5,7 @@
 ;;
 (setq load-path 
       (append 
-       '("/usr/local/aplus-fsf-4.18/lisp") load-path 
+       '("/usr/local/aplus-fsf-4.20/lisp.0") load-path 
        )	
       )
 ;;

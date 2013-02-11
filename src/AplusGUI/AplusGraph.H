@@ -3,13 +3,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 #include <MSGUI/MSGraph.H>
 #include <AplusGUI/Macros.H>
 #include <AplusGUI/AplusCommon.H>
@@ -36,7 +40,7 @@ public:
   const char *symmsg (void) 		{ return _symmsg.string(); }
   const char *lamp   (void)   		{ return _lamp.string(); }
   
-  void showError(V v_,char* str_)
+  void showError(V v_,const char* str_)
    {
      cerr<<lamp()<<" ! ";
      if (v_!=0) cerr<<(char*)v_->cx->s->n<<"."<<(char*)v_->s->n;
@@ -220,7 +224,7 @@ public:
   MSHashTable *legendEnumHashTable(void)   { return &_legendEnumHashTable ; }
   EnumError   *enumError(void)             { return &_enumError; }
 
-  ::A enumSymbols(char *);
+  ::A enumSymbols(const char *);
 
   void x_subLabelFormatFunc(AFunc,AClientData *,int axis_=0);
   void x_labelFormatFunc(AFunc,AClientData *,int axis_=0);
@@ -252,9 +256,9 @@ public:
   int  x_subLabelFormat(int axis_=0)        { return _x_subLabelFormat[axis_]; }
   void x_subLabelFormat(int fmt_,int axis_) { _x_subLabelFormat[axis_]=fmt_;   }
 
-  void y_labelFormat(::A, int, int precision_ = 1);
-  void x_labelFormat(::A, int, int precision_ = 1);
-  void x_subLabelFormat(::A, int, int precision_ = 1);
+  void y_labelFormat(::A, int, int precision_ = -1);
+  void x_labelFormat(::A, int, int precision_ = -1);
+  void x_subLabelFormat(::A, int, int precision_ = -1);
 
   ::A generateSym(char *, int);
   ::A generateSym(MSHashTable *, int);

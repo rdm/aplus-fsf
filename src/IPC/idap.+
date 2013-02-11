@@ -1,4 +1,4 @@
-ãã Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+ãã Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
 ãã See .../src/LICENSE for terms of distribution.
 
 $cx adap
@@ -21,10 +21,16 @@ TweakAArgument{a}:{
 ConnectionCallbackPassthru{h;a;d}:{
   aûTweakAArgument{a};
   if (`connected½a) {
-    if ((~hÅadap.CBHandles)^(~0½lstnûi.getattr{h;`listener})) {
-      adap.CBHandlesûadap.CBHandles,h;
-      adap.CBFunctionsûadap.CBFunctions,adap.CBFunctions[adap.CBHandlesÉlstn];
-    }
+    if (~hÅadap.CBHandles) {
+      lstnûi.getattr{h;`listener};
+      if ((~0½lstn)^(~()½lstn)) {
+        adap.CBHandlesûadap.CBHandles,h;
+        adap.CBFunctionsûadap.CBFunctions,adap.CBFunctions[adap.CBHandlesÉlstn];
+      } else {
+        Õ"ã Warning `connect event received for an unknown possibly closed handle:",îh;
+        û();
+      };
+    };
   };
   if (hÅadap.CBHandles) (adap.CBFunctions[adap.CBHandlesÉh])¡{h;a;d}
   else adap.ConnectCBFunction{h;a;d};
@@ -62,6 +68,37 @@ Connect{service_descriptor;callbackfn}:{
   h
 }
 
+SyncConnect{service_descriptor;callbackfn}:{
+  if (`null=_nc{`i;`openSync}) Ù"This build of a+/adap does not support adap.SyncConnect";
+
+  serviceargû_alsf service_descriptor;
+  hostûgetopt{servicearg;`host;`localhost};
+  portûgetopt{servicearg;`port;};
+  timeout û getopt{servicearg;`timeout;5};
+  protocolûgetopt{servicearg;`protocol;`A};
+  nameûgetopt{servicearg;`name;`None};
+  (name;host;port;protocol)ûfilterConnectArgs{name;host;port;protocol};
+
+  adap.ConnectCBFunctionûcallbackfn;
+  if(()½port) {
+    if(^/`name`protocolÅ0Øservicearg) {
+      hûi.connectNP{adap.ConnectionCallbackPassthru;name;protocol};
+    } else if (`nameÅ0Øservicearg) {
+      hûi.connectN{adap.ConnectionCallbackPassthru;name}
+    } else hû¢1;
+  } else {
+    hûi.connectNHPP{adap.ConnectionCallbackPassthru;name;host;port;protocol}
+  };
+  if(¢1¨h) {
+    adap.CBHandlesûadap.CBHandles,h;
+    adap.CBFunctionsûadap.CBFunctions,<{callbackfn};
+    conn û i.openSync{h;timeout};
+    if (conn¨0) { Õ"ã Error: adap.SyncConnect failed after",(,îtimeout)," secs";û0};
+  };
+  h
+}
+
+
 Listen{service_descriptor;callbackfn}:{
   serviceargû_alsf service_descriptor;
   retryargûgetopt{servicearg;`retry;1};
@@ -97,22 +134,22 @@ Export a:if(()½aûsys.exp{a}){''} else {a}
 
 Import a:if(()½aûsys.imp{a}){''} else {a}
 
-SyncXch{h;outgoing;to}:{
-  timeoutûi.timeout to;
+adap.SyncXch{h;outgoing;to}:{
+  timeoutû to;
   if ((()½timeout)^~()½to) Ù`domain;
 
-  if(()½unansweredûi.getattr{h;`clientData}) unansweredû0;
-
+  readPauseûi.getattr{h;`readPause};
+  if(readPause=0) i.setattr{h;`readPause;1};
   resûi.syncsend{h;outgoing;timeout};
-  if(`error½0Øres) ûres,<`send;
-
-  i.setattr{h;`clientData;unansweredûunanswered+1};
-
-  while (0<unanswered) {
-    resûi.syncread{h;timeout};
-    if(`error½0Øres) ûres,<`read;
-    i.setattr{h;`clientData;unansweredûunanswered-1};
+  if(`error½0Øres) {
+      if(readPause=0) i.setattr{h;`readPause;readPause};
+     ûres,<`send;
   };
+
+  resûi.syncread{h;timeout};
+  if(readPause=0) i.setattr{h;`readPause;readPause};
+  if(`error½0Øres) ûres,<`read;
+
   0 1#res
 }
 
@@ -131,7 +168,7 @@ Reset{h}: i.close{h}
 Send{h;msg}: i.send{h;msg}
 
 TimerCallbackPassthru{h;a;d}:{
-  dûi.getattr{h;`expiry};
+  if(~()½ddûi.getattr{h;`expiry}) dûdd;
   if(hÅadap.CBHandles) {
     idxûadap.CBHandlesÉh;
     (adap.CBFunctions[idx])¡{h;a;d};
@@ -224,3 +261,8 @@ GetTickProto{}: i.getTickProto{}
 SetTickProto{val}: i.setTickProto{val}
 
 SetTickDebug{val}: i.setTickDebug{val}
+
+enqueue{h;msg}: if(`null=_nc{`i;`enqueue}) ¢1 else i.enqueue{h;msg}
+
+bufferCount{h}: if(`null=_nc{`i;`bufferCount}) ¢1 else i.bufferCount{h}
+

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -51,7 +51,8 @@ void AipcService::addToRoster(void)
 void AipcService::removeFromRoster(void)
 {
   _node->remove();
-  delete (MSNodeItem *)_node->data();
+  // delete (MSNodeItem *)_node->data();
+  // delete _node->data();
   delete _node;
   _node=0;
 }
@@ -98,13 +99,13 @@ A AipcService::roster(void)
   A z=gv(It,n);
   for(np=hp,n=0;hp!=(np=np->next());) 
     z->p[n++]=((AipcNodeItem *)(np->data()))->_handle;
-  R z;
+  return z;
 }
 
 
 // M:Other methods
 
-void AipcService::ACallback(C *event_,A data_)
+void AipcService::ACallback(const C *event_,A data_)
 {
   ipcWarn(wrnlvl(),"%t AipcService::ACallback %s\n",event_);
   E e=(E)ma(5);
@@ -121,7 +122,7 @@ void AipcService::ACallback(C *event_,A data_)
   mf((I *)e);
 }
 
-void AipcService::serviceErrorNotify(C *msg_)
+void AipcService::serviceErrorNotify(const C *msg_)
 {
   A d=gsym(msg_);
   ACallback("error",d);

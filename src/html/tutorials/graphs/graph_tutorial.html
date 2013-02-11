@@ -596,7 +596,7 @@ The units of the axis thickness are pixels.
 
 A rule width of 0 has special meaning. Although it looks no different
 from 1 on the screen, it has the effect of drawing the rules more
-efficiently, and more importantly, perhaps, there is a noticable
+efficiently, and more importantly, perhaps, there is a noticeable
 difference when a graph is printed.
 
 	`g has (`rulewidth;0)  	
@@ -727,7 +727,7 @@ Press F4 to start A+ again, then move the cursor back to the tutorial
 buffer, on the next line.
 
 	$load s
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 This data is high, low, open, close information taken at, roughly, 
 5-minute intervals over a 5-day period in Tokyo. The market day is
@@ -1114,7 +1114,7 @@ widths, we can easily create a nice effect for these labels:
 The last two graph components have to do with arranging traces with
 different scales on the same graph. Neither of these components appear
 in the default form of a graph. The components are the alternate x-axis
-and the alternate y-axis. We begin by demonstating how these components
+and the alternate y-axis. We begin by demonstrating how these components
 can be made to appear and disappear.
 
 The default axis configuration consisting of an x-axis on the bottom and
@@ -1122,7 +1122,7 @@ a y-axis on the left can be specified as follows:
 
 	`g has (`axis;`std)
 
-It is also possible to have a alternate x-xaxis at the top of the graph
+It is also possible to have a alternate x-axis at the top of the graph
 and an alternate y-axis to the right. In fact, any or all of these four
 can be used, or none. For example:
 	
@@ -1131,7 +1131,7 @@ can be used, or none. For example:
 				     ã   missing. 
 
 Instead of `xYy, as in the last example, any of `xyY, `Yxy, `xy, `YX,
-etc. can can be used, and the axis designators (x, y, X, Y) can appear
+etc. can be used, and the axis designators (x, y, X, Y) can appear
 in any order.
 	
 	`g has (`axis;`)             ã No axes.
@@ -1272,7 +1272,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 We can restrict our attention to a single day.
 
@@ -1577,7 +1577,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 	yûx[;0 1]
 	gû`y
@@ -1725,7 +1725,7 @@ buffer, on the next line.
 
 	$load s
 
-	xû0à "/usr/local/aplus-fsf-4.18/doc/tutorials/graphs/graph_data.m";
+	xû0à "/usr/local/aplus-fsf-4.22/doc/tutorials/graphs/graph_data.m";
 
 	yûx
 	gû`y
@@ -1876,7 +1876,7 @@ style. For example, set:
 	`y has (`style;`ohlc)
 
 and zoom the graph until you see distinct vertical segments. Put the
-mouse pointer on one of the segments and and press the left mouse button
+mouse pointer on one of the segments and press the left mouse button
 to get a referpoint event.
 
 To get back to where we were, move the mouse pointer off the traces and
@@ -2085,7 +2085,7 @@ falls in that region, the data point is selected. Experiment with
 selecting data points with this large value of the selectdistance
 attribute.
 
-Secondly, the contraint that only the y-coordinate is modified, which is
+Secondly, the constraint that only the y-coordinate is modified, which is
 useful for avoiding small, unwanted changes is the x-coordinates, is an
 attribute value:
 
@@ -2114,7 +2114,7 @@ fashion by putting the pointer on the line away from the knobs, pressing
 and holding the left mouse button, and moving the line.
 
 You can make more line segments by putting the mouse pointer on the knob
-at either end, pressing and holding the the Shift key and then the left
+at either end, pressing and holding the Shift key and then the left
 mouse button, and then moving the pointer.  Release the mouse button to
 get a new line segment. (Once the line segment connected to the pointer
 appears, the Shift key can be released.)

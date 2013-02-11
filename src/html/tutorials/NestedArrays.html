@@ -63,7 +63,7 @@ symbols.  The emphasis was on the items of an array, and how the
 concept of items, and more generally those of frames and cells,       
 provide a unifying view of simple arrays for understanding the        
 behavior of many primitive functions.  In this chapter - which builds 
-on the Simple Arrays tutorial - we turn to nested, heterogenous       
+on the Simple Arrays tutorial - we turn to nested, heterogeneous       
 arrays, i.e.  arrays whose elements are other arrays or even function 
 expressions.The primitive functions discussed in the Simple Arrays    
 tutorial that select or rearrange their arguments apply to nested     
@@ -149,7 +149,7 @@ but you should feel free to use it to clarify results.
 					ã element of the vector.        
 
 	É¡3 5 10 6		ã A 4-element vector whose elements hold, in 
-				ã order, the vecctor É3, the vector É5,  
+				ã order, the vector É3, the vector É5,  
 				ã the vector É10, and the vector É6. 
 
 	10?¡15 20 25		ã A 3-element vector whose elements hold 10?15, 
@@ -414,7 +414,7 @@ The primitive functions illustrated in this section are:
 	Disclose: Monadic >                                                  
 	Pick: Monadic Ø                                                      
 
-The basic buiding block for nested arrays is the Enclose primitive,   
+The basic building block for nested arrays is the Enclose primitive,   
 denoted by monadic <.  The Enclose primitive applies to any array and 
 produces a scalar holding that array; the depth of the scalar result  
 is 1 plus the depth of the argument, and the type of the result is    
@@ -523,7 +523,7 @@ _issf.
 From the viewpoint of the Pick primitive, slot-filler arrays are      
 key-value pairs.  That is, if s denotes a slot-filler array, a symbol 
 in 0Øs can be used as the left argument to Pick, with s the right     
-argument, and the result is the contents of the corrseponding element 
+argument, and the result is the contents of the corresponding element 
 of 1Øs.  For example:                                                 
 
 	`aØ(`a`b`c;(10;20;30))                                               
@@ -537,7 +537,7 @@ correct? If not, correct it.
 
 A nested slot-filler array is one whose values in the key-value pairs 
 may be also slot-filler arrays themselves, or even nested slot-filler 
-arrays.  For example, the following is a nested slort-filler array:   
+arrays.  For example, the following is a nested slot-filler array:   
 
 	sû(`a`b`c;(10;(`x`y;(100;200));(`e`f;((`g`h;(1000;2000));'A+'))))    
 

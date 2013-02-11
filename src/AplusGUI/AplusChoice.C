@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -399,8 +399,9 @@ unsigned long AplusChoice::itemForeground(unsigned row_)
 
 const char *AplusChoice::formatOutput(MSString& str_)
 {
+  static const char blank[]={" "};
   A outStr = itemValue(selectedItem());
-  str_ = (char *)outStr->p;
+  str_ = (Ct==outStr->t) ? (char *)outStr->p : blank;
   return str_;
 }
 

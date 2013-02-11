@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -34,7 +34,7 @@
 
 #define SRVPTR(X,MSG)  AipcService *srvptr=lookupAnyHandle(X); \
                         ipcWarn(srvptr?srvptr->wrnlvl():0,MSG); \
-                        if(!srvptr) R -1;
+                        if(!srvptr) return -1;
 
 #define H_SRVPTR(MSG)   SRVPTR(handle_,MSG);
 
@@ -46,13 +46,13 @@ static C *getString(A aobj)
   if (Ct==aobj->t)z=(C *)aobj->p;
   else if (Et==aobj->t&&1==aobj->n&&QS(*aobj->p))z=XS(*aobj->p)->n;
   else z=(C *)0;
-  R z;
+  return z;
 }
 
 static S getSymbol(A aobj)
 {
-  if (Et==aobj->t&&1==aobj->n&&QS(*aobj->p))R XS(*aobj->p);
-  R (S)0;
+  if (Et==aobj->t&&1==aobj->n&&QS(*aobj->p))return XS(*aobj->p);
+  return (S)0;
 }
 
 static void WarnFunc(C *s)
@@ -95,25 +95,25 @@ static int lookupProtocol(S sym)
   int i;
   for(i=0;ProtocolList[i][0];++i)
     if((sym==ProtocolList[i][0])||sym==ProtocolList[i][1])
-      R i;
-  R -1;
+      return i;
+  return -1;
 }
 
 // static AipcConnection *lookupConnHandle(int handle_)
 // {
 //   InitializeIfNeeded();
-//   R (AipcConnection *)
+//   return (AipcConnection *)
 //     AipcService::lookup(handle_,AipcConnection::ServiceType);
 // }
 
 static AipcService *lookupAnyHandle(int handle_)
 {
   InitializeIfNeeded();
-  R (AipcService *)AipcService::lookup(handle_);
+  return (AipcService *)AipcService::lookup(handle_);
 }
 
 ENTRYPOINT
-A ipcRoster(void){R AipcService::roster();}  
+A ipcRoster(void){return AipcService::roster();}  
 
 ENTRYPOINT
 I ipcListenNPP(A afunc, A aname, I port, A aprotocol)
@@ -126,7 +126,7 @@ I ipcListenNPP(A afunc, A aname, I port, A aprotocol)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcListenNPP:\n");
 
-  if(!serviceName||!protocolSym||!QF(afunc))R -1;
+  if(!serviceName||!protocolSym||!QF(afunc))return -1;
 
   ipcWarn(0,"%t ipcListenNPP: name:%s port:%d protocol:%s\n",serviceName,
 	  port,protocolSym->n);
@@ -140,9 +140,9 @@ I ipcListenNPP(A afunc, A aname, I port, A aprotocol)
   case 7: nLstn=new pSimple_Listener(serviceName,port,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcListenNPP: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nLstn->handle();
+  return nLstn->handle();
 }
 
 ENTRYPOINT
@@ -155,7 +155,7 @@ I ipcListenN(A afunc, A aname)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcListenN:\n");
 
-  if(!serviceName||!QF(afunc))R -1;
+  if(!serviceName||!QF(afunc))return -1;
 
   AipcHostPortProtocol *ahpp=new AipcHostPortProtocol(serviceName);
 
@@ -175,9 +175,9 @@ I ipcListenN(A afunc, A aname)
   case 7: nLstn=new pSimple_Listener(*ahpp,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcListenN: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nLstn->handle();
+  return nLstn->handle();
 }
 
 ENTRYPOINT
@@ -191,7 +191,7 @@ I ipcListenNP(A afunc, A aname, A aprotocol)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcListenN:\n");
 
-  if(!serviceName||!QF(afunc))R -1;
+  if(!serviceName||!QF(afunc))return -1;
 
   AipcHostPortProtocol *ahpp=new AipcHostPortProtocol(serviceName);
 
@@ -210,9 +210,9 @@ I ipcListenNP(A afunc, A aname, A aprotocol)
   case 7: nLstn=new pSimple_Listener(*ahpp,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcListenN: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nLstn->handle();
+  return nLstn->handle();
 }
 
 ENTRYPOINT
@@ -227,7 +227,7 @@ I ipcConnectNHPP(A afunc, A aname, A ahost, I port, A aprotocol)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcConnectNHPP:\n");
 
-  if (!serviceName||!hostName||!protocolSym||!QF(afunc))R -1;
+  if (!serviceName||!hostName||!protocolSym||!QF(afunc))return -1;
 
   ipcWarn(0,"%t ipcConnectNHPP: name:%s host:%s port:%d protocol:%s\n",
 	serviceName,hostName,port,protocolSym->n);
@@ -238,20 +238,20 @@ I ipcConnectNHPP(A afunc, A aname, A ahost, I port, A aprotocol)
   case 1: nSrv=new pRaw_Connection(serviceName,hostName,port,afunc); break;
   case 2: 
     Warn("%t ipcConnectHPP: unsupported protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
     break;
   case 4: nSrv=new pIpc_Connection(serviceName,hostName,port,afunc); break;
   case 5: 
     Warn("%t ipcConnectHPP: unsupported protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
     break;
   case 6: nSrv=new pString_Connection(serviceName,hostName,port,afunc); break;
   case 7: nSrv=new pSimple_Connection(serviceName,hostName,port,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcConnectHPP: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nSrv->handle();
+  return nSrv->handle();
 }
 
 ENTRYPOINT
@@ -264,7 +264,7 @@ I ipcConnectN(A afunc, A aname)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcConnectN:\n");
 
-  if (!serviceName||!QF(afunc))R -1;
+  if (!serviceName||!QF(afunc))return -1;
 
   AipcHostPortProtocol *ahpp=new AipcHostPortProtocol(serviceName);
 
@@ -282,15 +282,15 @@ I ipcConnectN(A afunc, A aname)
   case 4: nSrv=new pIpc_Connection(*ahpp,afunc); break;
   case 5: {
     Warn("%t ipcConnectHPP: unsupported protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
   case 6: nSrv=new pString_Connection(*ahpp,afunc); break;
   case 7: nSrv=new pSimple_Connection(*ahpp,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcConnectN: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nSrv->handle();
+  return nSrv->handle();
 }
 
 ENTRYPOINT
@@ -304,7 +304,7 @@ I ipcConnectNP(A afunc, A aname, A aprotocol)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcConnectN:\n");
 
-  if (!serviceName||!protocolSym||!QF(afunc))R -1;
+  if (!serviceName||!protocolSym||!QF(afunc))return -1;
 
   AipcHostPortProtocol *ahpp=new AipcHostPortProtocol(serviceName);
   ahpp->protocol(protocolSym->n);
@@ -324,9 +324,9 @@ I ipcConnectNP(A afunc, A aname, A aprotocol)
   case 7: nSrv=new pSimple_Connection(*ahpp,afunc); break;
   default: /* unknown protocol */
     Warn("%t ipcConnectN: unknown protocol:%s\n",protocolSym->n);
-    R -1;
+    return -1;
   }
-  R nSrv->handle();
+  return nSrv->handle();
 }
 
 ENTRYPOINT
@@ -335,7 +335,7 @@ int ipcTimer(A afunc, A timeout)
   InitializeIfNeeded();
   ipcWarn(0,"%t ipcTimer\n");
   TimrConnection *nTmr=new TimrConnection(timeout, afunc);
-  R nTmr->handle();
+  return nTmr->handle();
 }
 
 
@@ -353,9 +353,21 @@ int ipcOpen(int handle_)
   case 4: /* timer */
     ((TimrConnection *)srvptr)->open();
     break;
-  default: R -1;
+  default: return -1;
   }
-  R 0;
+  return 0;
+}
+
+ENTRYPOINT
+int ipcOpenSync(int handle_, int timeout_)
+{
+  H_SRVPTR("%t ipcOpenSync\n");  
+  switch(srvptr->serviceType()) {
+  case 1: /* connection */
+    return ((AipcConnection *)srvptr)->openSync(timeout_);
+  default: return -1;
+  }
+  return 0;
 }
 
 ENTRYPOINT
@@ -372,9 +384,9 @@ int ipcDestroy(int handle_)
   case 4: /* timer */
     delete (TimrConnection *)srvptr;
     break;
-  default: R -1;
+  default: return -1;
   }
-  R 0;
+  return 0;
 }
 
 ENTRYPOINT
@@ -383,8 +395,8 @@ I ipcSend(int handle_,A msg_)
   H_SRVPTR("%t ipcSend\n");
   switch(srvptr->serviceType()) {
   case 1: /* connection */
-    R ((AipcConnection *)srvptr)->send(msg_);
-  default: R -1;
+    return ((AipcConnection *)srvptr)->send(msg_);
+  default: return -1;
   }
 }
 
@@ -396,7 +408,7 @@ A ipcSyncSend(int handle_,A msg_,A timeout_)
   if(!srvptr) R(A)0;
   switch(srvptr->serviceType()) {
   case 1: /* connection */
-    R ((AipcConnection *)srvptr)->syncSendCover(msg_,timeout_);
+    return ((AipcConnection *)srvptr)->syncSendCover(msg_,timeout_);
   default: R(A)0;
   }
 }
@@ -409,15 +421,15 @@ A ipcSyncRead(int handle_,A timeout_)
   if(!srvptr)R(A)0;
   switch(srvptr->serviceType()) {
   case 1: /* connection */
-    R ((AipcConnection *)srvptr)->syncReadCover(timeout_);
-  default: R aplus_nl;
+    return ((AipcConnection *)srvptr)->syncReadCover(timeout_);
+  default: return aplus_nl;
   }
 }
 
 ENTRYPOINT
 A ipcGetTimeout(A aobj_)
 {
-  R getAbsoluteTimeout(aobj_);
+  return getAbsoluteTimeout(aobj_);
 }
 
 ENTRYPOINT
@@ -429,7 +441,7 @@ I ipcSetDebug(I handle_,I val_)
   else 
   {    
     AipcService *srvptr=lookupAnyHandle(handle_);
-    if(!srvptr)R -1;
+    if(!srvptr)return -1;
     if(val_)srvptr->turnDebugOn();else srvptr->turnDebugOff();
     if (-1==ipcWarnFlag) ipcWarnFlag=0;
   }
@@ -467,9 +479,9 @@ int ipcClose(int handle_)
   case 4: /* timer */
     ((TimrConnection *)srvptr)->close();
     break;
-  default: R -1;
+  default: return -1;
   }
-  R 0;
+  return 0;
 }
 
 ENTRYPOINT
@@ -477,7 +489,7 @@ int ipcSetAttr(I handle_,A aflag_,A aval_){
   H_SRVPTR("%t ipcSetAttr\n");
   C *flag=getString(aflag_);
   MSBoolean setok;
-  if(!flag)R -1;
+  if(!flag)return -1;
   switch(srvptr->serviceType()) {
   case 1: /* connection */
     setok=((AipcConnection *)srvptr)->setAttr(flag,aval_);
@@ -488,9 +500,9 @@ int ipcSetAttr(I handle_,A aflag_,A aval_){
   case 4: /* timer */
     setok=((TimrConnection *)srvptr)->setAttr(flag,aval_);
      break;
-  default: R -1;
+  default: return -1;
   }
-  R setok?0:-1;
+  return setok?0:-1;
 }
 
 ENTRYPOINT
@@ -500,8 +512,8 @@ A ipcGetAttr(I handle_,A aflag_)
   ipcWarn(srvptr?srvptr->wrnlvl():0,"%t ipcGetAttr\n");
   C *flag=getString(aflag_);
   A z=(A)0;
-  if(!srvptr)R z;
-  if(!flag)R z;
+  if(!srvptr)return z;
+  if(!flag)return z;
   switch(srvptr->serviceType()) {
   case 1: /* connection */
     z=((AipcConnection *)srvptr)->getAttr(flag);
@@ -515,7 +527,7 @@ A ipcGetAttr(I handle_,A aflag_)
   default:
     break;
   }
-  R z;
+  return z;
 }
 
 
@@ -525,7 +537,7 @@ A ipcAttrlists(I handle_)
   AipcService *srvptr=lookupAnyHandle(handle_);
   ipcWarn(srvptr?srvptr->wrnlvl():0,"%t ipcAttrlists\n");
   A z=(A)0;
-  if(!srvptr)R z;
+  if(!srvptr)return z;
   switch(srvptr->serviceType()) {
   case 1: /* connection */
     z=gvi(Et,2,((AipcConnection *)srvptr)->getableAttrlist(),
@@ -551,8 +563,8 @@ A ipcWhatis(I handle_)
 {
   AipcService *srvptr=lookupAnyHandle(handle_);
   ipcWarn(srvptr?srvptr->wrnlvl():0,"%t ipcWhatis\n");
-  if(srvptr==0) R gvi(Et,2,MS(si("")),MS(si("")));
-  R gvi(Et,2,MS(si(serviceNames[srvptr->serviceType()])),
+  if(srvptr==0) return gvi(Et,2,MS(si("")),MS(si("")));
+  return gvi(Et,2,MS(si(serviceNames[srvptr->serviceType()])),
 	MS(si((char *)srvptr->protocol())));
 }
 
@@ -571,6 +583,7 @@ void ipcInstall(void)
   install((PFI)ipcConnectNP,    "connectNP",IV, 3, A_, A_, A_,  0,  0, 0,0,0);
   install((PFI)ipcTimer,        "timer",    IV, 2, A_, A_,  0,  0,  0, 0,0,0);
   install((PFI)ipcOpen,         "open",     IV, 1, IV,  0,  0,  0,  0, 0,0,0);
+  install((PFI)ipcOpenSync,     "openSync", IV, 2, IV, IV,  0,  0,  0, 0,0,0);
   install((PFI)ipcSend,         "send",     IV, 2, IV, A_,  0,  0,  0, 0,0,0);
   install((PFI)ipcSyncSend,     "syncsend", A_, 3, IV, A_, A_,  0,  0, 0,0,0);
   install((PFI)ipcSyncRead,     "syncread", A_, 2, IV, A_,  0,  0,  0, 0,0,0);

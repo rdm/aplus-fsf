@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -85,8 +85,8 @@ class AplusTableColumn : public MSTableColumn
   void breakBgGrayScale(double bg_)     { MSTableColumn::breakBgGrayScale(bg_); }
   void breakStyle(unsigned long style_) { MSTableColumn::breakStyle(style_); }
   void breakFont(const char *font_)     { MSTableColumn::breakFont(font_); }
-  void breakOffset(long offset_)         { MSTableColumn::breakOffset(offset_); }
-  void breakLeading(long leading_)       { MSTableColumn::breakLeading(leading_); }
+  void breakOffset(int offset_)         { MSTableColumn::breakOffset((long)offset_); }
+  void breakLeading(int leading_)       { MSTableColumn::breakLeading((long)leading_); }
 
   unsigned long style(void)	 { return MSTableColumn::style(); }
   const char *reportFont(void)	 { return MSTableColumn::reportFont(); }

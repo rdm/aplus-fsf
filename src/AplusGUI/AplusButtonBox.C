@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -170,7 +170,7 @@ void AplusButtonBox::updateData(void)
      freeze();
 
      // Set Managed WidgetVector size
-     for (;buttons().length() < nr; buttons() << (unsigned long)0 );
+     for (;buttons().length() < nr; buttons()<<(unsigned long)0);
      
      // remove extra buttons 
      if (childCount()-nr>0)
@@ -783,6 +783,7 @@ const MSSymbol& AplusButtonBox::widgetType(void) const
 
 const MSSymbol& AplusButtonBox::symbol(void)
 {
-  static MSSymbol sym("AplusButtonBox");
-  return sym;
+//   static MSSymbol sym("AplusButtonBox");
+//   return sym;
+  return  MSActionBox::symbol();
 }

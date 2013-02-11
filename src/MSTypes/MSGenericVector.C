@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -11,7 +11,11 @@
 
 
 #include <limits.h>	  // define UINT_MAX for the merge sort routines
+#if HAVE_IOSTREAM
+#include <iostream>
+#else
 #include <iostream.h>
+#endif
 #include <MSTypes/MSStandardOps.H>    // define compareElements() method
 
 #include <MSTypes/MSGenericVector.H>
@@ -247,7 +251,7 @@ Type & MSGenericVector<Type>::elementAt  (unsigned int index_)
 
 
 template <class Type>
-MSGenericVector<Type>::Operations& MSGenericVector<Type>::ops(void)
+typename MSGenericVector<Type>::Operations& MSGenericVector<Type>::ops(void)
 {
   MS_SAFE_STATIC_INIT(Operations,_operationsMutex);
 }
@@ -590,7 +594,7 @@ L:m=p_[low_];
 
 
 template <class Type>
-MSGenericVectorOps<Type>::Data& MSGenericVectorOps<Type>::nullData(void)
+typename MSGenericVectorOps<Type>::Data& MSGenericVectorOps<Type>::nullData(void)
 {
   MS_SAFE_STATIC_INIT(Data,_nullDataMutex);
 }

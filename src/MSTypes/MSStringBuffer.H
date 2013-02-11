@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -93,7 +93,9 @@ public:
   static unsigned overflow();
  
   static MSStringBuffer *defaultBuffer();
+#if 0
   static MSStringBuffer *fromContents(const char *pBuffer);
+#endif
   
 /*-------------------------------- Accessing -----------------------------------
 | The following functions provide access to various attributes of a buffer:    |

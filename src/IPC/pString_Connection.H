@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved.
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved.
 // See .../src/LICENSE for terms of distribution.
 //
 //
@@ -37,6 +37,19 @@ class pString_Connection : public pA_Connection
   // Other Methods
   virtual int send(const A &msg_);
   virtual const C *protocol(void){ return "string";}
+
+  // M:Syncronous Send and Read;
+ protected:
+  I syncDoWrite(void);
+  I syncWriteLoop(struct timeval *pgameover);
+  I syncDoRead(A *paobj);
+  A syncReadLoop(struct timeval *pgameover);
+
+  // Other Methods
+ public:
+  virtual A syncSendCover(A msg_, A timeout_);
+  virtual A syncReadCover(A timeout_);
+
 };
 
 #endif

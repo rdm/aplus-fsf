@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -14,7 +14,11 @@
 #include <MSGUI/MSWidgetCommon.H>
 #include <MSGUI/MSDisplayPrint.H>
 #include <MSTypes/MSMessageLog.H>
+#if HAVE_IOMANIP
+#include <iomanip>
+#else
 #include <iomanip.h>
+#endif
 
 extern const double PSFactor;
 extern const int MSPageSizeXTable[];

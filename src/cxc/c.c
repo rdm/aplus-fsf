@@ -1,10 +1,12 @@
 /*****************************************************************************/
 /*                                                                           */
-/* Copyright (c) 1990-2001 Morgan Stanley Dean Witter & Co. All rights reserved.*/
+/* Copyright (c) 1990-2008 Morgan Stanley All rights reserved.
+*/
 /* See .../src/LICENSE for terms of distribution.                           */
 /*                                                                           */
 /*                                                                           */
 /*****************************************************************************/
+
 #include <a/development.h>
 #include <stdio.h>
 
@@ -13,10 +15,13 @@
 #include <a/x.h>
 #include <a/fir.h>
 #include <a/arthur.h>
+#include <dap/balloc.h>
 #include "cxc.h"
 
 static char *alignment_origin();
 static A retrieve_field();
+static int deposit_field();
+static int field_to_index();
 
 
 #define MODRNDUP(v,m) (((v)+(m))-(1+((((v)+(m))-1)%(m))))
@@ -260,7 +265,7 @@ I structset(s, a, fields, values)
   A values;
 {
   int i;
-  static int deposit_field();
+  int deposit_field();
 
   if (fields->n == 1) {
     if (deposit_field(s, a, *(S*)fields->p, values)) {
@@ -282,7 +287,6 @@ static A retrieve_field(s, a, f)
   A a;
   S f;
 {
-  static int field_to_index();
   int i, j, type;
   char *cp, *dp;
   A r;
@@ -330,25 +334,25 @@ static A retrieve_field(s, a, f)
   case TC_STRUCT1:
     dc(r);
     r = gv(It, (j + AL_STRUCT1 + sizeof(I) - 2) / sizeof(I));
-    dp = (char *)(((int)r->p + AL_STRUCT1 - 1) & ~(AL_STRUCT1 - 1));
+    dp = (char *)(((long)r->p + AL_STRUCT1 - 1) & ~(AL_STRUCT1 - 1));
     for (i = 0; i < j; i++) dp[i] = cp[i];
     break;
   case TC_STRUCT2:
     dc(r);
     r = gv(It, (j + AL_STRUCT2 + sizeof(I) - 2) / sizeof(I));
-    dp = (char *)(((int)r->p + AL_STRUCT2 - 1) & ~(AL_STRUCT2 - 1));
+    dp = (char *)(((long)r->p + AL_STRUCT2 - 1) & ~(AL_STRUCT2 - 1));
     for (i = 0; i < j; i++) dp[i] = cp[i];
     break;
   case TC_STRUCT4:
     dc(r);
     r = gv(It, (j + AL_STRUCT4 + sizeof(I) - 2) / sizeof(I));
-    dp = (char *)(((int)r->p + AL_STRUCT4 - 1) & ~(AL_STRUCT4 - 1));
+    dp = (char *)(((long)r->p + AL_STRUCT4 - 1) & ~(AL_STRUCT4 - 1));
     for (i = 0; i < j; i++) dp[i] = cp[i];
     break;
   case TC_STRUCT8:
     dc(r);
     r = gv(It, (j + AL_STRUCT8 + sizeof(I) - 2) / sizeof(I));
-    dp = (char *)(((int)r->p + AL_STRUCT8 - 1) & ~(AL_STRUCT8 - 1));
+    dp = (char *)(((long)r->p + AL_STRUCT8 - 1) & ~(AL_STRUCT8 - 1));
     for (i = 0; i < j; i++) dp[i] = cp[i];
     break;
   case TC_POINTER:
@@ -375,7 +379,7 @@ static int deposit_field(s, a, f, v)
   S f;
   A v;
 {
-  static int field_to_index();
+  int field_to_index();
   int i, j, type;
   char *cp, *dp;
 
@@ -465,8 +469,8 @@ static char *alignment_origin(s, a)
   A a;
 {
   A z = ((A*)s->p)[4];
-  int u = (int)a->p;
-  int v = z->p[z->n - 1] - 1;	/* Alignment factor */
+  long u = (long)a->p;
+  long v = z->p[z->n - 1] - 1;	/* Alignment factor */
   /* The alignment is assumed to be a power of 2 */
   v = (u + v) & (~v);
 #ifdef DEBUG
@@ -961,8 +965,8 @@ PointerTable *AllocPointerTable()
 void FreePointerTable(p)
   PointerTable *p;
 {
-  bfree(p->ptr);
-  bfree(p);
+  bfree((char *)p->ptr);
+  bfree((char *)p);
 }
 
 char *AToString(a)
@@ -1044,7 +1048,8 @@ I InternPointer(table, ptr)
       if (table->ptr[i] == (void *)(-1)) break;
     if (i == table->length) {
       table->length++;
-      table->ptr = (void **)brealloc(table->ptr,table->length*sizeof(void *));
+      table->ptr = (void **)brealloc((char *)table->ptr,
+				     table->length*sizeof(void *));
     }
     table->ptr[i] = ptr;
   }
@@ -1245,7 +1250,7 @@ int AToStructure(sTable, a, valuemaskp, sp)
 	case ST_MULTIINT:
 	  if (p->t != It) {q = ERR_TYPE; R 1;}
 	  if (p->n != (I)sTable[j].table) {q = ERR_LENGTH; R 1;}
-	  for (h = 0; h < (int)sTable[j].table; h++)
+	  for (h = 0; h < (long)sTable[j].table; h++)
 	    *(h+(int *)(sp+sTable[j].offset)) = (int)p->p[h];
 	  break;
 	case ST_VOID:

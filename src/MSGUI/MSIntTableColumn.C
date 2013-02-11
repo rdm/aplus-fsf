@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -100,7 +100,7 @@ const char *MSIntTableColumn::formatOutput(MSString &buffer_,unsigned row_)
 void MSIntTableColumn::breakProcess(MSIndexVector& i_)
 {
   MSString buffer;
-  MSInt aInt(MSIndexedFunctions::computeIndexedFunction(vector(),weights(),i_,breakProcessMode()));
+  MSInt aInt((int)(MSIndexedFunctions::computeIndexedFunction(vector(),weights(),i_,breakProcessMode())));
   breakString()<<aInt.format(buffer,format());
 }
 

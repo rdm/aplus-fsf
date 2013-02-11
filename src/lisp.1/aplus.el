@@ -32,7 +32,7 @@
 (if aplus-set-load-path
     (setq load-path 
 	  (append 
-	   '("/usr/local/aplus-fsf-4.18/lisp.1") load-path 
+	   '("/usr/local/aplus-fsf-4.20/lisp.1") load-path 
 	   )	
 	  ))
 ;;

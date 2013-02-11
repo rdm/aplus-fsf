@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -18,13 +18,13 @@
 
 class MSNameSpace;
 class MSString;
-#if (__GNUC__ < 3)
+#if HAVE_IOSTREAM
+#include <iostream>
+// #include <fstream>
+using namespace std;
+#else
 class istream;
 class ostream;
-#else
-#include <iostream>
-#include <fstream>
-using namespace std;
 #endif
 
 

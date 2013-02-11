@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 1997-2001 Morgan Stanley Dean Witter & Co. All rights reserved. 
+// Copyright (c) 1997-2008 Morgan Stanley All rights reserved. 
 // See .../src/LICENSE for terms of distribution
 //
 //
@@ -177,7 +177,7 @@ burstMode(MSBoolean burstMode_)
 { _burstMode=burstMode_; }
 
 template <class Type>
-inline MSProtocolConnection<Type>::ReadCallback MSProtocolConnection<Type>::
+inline typename MSProtocolConnection<Type>::ReadCallback MSProtocolConnection<Type>::
 readCallback(void)
 { return _readCB; }
 
@@ -187,7 +187,7 @@ readCallbackData(void)
 { return _readCBData; }
 
 template <class Type>
-inline MSProtocolConnection<Type>::SentCallback MSProtocolConnection<Type>::
+inline typename MSProtocolConnection<Type>::SentCallback MSProtocolConnection<Type>::
 sentCallback(void)
 { return _sentCB; }
 
@@ -197,7 +197,7 @@ sentCallbackData(void)
 { return _sentCBData; }
 
 template <class Type>
-inline MSProtocolConnection<Type>::ConnectCallback MSProtocolConnection<Type>::
+inline typename MSProtocolConnection<Type>::ConnectCallback MSProtocolConnection<Type>::
 connectCallback(void)
 { return _connectCB; }
 
@@ -207,7 +207,7 @@ connectCallbackData(void)
 { return _connectCBData; }
 
 template <class Type>
-inline MSProtocolConnection<Type>::ResetCallback MSProtocolConnection<Type>::
+inline typename MSProtocolConnection<Type>::ResetCallback MSProtocolConnection<Type>::
 resetCallback(void) { return _resetCB; }
 
 template <class Type>
